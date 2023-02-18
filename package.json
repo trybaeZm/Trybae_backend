@@ -1,0 +1,33 @@
+{
+  "name": "trybae_backend",
+  "version": "1.0.0",
+  "description": "The backend for the trybae app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Backend",
+    "TryBae"
+  ],
+  "author": "Slide",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "aws-sdk": "^2.1283.0",
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "expo-server-sdk": "^3.7.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "flutterwave-node-v3": "^1.0.12",
+    "got": "^11.8.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.8.2",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^2.10.0",
+    "mysql2": "^2.3.3",
+    "nodemailer": "^6.8.0",
+    "redis": "^4.6.4"
+  }
+}
