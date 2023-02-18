@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `users`(
     `affiliate_code` VARCHAR(100) NULL,
     `affiliated_by` VARCHAR(100) NULL,
     `2FA_enabled` TINYINT(1) NOT NULL DEFAULT FALSE,
-    `private_profile` TINYINT(1) NOT NULL DEFAULT FALSE.
-    `Expo_push_token` VARCHAR(255) NULL,
+    `private_profile` TINYINT(1) NOT NULL DEFAULT FALSE,
+    `Expo_push_token` VARCHAR(255) NULL
 );
 
 CREATE TABLE IF NOT EXISTS `Banned_users`(
@@ -163,7 +163,7 @@ ALTER TABLE
 	 
 	 
 ALTER TABLE
-    `story_posts` ADD `story_post_username_foreign` FOREIGN KEY(`username`) REFERENCES `users`(`username`) 
+    `story_posts` ADD `story_post_username_foreign` FOREIGN KEY(`username`) REFERENCES `hosts`(`host_username`) 
 	 
 
 ALTER TABLE
