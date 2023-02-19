@@ -27,6 +27,7 @@ The app can also be run as multi container architechture using docker compose. N
 # note
 
 if the .env file is not found. Please create it and add the neccessary variables. 
+And DO NOT push it to github , keep it in .gitignore
 
 # Important !
 
