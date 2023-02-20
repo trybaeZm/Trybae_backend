@@ -149,7 +149,8 @@ async function verify_transaction(req, res) {
 		console.log(err);
 		return res.send({
 			status: "FAILURE",
-			message: err,
+			message:
+				"Unable to verify transaction, please contact support immediately or try again later",
 			code: "101",
 		});
 	}
