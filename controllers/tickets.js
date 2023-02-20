@@ -247,7 +247,7 @@ const verify_ticket = (req, res) => {
 		Model.connection.query(query, [ticket_id], (err, results) => {
 			if (!err && results.length > 0) {
 				return res.send(
-					`<h2 style="color:green;">Ticket is valid and belongs to user: <em>${results[0].ticket_owner}</em></h2>`,
+					`<h2 style="color:green;">Ticket with id: <em>${ticket_id}</em> is valid and belongs to user: <em>${results[0].ticket_owner}</em></h2>`,
 				);
 			} else {
 				return res.send(
