@@ -49,9 +49,9 @@ const create_ticket_query = (record, cb) => {
 		);
 	} else {
 		Model.connection.query(
-			`INSERT INTO tickets (ticket_owner, ticket_description, show_under_participants, event_id, 
+			`INSERT INTO tickets (ticket_id, ticket_owner, ticket_description, show_under_participants, event_id, 
 		ticket_type, Date_of_purchase, time_of_purchase, redeemed, seat_number, cinema_time, cinema_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
 				ticket_owner,
 				ticket_description,
