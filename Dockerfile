@@ -4,4 +4,4 @@ COPY . .
 RUN npm i
 RUN npm i -g forever
 EXPOSE 4455
-CMD ["forever", "start", "server.js"]
+CMD ["node", "server.js"]
