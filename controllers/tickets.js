@@ -686,53 +686,92 @@ const transfer_ticket = (req, res) => {
 	try {
 		get_user_ticket_by_id_query(username, ticket_id, async (err, result) => {
 			if (!err && result[0] !== undefined) {
-				getUserByUsername(transfer_to, (err, result) => {
-					if (!err && result) {
-						try {
-							updateTicketQuery("ticket_owner", transfer_to, ticket_id);
+				getEvent_query("event_id", result[0].event_id, (err, found) => {
+					if (!err && found) {
+						Date.prototype.cutHours = function (h) {
+							this.setHours(this.getHours() - h);
+							return this;
+						};
 
-							try {
-								new_transfer_log(
-									{
-										ticket_transfered: ticket_id,
-										transfer_to: transfer_to,
-										transfer_from: username,
-										comment: comment,
-									},
-									(err, results) => {
-										if (err) {
-											console.log(err);
-										} else {
-											console.log("Transfer log saved successfully!");
-										}
-									},
-								);
+						Date.prototype.addHours = function (h) {
+							this.setHours(this.getHours() + h);
+							return this;
+						};
 
-								if (!Expo.isExpoPushToken(result.Expo_push_token)) {
-									console.error(
-										`Push token ${result.Expo_push_token} is not a valid Expo push token`,
-									);
-								}
-							} catch (err) {}
-						} catch (err) {
-							console.log(err);
-							return res.send({
-								status: "FAILURE",
-								message: "Unknown error, ticket might have been transfered, restart app to confirm",
-							});
+						let jsDate;
+
+						if (result[0].seat_number !== null) {
+							const time = result[0].cinema_time;
+							const date = result[0].cinema_date;
+
+							const [day, month, year] = date.split("/");
+							const [hours, minutes] = time.split(":");
+
+							jsDate = new Date(year, month - 1, day, hours, minutes);
+							console.log(jsDate)
+						} else {
+							jsDate = new Date(found.event_date)
 						}
 
-						return res.send({
-							status: "SUCCESS",
-							message: `Ticket with id: '${ticket_id}' transferred to user: '${transfer_to}'`,
-						});
-					} else {
-						return res.send({
-							status: "FAILURE",
-							message: "The user you want to transfer to, is not found.",
-						});
+						if (jsDate.cutHours(3) <= new Date()) {
+							return res.send({
+								status: 'FAILURE',
+								message: 'Cannot transfer 3 hours before the event'
+							})
+						} else {
+							getUserByUsername(transfer_to, (err, result) => {
+								if (!err && result) {
+									try {
+										updateTicketQuery("ticket_owner", transfer_to, ticket_id);
+
+										try {
+											new_transfer_log(
+												{
+													ticket_transfered: ticket_id,
+													transfer_to: transfer_to,
+													transfer_from: username,
+													comment: comment,
+												},
+												(err, results) => {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log("Transfer log saved successfully!");
+													}
+												},
+											);
+
+											if (!Expo.isExpoPushToken(result.Expo_push_token)) {
+												console.error(
+													`Push token ${result.Expo_push_token} is not a valid Expo push token`,
+												);
+											}
+										} catch (err) {}
+									} catch (err) {
+										console.log(err);
+										return res.send({
+											status: "FAILURE",
+											message:
+												"Unknown error, ticket might have been transfered, restart app to confirm",
+										});
+									}
+
+									return res.send({
+										status: "SUCCESS",
+										message: `Ticket with id: '${ticket_id}' transferred to user: '${transfer_to}'`,
+									});
+								} else {
+									return res.send({
+										status: "FAILURE",
+										message: "The user you want to transfer to, is not found.",
+									});
+								}
+							});
+						}
+						
 					}
-				});
+				})
+				
 			} else {
 				return res.send({
 					status: "FAILURE",
