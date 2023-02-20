@@ -699,6 +699,7 @@ const transfer_ticket = (req, res) => {
 						};
 
 						let jsDate;
+						let cuthours = 3;
 
 						if (result[0].seat_number !== null) {
 							const time = result[0].cinema_time;
@@ -708,12 +709,13 @@ const transfer_ticket = (req, res) => {
 							const [hours, minutes] = time.split(":");
 
 							jsDate = new Date(year, month - 1, day, hours, minutes);
-							console.log(jsDate)
+							cuthours = 3;
 						} else {
 							jsDate = new Date(found.event_date)
+							cuthours = 23;
 						}
 
-						if (jsDate.cutHours(3) <= new Date()) {
+						if (jsDate.cutHours(cuthours) <= new Date()) {
 							return res.send({
 								status: 'FAILURE',
 								message: 'Cannot transfer 3 hours before the event'
