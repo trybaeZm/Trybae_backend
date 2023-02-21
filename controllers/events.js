@@ -276,6 +276,7 @@ async function addEvent(req, res) {
 		Latitude,
 	} = req.body;
 
+		const passcode = Math.floor(10000 + Math.random() * 90000); // random 5 digit passcode
 	
 		const event = {
 			event_name: event_name,
@@ -293,6 +294,7 @@ async function addEvent(req, res) {
 			category: category,
 			Latitude: Latitude,
 			Longitude: Longitude,
+			event_passcode: passcode
 		};
 
 		Model.connection.query(
@@ -304,7 +306,8 @@ async function addEvent(req, res) {
 					await setTicketTypes(results.insertId, "normal_price", normal_price);
 					res.send({
 						status: "SUCCESS",
-						message: "successfully created event",
+						message: "successfully created event, keep the event passcode secure.",
+						event_passcode: passcode
 					});
 				}
 			},

@@ -220,6 +220,18 @@ const get_participants = (req, res) => {
 	});
 };
 
+const redeem_ticket_query = (ticket_id, cb) => {
+	let query = `UPDATE tickets SET redeemed = TRUE WHERE ticket_id = ?`;
+
+	Model.connection.query(query, [ticket_id], (err, results) => {
+		if (err) {
+			return cb(err);
+		}
+		// Send the results back to the client
+		cb(null, results);
+	});
+};
+
 const check_if_redeemed_query = (ticket_id, cb) => {
 	let query = `SELECT redeemed from tickets WHERE ticket_id = ?`;
 	Model.connection.query(query, [ticket_id], (err, result) => {
@@ -398,18 +410,22 @@ const buy_ticket = async (req, res) => {
 							},
 						};
 						if (checkObject(Payment_payload) == false) {
-
 							let response;
-							
-							try{response = await got.post(
-								"https://api.flutterwave.com/v3/payments",
-								Payment_payload,
-							);
+
+							try {
+								response = await got.post(
+									"https://api.flutterwave.com/v3/payments",
+									Payment_payload,
+								);
 							} catch (err) {
-								console.log(err)
-								return res.send({ status: 'FAILURE', message: 'Internal payment api error, contact support or try later'})
+								console.log(err);
+								return res.send({
+									status: "FAILURE",
+									message:
+										"Internal payment api error, contact support or try later",
+								});
 							}
-							
+
 							let body = JSON.parse(response.body);
 
 							if (body.status == "success") {
@@ -563,7 +579,7 @@ const buy_cinema_ticket = async (req, res) => {
 										"Internal payment api error, contact support or try later",
 								});
 							}
-							
+
 							let body = JSON.parse(response.body);
 
 							if (body.status == "success") {
@@ -629,6 +645,235 @@ const buy_cinema_ticket = async (req, res) => {
 	}
 };
 
+const bulk_transfer = (req, res) => {
+	const { event_id, qty, transfer_to, comment = null } = req.body;
+	const username = req.decoded["username"];
+
+	if (!event_id || !qty || !username || qty == 0 || !transfer_to) {
+		return res.send({
+			status: "FAILURE",
+			message: "Invalid or missing details.",
+		});
+	} else {
+		getEvent_query("event_id", event_id, (err, found) => {
+			if (!err && found) {
+				Date.prototype.cutHours = function (h) {
+					this.setHours(this.getHours() - h);
+					return this;
+				};
+
+				Date.prototype.addHours = function (h) {
+					this.setHours(this.getHours() + h);
+					return this;
+				};
+
+				let jsDate;
+				let cuthours = 3;
+
+				jsDate = new Date(found.event_date);
+				cuthours = 23;
+
+				if (jsDate.cutHours(cuthours) <= new Date()) {
+					return res.send({
+						status: "FAILURE",
+						message: "Cannot transfer 23 hours before the event",
+					});
+				} else {
+					const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
+
+					Model.connection.query(
+						query,
+						[event_id, username],
+						(err, results) => {
+							if (err) {
+								return res.send({
+									status: "FAILURE",
+									message: "Unknown error, contact support",
+								});
+							}
+							if (results.length < qty) {
+								return res.send({
+									status: "FAILURE",
+									message: "Insufficeint tickets",
+								});
+							} else {
+								getUserByUsername(transfer_to, (err, founduser) => {
+									if (!err && founduser) {
+										let ticket_ids = results?.map((obj) => obj.ticket_id);
+										let query = `UPDATE tickets SET ticket_owner = ? WHERE ticket_id = ?`;
+										let completed = 0;
+
+										for (let i = 0; i < qty; i++) {
+											Model.connection.query(
+												query,
+												[transfer_to, ticket_ids[i]],
+												(err, done) => {
+													if (!err && done) {
+														new_transfer_log(
+															{
+																ticket_transfered: ticket_ids[i],
+																transfer_to: transfer_to,
+																transfer_from: username,
+																comment: comment,
+															},
+															(err, results) => {
+																if (err) {
+																	console.log(err);
+																} else {
+																	console.log(
+																		"Transfer log saved successfully!",
+																	);
+																}
+															},
+														);
+														completed++;
+													} else {
+														return res.send({
+															status: "FAILURE",
+															message:
+																"Some tickets might be transfered, but others might have not, try later.",
+														});
+													}
+
+													if (completed == qty - 1 || completed == qty) {
+														try {
+															if (
+																!Expo.isExpoPushToken(founduser.Expo_push_token)
+															) {
+																console.error(
+																	`Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
+																);
+															} else {
+																messages = [
+																	{
+																		to: founduser.Expo_push_token,
+																		sound: "default",
+																		body: `Hello ${founduser.username}, You recieved ${qty} ticket/s from '${username}' \nComment: '${comment}'.`,
+																	},
+																];
+
+																(async () => {
+																	let chunks =
+																		expo.chunkPushNotifications(messages);
+																	let tickets = [];
+
+																	for (let chunk of chunks) {
+																		let ticketChunk =
+																			await expo.sendPushNotificationsAsync(
+																				chunk,
+																			);
+
+																		tickets.push(...ticketChunk);
+																		console.log(tickets);
+																	}
+																})();
+															}
+														} catch (err) {
+															return res.send({
+																status: "FAILURE",
+																message:
+																	"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
+															});
+														}
+													}
+
+													return res.send({status: 'SUCCESS', message: `Trasnfered ${qty} tickets to ${transfer_to}`})
+												},
+											);
+										}
+									} else {
+										return res.send({
+											status: "FAILURE",
+											message:
+												"The user you are trying to transfer to is not found",
+										});
+									}
+								});
+							}
+						},
+					);
+				}
+			} else {
+				return res.send({ status: "FAILURE", message: "Event not found" });
+			}
+		});
+	}
+};
+
+const redeem_ticket = (req, res) => {
+	const { ticket_id, event_passcode } = req.body;
+
+	if (
+		!ticket_id ||
+		ticket_id == undefined ||
+		ticket_id == null ||
+		!event_passcode
+	) {
+		return res.send({
+			status: "FAILURE",
+			message: "Please provide a ticket id and event passcode",
+		});
+	}
+
+	get_user_ticket_by_id_query(
+		(username = req.decoded["username"]),
+		ticket_id,
+		(err, tickets) => {
+			if (err) {
+				res.send({
+					status: "FAILURE",
+					message: "Unknown error",
+				});
+			} else {
+				if (tickets.length < 1) {
+					return res.send({
+						status: "FAILURE",
+						message: "A ticket with this id not found on your account!",
+					});
+				} else {
+					getEvent_query("event_id", tickets[0].event_id, (err, event) => {
+						if (err || !event) {
+							return res.send({
+								status: "FAILURE",
+								message: "Error retrieving event",
+							});
+						}
+						if (event.event_passcode !== event_passcode) {
+							return res.send({
+								status: "FAILURE",
+								message: "Invalid event passcode",
+							});
+						} else {
+							check_if_redeemed_query(ticket_id, (err, result) => {
+								if (result[0]?.redeemed == 0 && !err) {
+									redeem_ticket_query(ticket_id, (err, results) => {
+										if (err || !results) {
+											res.send({
+												status: "FAILURE",
+												message: `Unknown error, contact support`,
+											});
+										} else {
+											res.send({
+												status: "SUCCESS",
+												message: "Ticket Redeemed successfully",
+											});
+										}
+									});
+								} else {
+									res.send({
+										status: "FAILURE",
+										message: "Ticket already redeemed",
+									});
+								}
+							});
+						}
+					});
+				}
+			}
+		},
+	);
+};
+
 function getEvent_query(field, value, callback) {
 	const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
 		field,
@@ -691,22 +936,22 @@ const new_transfer_log = (data, cb) => {
 	);
 };
 
-
 const get_transfer_logs = (req, res) => {
-	const username = req.decoded['username'];
+	const username = req.decoded["username"];
 
-	const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`
+	const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`;
 
 	Model.connection.query(query, [username, username], (err, result) => {
 		if (!err && result.length > 0) {
-			return res.send({status :'SUCCESS', data: result})
+			return res.send({ status: "SUCCESS", data: result });
+		} else {
+			return res.send({
+				status: "FAILURE",
+				message: "No transfers done on this account",
+			});
 		}
-		else {
-			return res.send({status: 'FAILURE', message: 'No transfers done on this account'})
-		}
-	})
-}
-
+	});
+};
 
 const transfer_ticket = (req, res) => {
 	const { ticket_id, transfer_to, comment } = req.body;
@@ -722,7 +967,7 @@ const transfer_ticket = (req, res) => {
 
 	try {
 		get_user_ticket_by_id_query(username, ticket_id, async (err, result) => {
-			if (!err && result[0] !== undefined) {
+			if (!err && result[0] !== undefined && result[0].redeemed == 0) {
 				getEvent_query("event_id", result[0].event_id, (err, found) => {
 					if (!err && found) {
 						Date.prototype.cutHours = function (h) {
@@ -755,7 +1000,7 @@ const transfer_ticket = (req, res) => {
 						if (jsDate.cutHours(cuthours) <= new Date()) {
 							return res.send({
 								status: "FAILURE",
-								message: "Cannot transfer 3 hours before the event",
+								message: `Cannot transfer ${cuthours} hours before the event`,
 							});
 						} else {
 							getUserByUsername(transfer_to, (err, result) => {
@@ -789,7 +1034,7 @@ const transfer_ticket = (req, res) => {
 													{
 														to: result.Expo_push_token,
 														sound: "default",
-														body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComments: '${comment}'.`,
+														body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComment: '${comment}'.`,
 													},
 												];
 
@@ -800,17 +1045,19 @@ const transfer_ticket = (req, res) => {
 													for (let chunk of chunks) {
 														let ticketChunk =
 															await expo.sendPushNotificationsAsync(chunk);
-														
+
 														tickets.push(...ticketChunk);
-														console.log(tickets)
+														console.log(tickets);
 													}
 												})();
 											}
-										} catch (err) {return res.send({
-											status: "FAILURE",
-											message:
-												"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
-										});}
+										} catch (err) {
+											return res.send({
+												status: "FAILURE",
+												message:
+													"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
+											});
+										}
 									} catch (err) {
 										console.log(err);
 										return res.send({
@@ -837,7 +1084,8 @@ const transfer_ticket = (req, res) => {
 			} else {
 				return res.send({
 					status: "FAILURE",
-					message: "Either ticket doesnt exist, or you dont own it.",
+					message:
+						"Either ticket doesnt exist, or you dont own it, or it has been redeemed.",
 				});
 			}
 		});
@@ -874,6 +1122,7 @@ module.exports = {
 	get_all_user_tickets,
 	get_ticket_by_id,
 	buy_ticket,
+	bulk_transfer,
 	buy_cinema_ticket,
 	delete_ticket_by_id,
 	verify_ticket,
@@ -881,4 +1130,5 @@ module.exports = {
 	transfer_ticket,
 	get_transfer_logs,
 	create_ticket_query,
+	redeem_ticket,
 };

@@ -22,7 +22,7 @@ docker run -d -p 4455:4455 -t TrybaeBackend
 
 # Docker run full infrastructure with reverse proxying and load balancing -
 
-The app can also be run as multi container architechture using docker compose. Needs little configuration.
+The app can also be run as multi container architechture using docker compose. Needs a little configuration.
 
 # note
 

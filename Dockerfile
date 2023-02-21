@@ -1,6 +1,12 @@
 FROM node:16.19.0-alpine
-WORKDIR /TrybaeBackend
-COPY . .
-RUN npm i
-EXPOSE 4455
-CMD ["node", "server.js"]
+
+WORKDIR /app
+
+COPY . ./
+
+RUN npm install 
+
+EXPOSE 4455 4456 4457
+
+CMD [ "node", "server.js" ]
+

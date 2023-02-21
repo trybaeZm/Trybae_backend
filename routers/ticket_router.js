@@ -41,4 +41,12 @@ router.post(
 	ticketController.buy_cinema_ticket,
 );
 
+router.post(
+	"/redeemticket",
+	middleware.verifyJWT,
+	ticketController.redeem_ticket,
+);
+
+router.patch('/bulktransfer', middleware.verifyJWT, ticketController.bulk_transfer)
+
 module.exports = router;

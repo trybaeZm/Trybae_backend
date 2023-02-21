@@ -85,7 +85,8 @@ CREATE TABLE IF NOT EXISTS `events`(
     `category` BIGINT UNSIGNED NULL,
     `like_count` BIGINT UNSIGNED NOT NULL DEFAULT 0,
     `Longitude` VARCHAR(255) NULL,
-    `Latitude` VARCHAR(255) NULL
+    `Latitude` VARCHAR(255) NULL,
+    `event_passcode` VARCHAR(5) NULL
 );
 
 CREATE TABLE IF NOT EXISTS `featured_events`(

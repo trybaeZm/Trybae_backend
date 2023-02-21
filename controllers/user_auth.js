@@ -428,6 +428,7 @@ const sendOTPVerificationEmail = async (user) => {
 	});
 };
 
+
 async function update_verification_status(username, cb) {
 	let query = `UPDATE users SET email_verified = TRUE WHERE username = ?`;
 
@@ -614,6 +615,7 @@ async function edit_profile(req, res) {
 					updateUserQuery('email', email, username);
 					updateUserQuery('DOB', DOB, username);
 					updateUserQuery('phone', phone, username);
+					updateUserQuery('email_verified', false, username)
 					return res.send({
 						status: "SUCCESS",
 						message: "All fields updated successfully",
