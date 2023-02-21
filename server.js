@@ -6,8 +6,8 @@ const security = require('./middleware/Security')
 require("dotenv").config();
 const app = express();
 const limiter = rateLimit({
-	windowMs: 3 * 60 * 1000, // 20 minutes
-	max: 100, // Limit each IP to 300 requests
+	windowMs: 3 * 60 * 1000, // 3 minutes
+	max: 150, // Limit each IP to 150 requests
 	message: { message: "Too many requests, please try again later" },
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -49,7 +49,7 @@ app.use("/profiles", limiter, fetchProfileRouter);
 app.use("/cinemas", limiter, cinemaRouter);
 
 // Test
-app.get("/appcheck",  (req, res) => {
+app.get("/appcheck", limiter, (req, res) => {
 	res.send("running");
 });
 

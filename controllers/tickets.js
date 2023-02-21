@@ -398,10 +398,18 @@ const buy_ticket = async (req, res) => {
 							},
 						};
 						if (checkObject(Payment_payload) == false) {
-							let response = await got.post(
+
+							let response;
+							
+							try{response = await got.post(
 								"https://api.flutterwave.com/v3/payments",
 								Payment_payload,
 							);
+							} catch (err) {
+								console.log(err)
+								return res.send({ status: 'FAILURE', message: 'Internal payment api error, contact support or try later'})
+							}
+							
 							let body = JSON.parse(response.body);
 
 							if (body.status == "success") {
@@ -540,10 +548,22 @@ const buy_cinema_ticket = async (req, res) => {
 							},
 						};
 						if (checkObject(Payment_payload) == false) {
-							let response = await got.post(
-								"https://api.flutterwave.com/v3/payments",
-								Payment_payload,
-							);
+							let response;
+
+							try {
+								response = await got.post(
+									"https://api.flutterwave.com/v3/payments",
+									Payment_payload,
+								);
+							} catch (err) {
+								console.log(err);
+								return res.send({
+									status: "FAILURE",
+									message:
+										"Internal payment api error, contact support or try later",
+								});
+							}
+							
 							let body = JSON.parse(response.body);
 
 							if (body.status == "success") {
@@ -711,15 +731,15 @@ const transfer_ticket = (req, res) => {
 							jsDate = new Date(year, month - 1, day, hours, minutes);
 							cuthours = 3;
 						} else {
-							jsDate = new Date(found.event_date)
+							jsDate = new Date(found.event_date);
 							cuthours = 23;
 						}
 
 						if (jsDate.cutHours(cuthours) <= new Date()) {
 							return res.send({
-								status: 'FAILURE',
-								message: 'Cannot transfer 3 hours before the event'
-							})
+								status: "FAILURE",
+								message: "Cannot transfer 3 hours before the event",
+							});
 						} else {
 							getUserByUsername(transfer_to, (err, result) => {
 								if (!err && result) {
@@ -745,10 +765,35 @@ const transfer_ticket = (req, res) => {
 
 											if (!Expo.isExpoPushToken(result.Expo_push_token)) {
 												console.error(
-													`Push token ${result.Expo_push_token} is not a valid Expo push token`,
+													`Push token ${result.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
 												);
+											} else {
+												messages = [
+													{
+														to: result.Expo_push_token,
+														sound: "default",
+														body: `Hello ${result.username}, You recieved a ticket from '${username}'.`,
+													},
+												];
+
+												(async () => {
+													let chunks = expo.chunkPushNotifications(messages);
+													let tickets = [];
+
+													for (let chunk of chunks) {
+														let ticketChunk =
+															await expo.sendPushNotificationsAsync(chunk);
+														
+														tickets.push(...ticketChunk);
+														console.log(tickets)
+													}
+												})();
 											}
-										} catch (err) {}
+										} catch (err) {return res.send({
+											status: "FAILURE",
+											message:
+												"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
+										});}
 									} catch (err) {
 										console.log(err);
 										return res.send({
@@ -770,10 +815,8 @@ const transfer_ticket = (req, res) => {
 								}
 							});
 						}
-						
 					}
-				})
-				
+				});
 			} else {
 				return res.send({
 					status: "FAILURE",

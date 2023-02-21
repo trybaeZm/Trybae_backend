@@ -96,6 +96,36 @@ const follow = async (req, res) => {
 										message: `You already follow '${following_id}'`,
 									});
 								} else {
+									try {
+										if (!Expo.isExpoPushToken(results.Expo_push_token)) {
+											console.error(
+												`Push token ${results.Expo_push_token} is not a valid Expo push token. Notification for follow to user wont be sent`,
+											);
+										} else {
+											messages = [
+												{
+													to: results.Expo_push_token,
+													sound: "default",
+													body: `User: '${req.decoded['username']}' followed you.`,
+												},
+											];
+
+											(async () => {
+												let chunks = expo.chunkPushNotifications(messages);
+												let tickets = [];
+
+												for (let chunk of chunks) {
+													let ticketChunk =
+														await expo.sendPushNotificationsAsync(chunk);
+
+													tickets.push(...ticketChunk);
+													console.log(tickets);
+												}
+											})();
+										}
+									} catch (err) {
+										console.log(err)
+									}
 									const newfollower = mongodb.Followers({
 										follower_id: follower_id,
 										following_id: following_id,
