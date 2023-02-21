@@ -158,7 +158,14 @@ const change_to_private_profile = (req, res) => {
 }
 
 const login = (req, res) => {
-	const { login, password, type } = req.body;
+	const { login, password, type, appkey } = req.body;
+
+	if (appkey != process.env.APP_KEY) {
+		return res.send({
+			status: 'FAILURE',
+			message: 'Could not verify integrity of application...'
+		})
+	}
 
 	if (!login || !password || !type) {
 		return res.send({
@@ -195,6 +202,7 @@ const login = (req, res) => {
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
+										account_status: user.email_verified
 									});
 								} else {
 									return res.send({ message: "Incorrect password" });
@@ -225,7 +233,7 @@ const login = (req, res) => {
 					user.username,
 					function (results) {
 						if (results.length <= 0) {
-							bcrypt.compare(password, user.host_password, (error, result) => {
+							bcrypt.compare(password, user.password, (error, result) => {
 								if (result && !error) {
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
@@ -239,6 +247,7 @@ const login = (req, res) => {
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
+										account_status: user.email_verified,
 									});
 								}
 								if (error) {
@@ -528,7 +537,7 @@ const reset_Password = async (req, res) => {
 										updateUserQuery("password", hashedPassword, userId);
 										return res.send({
 											status: "SUCCESS",
-											message: "User account password updated successfully.",
+											message: "Password updated successfully.",
 										});
 									} catch (err) {
 										return res.send({

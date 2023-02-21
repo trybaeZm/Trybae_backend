@@ -691,6 +691,23 @@ const new_transfer_log = (data, cb) => {
 	);
 };
 
+
+const get_transfer_logs = (req, res) => {
+	const username = req.decoded['username'];
+
+	const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`
+
+	Model.connection.query(query, [username, username], (err, result) => {
+		if (!err && result.length > 0) {
+			return res.send({status :'SUCCESS', data: result})
+		}
+		else {
+			return res.send({status: 'FAILURE', message: 'No transfers done on this account'})
+		}
+	})
+}
+
+
 const transfer_ticket = (req, res) => {
 	const { ticket_id, transfer_to, comment } = req.body;
 
@@ -772,7 +789,7 @@ const transfer_ticket = (req, res) => {
 													{
 														to: result.Expo_push_token,
 														sound: "default",
-														body: `Hello ${result.username}, You recieved a ticket from '${username}'.`,
+														body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComments: '${comment}'.`,
 													},
 												];
 
@@ -805,7 +822,7 @@ const transfer_ticket = (req, res) => {
 
 									return res.send({
 										status: "SUCCESS",
-										message: `Ticket with id: '${ticket_id}' transferred to user: '${transfer_to}'`,
+										message: `Ticket successfully transferred to user: '${transfer_to}'`,
 									});
 								} else {
 									return res.send({
@@ -862,5 +879,6 @@ module.exports = {
 	verify_ticket,
 	get_participants,
 	transfer_ticket,
+	get_transfer_logs,
 	create_ticket_query,
 };

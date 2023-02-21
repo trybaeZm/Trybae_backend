@@ -347,9 +347,9 @@ const getTicketTypesEndpoint = async (req, res) => {
 };
 
 const setTicketTypesEndpoint = async (req, res) => {
-	// if (req.decoded.privs != "admin") {
-	// 	return res.send({ status: "FAILURE", message: "insufficient priveleges" });
-	// }
+	if (req.decoded.privs != "admin") {
+		return res.send({ status: "FAILURE", message: "insufficient priveleges" });
+	}
 
 	const { ticket_types } = req.body;
 
@@ -369,9 +369,10 @@ const setTicketTypesEndpoint = async (req, res) => {
 				ticket_price: ticket_types[i].ticket_price,
 			});
 			if (ticket_type) {
-				return res.send({
-					status: "FAILURE",
-					message: `ticket type '${ticket_types[i].ticket_type}' already exists for this event`,
+				await mongo_db.TicketTypes.deleteOne({
+					event_id: `${ticket_types[i].event_id}`,
+					ticket_type: ticket_types[i].ticket_type,
+					ticket_price: ticket_types[i].ticket_price,
 				});
 			}
 		}

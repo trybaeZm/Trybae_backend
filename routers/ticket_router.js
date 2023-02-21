@@ -33,6 +33,8 @@ router.patch(
 	middleware.verifyJWT,
 	ticketController.transfer_ticket,
 );
+
+router.post('/gettransfers', middleware.verifyJWT, ticketController.get_transfer_logs)
 router.post(
 	"/buycinematicket",
 	middleware.verifyJWT,
