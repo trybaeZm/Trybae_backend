@@ -1,7 +1,7 @@
 # The backend architecture -
 
 Database is mysql and mongodb <br>
-Dockerising possible. <br>
+Dockerising can be possible in the future. <br>
 Connects to one pool hosted remotely on planetscale and mongodb atlas.
 
 # to start server -
@@ -15,15 +15,6 @@ forever server.js<br>
 npm i -g nodemon <br>
 nodemon server.js
 
-# Docker Run Separate as container -
-
-docker build -t TrybaeBackend . <br>
-docker run -d -p 4455:4455 -t TrybaeBackend
-
-# Docker run full infrastructure with reverse proxying and load balancing -
-
-The app can also be run as multi container architechture using docker compose. Needs a little configuration.
-
 # note
 
 if the .env file is not found. Please create it and add the neccessary variables. 
@@ -32,5 +23,10 @@ And DO NOT push it to github , keep it in .gitignore
 # Important !
 
 When testing, use only the test mode infrastructure including database ,servers, buckets etc.
+
+# Advice
+
+The app can run as a standalone monolith in the beginning of its life to keep complexity low, then when the amount of users grow, is when all this fancy stuff like loadbalancing , containerizing , miicroservices etc can be implemented.
+
 
 
