@@ -420,7 +420,7 @@ const buy_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
+								Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
 							},
 							json: {
 								tx_ref: tx_ref,
@@ -574,7 +574,7 @@ const buy_cinema_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
+								Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
 							},
 							json: {
 								tx_ref: tx_ref,
