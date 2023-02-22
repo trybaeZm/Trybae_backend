@@ -41,6 +41,7 @@ router.post(
 	ticketController.buy_cinema_ticket,
 );
 
+router.get('/bulkverify', ticketController.bulk_verify_tickets)
 router.post(
 	"/redeemticket",
 	middleware.verifyJWT,

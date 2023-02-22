@@ -112,7 +112,7 @@ const get_all_user_tickets_query = (username, cb) => {
 		events.number_of_people AS events_number_of_people, events.host_username AS events_host_username, 
 		events.active AS events_active, events.normal_price AS events_normal_price, 
 		events.category AS events_category, events.like_count AS events_like_count, 
-		events.cinema_id AS events_cinema_id,
+		events.cinema_id AS events_cinema_id, events.event_passcode AS events_event_passcode,
 		tickets.ticket_id AS tickets_ticket_id, tickets.ticket_owner AS tickets_ticket_owner, 
 		tickets.ticket_description AS tickets_ticket_description, 
 		tickets.show_under_participants AS tickets_show_under_participants, 
@@ -271,6 +271,37 @@ const verify_ticket = (req, res) => {
 		return res.send(`<h2>Try again in a short while or contact support.</h2>`);
 	}
 };
+
+
+const bulk_verify_tickets = (req, res) => {
+	try {
+		const { event_id, username } = req.query;
+
+		if (!event_id || event_id == undefined || event_id == null || !username) {
+			return res.send({
+				status: "FAILURE",
+				message: "Please provide a event id and username",
+			});
+		}
+
+		const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
+
+		Model.connection.query(query, [event_id, username], (err, results) => {
+			if (!err && results.length > 0) {
+				return res.send(
+					`<h2 style="color:green;">user: <em>${results[0]?.ticket_owner}</em> has ${results?.length} active ticket/s for this event.</h2>`,
+				);
+			} else {
+				return res.send(
+					`<h2 style="color:red;">User: <em>${results[0]?.ticket_owner}</em> has No active tickets for this event</h2>`,
+				);
+			}
+		});
+	} catch (err) {
+		return res.send(`<h2>Try again in a short while or contact support. ${err}</h2>`);
+	}
+};
+
 
 const get_all_user_tickets = (req, res) => {
 	// Get the user's username from the decoded token
@@ -1126,6 +1157,7 @@ module.exports = {
 	buy_cinema_ticket,
 	delete_ticket_by_id,
 	verify_ticket,
+	bulk_verify_tickets,
 	get_participants,
 	transfer_ticket,
 	get_transfer_logs,
