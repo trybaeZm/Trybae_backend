@@ -1,6 +1,11 @@
 const mysql = require("mysql2");
 
-const connection = mysql.createConnection(process.env.SQL_DATABASE_URL_TEST);
+const uri =
+	process.env.MODE == "TEST"
+		? process.env.SQL_DATABASE_URL_TEST
+		: process.env.SQL_DATABASE_URL_PROD;
+
+const connection = mysql.createConnection(uri);
 
 connection.connect((err) => {
 	if (err) console.log("Error connecting to sql DB");

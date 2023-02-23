@@ -50,9 +50,10 @@ app.use("/cinemas", limiter, cinemaRouter);
 
 // Test
 app.get("/appcheck", limiter, (req, res) => {
-	res.send("running");
+	res.send(`<body style='background-color: #000'><h1 style='color: green'>All services running</h1></body>`);
 });
 
 app.listen(process.env.PORT || 4455, () => {
 	console.log("Server listening on port", process.env.PORT || 4455);
+	console.log('Server running in ' + process.env.MODE + ' Mode')
 });

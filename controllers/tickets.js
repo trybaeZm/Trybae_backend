@@ -420,7 +420,11 @@ const buy_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
+								Authorization: `Bearer ${
+									process.env.MODE == "TEST"
+										? process.env.FLW_SECRET_KEY_TEST
+										: process.env.FLW_SECRET_KEY
+								}`,
 							},
 							json: {
 								tx_ref: tx_ref,
@@ -574,7 +578,11 @@ const buy_cinema_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
+								Authorization: `Bearer ${
+									process.env.MODE == "TEST"
+										? process.env.FLW_SECRET_KEY_TEST
+										: process.env.FLW_SECRET_KEY
+								}`,
 							},
 							json: {
 								tx_ref: tx_ref,
@@ -780,7 +788,7 @@ const bulk_transfer = (req, res) => {
 																		to: founduser.Expo_push_token,
 																		sound: "default",
 																		badge: 1,
-																		title: 'Tickets recieved',
+																		title: "Tickets recieved",
 																		body: `Hello ${founduser.username}, You recieved ${qty} ticket/s from '${username}' \nComment: '${comment}'.`,
 																	},
 																];
@@ -1070,7 +1078,7 @@ const transfer_ticket = (req, res) => {
 													{
 														to: result.Expo_push_token,
 														sound: "default",
-														title: 'Ticket Recieved',
+														title: "Ticket Recieved",
 														badge: 1,
 														body: `Hello ${result.username}, You recieved a ticket 🎫 from '${username}' \nComment: '${comment}'.`,
 													},

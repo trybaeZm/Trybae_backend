@@ -1,7 +1,13 @@
 const mongoose = require("mongoose");
 
 mongoose.set("strictQuery", false);
-mongoose.connect(process.env.MONGO_DB_CONNECT_TEST, (err) => {
+
+const uri =
+	process.env.MODE == "TEST"
+		? process.env.MONGO_DB_CONNECT_TEST
+		: process.env.MONGO_DB_CONNECT_PROD;
+
+mongoose.connect(uri, (err) => {
 	if (!err) console.log("Connection to mongo Successful!");
 	else {
 		console.log("Error connecting to mongo DB");
