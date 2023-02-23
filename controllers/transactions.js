@@ -1,9 +1,21 @@
 const mongodb = require("../models/mongo_db");
+const Model = require('../models/TryBae_db')
 const ticketController = require("./tickets");
 const Flutterwave = require("../middleware/flutterwave");
 const { Expo } = require("expo-server-sdk");
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
+
+const getUserByUsername = (username, cb) => {
+	const query = `SELECT * FROM users WHERE username = ?`;
+	Model.connection.query(query, [username], (error, results) => {
+		if (error) {
+			return cb(error);
+		}
+		cb(null, results[0]);
+	});
+};
+
 
 async function verify_transaction(req, res) {
 	if (!req.query.status || !req.query.transaction_id || !req.query.tx_ref) {
@@ -70,6 +82,58 @@ async function verify_transaction(req, res) {
 												}
 												completed++;
 												if (completed == Ticket.seatsChosen.length) {
+
+													try {
+														getUserByUsername(
+															Ticket?.ticket_owner,
+															(err, founduser) => {
+																if (!err && founduser) {
+																	try {
+																		if (
+																			!Expo.isExpoPushToken(
+																				founduser.Expo_push_token,
+																			)
+																		) {
+																			console.error(
+																				`Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
+																			);
+																		} else {
+																			messages = [
+																				{
+																					to: founduser.Expo_push_token,
+																					sound: "default",
+																					badge: 1,
+																					title: "Ticket/s purchased",
+																					body: `You purchase was complete.`,
+																				},
+																			];
+
+																			(async () => {
+																				let chunks =
+																					expo.chunkPushNotifications(messages);
+																				let tickets = [];
+
+																				for (let chunk of chunks) {
+																					let ticketChunk =
+																						await expo.sendPushNotificationsAsync(
+																							chunk,
+																						);
+
+																					tickets.push(...ticketChunk);
+																					console.log(tickets);
+																				}
+																			})();
+																		}
+																	} catch (err) {
+																		console.log(err);
+																	}
+																}
+															},
+														);
+													} catch (err) {
+														console.log(err)
+													}
+													
 													return res.send({
 														status: "SUCCESS",
 														message:

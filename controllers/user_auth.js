@@ -5,6 +5,7 @@ const BAN_CONTROLLER = require("./Banned_users");
 const nodemailer = require("nodemailer");
 const { createMulter } = require("../middleware/multer-upload");
 const bcrypt = require("bcrypt");
+const { Expo } = require("expo-server-sdk");
 
 require("dotenv").config();
 
@@ -158,7 +159,7 @@ const change_to_private_profile = (req, res) => {
 }
 
 const login = (req, res) => {
-	const { login, password, type, appkey } = req.body;
+	const { login, password, type, appkey, Expo_push_token } = req.body;
 
 	if (appkey != process.env.APP_KEY) {
 		return res.send({
@@ -193,19 +194,29 @@ const login = (req, res) => {
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
 									);
-
+									
+									
+										
 									if (refreshToken == false) {
 										return res.send({
 											message: "Error creating token!",
 										});
 									}
+									if (Expo.isExpoPushToken(Expo_push_token)) {
+										updateUserQuery(
+											"Expo_push_token",
+											Expo_push_token,
+											user.username,
+										);
+									}
+
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
 										account_status: user.email_verified
 									});
 								} else {
-									return res.send({ message: "Incorrect password" });
+									return res.send({ status: 'FAILURE', message: "Incorrect password" });
 								}
 							});
 						} else {
@@ -222,19 +233,28 @@ const login = (req, res) => {
 	} else {
 		//console.log(email, password)
 		getUserByEmail(login, (err, user) => {
+			
 			if (err) {
+		
 				return res.send({ message: "Error getting user" });
+				
 			}
 			if (!user) {
+			
 				return res.send({ message: "User not found" });
 			}
 			if (user) {
+				
 				BAN_CONTROLLER.getBannedUserByUsername(
 					user.username,
 					function (results) {
+						
 						if (results.length <= 0) {
+							console.log(login, "asdasdasdasdasdsadasdasd");
 							bcrypt.compare(password, user.password, (error, result) => {
+								
 								if (result && !error) {
+								
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
 									);
@@ -244,14 +264,27 @@ const login = (req, res) => {
 											message: "Error creating refresh token!",
 										});
 									}
+
+									if (Expo.isExpoPushToken(Expo_push_token)) {
+										updateUserQuery(
+											"Expo_push_token",
+											Expo_push_token,
+											user.username,
+										);
+									}
+
+									console.log('hit')
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
 										account_status: user.email_verified,
+										username: user.username
 									});
-								}
-								if (error) {
-									return res.send({ message: "Error comparing passwords" });
+								} else {
+									return res.send({
+										status: "FAILURE",
+										message: "Incorrect password",
+									});
 								}
 							});
 						} else {
@@ -279,7 +312,8 @@ const refresh = async (req, res) => {
 };
 
 const signup = (req, res) => {
-	const { fullname, username, email, password, phone, DOB, interests, location = null, Expo_push_token = null } =
+	const { fullname, username, email, password, phone, DOB, interests, location = null, Expo_push_token = null
+	} =
 		req.body;
 
 	getUserByEmail(email.toLowerCase(), (err, user) => {
@@ -566,8 +600,6 @@ const reset_Password = async (req, res) => {
 
 async function change_password(req, res){
 	const username = req.decoded['username'];
-
-	console.log(req.body)
 
 	const { currentpassword, newpassword } = req.body
 	

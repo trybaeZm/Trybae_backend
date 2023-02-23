@@ -1,11 +1,11 @@
 const Flutterwave = require("flutterwave-node-v3");
 
 const Card_direct_charge = async (payload) => {
-	payload["enckey"] = process.env.FLW_ENC_KEY;
+	payload["enckey"] = process.env.FLW_ENC_KEY_TEST;
 
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 
 	try {
@@ -17,11 +17,11 @@ const Card_direct_charge = async (payload) => {
 };
 
 const Mobile_money_direct_charge = async (payload, country = "zm") => {
-	payload["enckey"] = process.env.FLW_ENC_KEY;
+	payload["enckey"] = process.env.FLW_ENC_KEY_TEST;
 
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 
 	let response;
@@ -38,8 +38,8 @@ const Mobile_money_direct_charge = async (payload, country = "zm") => {
 
 const fetch_transactions = async (from, to) => {
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 	try {
 		const payload = {
@@ -57,8 +57,8 @@ const fetch_transactions = async (from, to) => {
 
 const verify_transaction = async (id) => {
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 	try {
 		const payload = { id: id }; //This is the transaction unique identifier. It is returned in the initiate transaction call as data.id
@@ -72,8 +72,8 @@ const verify_transaction = async (id) => {
 
 const View_Transaction_Timeline = async (id) => {
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 	try {
 		const payload = {
@@ -88,8 +88,8 @@ const View_Transaction_Timeline = async (id) => {
 
 const get_fee = async (amount, currency) => {
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 
 	try {
@@ -106,8 +106,8 @@ const get_fee = async (amount, currency) => {
 
 const refund = async (id, amount) => {
 	const flw = new Flutterwave(
-		process.env.FLW_PUBLIC_KEY,
-		process.env.FLW_SECRET_KEY,
+		process.env.FLW_PUBLIC_KEY_TEST,
+		process.env.FLW_SECRET_KEY_TEST,
 	);
 
 	try {

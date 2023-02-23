@@ -272,7 +272,6 @@ const verify_ticket = (req, res) => {
 	}
 };
 
-
 const bulk_verify_tickets = (req, res) => {
 	try {
 		const { event_id, username } = req.query;
@@ -298,10 +297,11 @@ const bulk_verify_tickets = (req, res) => {
 			}
 		});
 	} catch (err) {
-		return res.send(`<h2>Try again in a short while or contact support. ${err}</h2>`);
+		return res.send(
+			`<h2>Try again in a short while or contact support. ${err}</h2>`,
+		);
 	}
 };
-
 
 const get_all_user_tickets = (req, res) => {
 	// Get the user's username from the decoded token
@@ -420,7 +420,7 @@ const buy_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
 							},
 							json: {
 								tx_ref: tx_ref,
@@ -574,7 +574,7 @@ const buy_cinema_ticket = async (req, res) => {
 
 						const Payment_payload = {
 							headers: {
-								Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+								Authorization: `Bearer ${process.env.FLW_SECRET_KEY_TEST}`,
 							},
 							json: {
 								tx_ref: tx_ref,
@@ -779,6 +779,8 @@ const bulk_transfer = (req, res) => {
 																	{
 																		to: founduser.Expo_push_token,
 																		sound: "default",
+																		badge: 1,
+																		title: 'Tickets recieved',
 																		body: `Hello ${founduser.username}, You recieved ${qty} ticket/s from '${username}' \nComment: '${comment}'.`,
 																	},
 																];
@@ -808,7 +810,10 @@ const bulk_transfer = (req, res) => {
 														}
 													}
 
-													return res.send({status: 'SUCCESS', message: `Trasnfered ${qty} tickets to ${transfer_to}`})
+													return res.send({
+														status: "SUCCESS",
+														message: `Trasnfered ${qty} tickets to ${transfer_to}`,
+													});
 												},
 											);
 										}
@@ -1065,7 +1070,9 @@ const transfer_ticket = (req, res) => {
 													{
 														to: result.Expo_push_token,
 														sound: "default",
-														body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComment: '${comment}'.`,
+														title: 'Ticket Recieved',
+														badge: 1,
+														body: `Hello ${result.username}, You recieved a ticket 🎫 from '${username}' \nComment: '${comment}'.`,
 													},
 												];
 
