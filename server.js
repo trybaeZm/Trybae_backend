@@ -50,7 +50,9 @@ app.use("/cinemas", limiter, cinemaRouter);
 
 // Test
 app.get("/appcheck", limiter, (req, res) => {
-	res.send(`<body style='background-color: #000'><h1 style='color: green'>All services running</h1></body>`);
+	res.send(
+		`<body style='background-color: #000'><h1 style='color: white'>All services running ✅</h1></body>`,
+	);
 });
 
 app.listen(process.env.PORT || 4455, () => {
