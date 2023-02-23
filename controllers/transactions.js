@@ -16,7 +16,6 @@ const getUserByUsername = (username, cb) => {
 	});
 };
 
-
 async function verify_transaction(req, res) {
 	if (!req.query.status || !req.query.transaction_id || !req.query.tx_ref) {
 		return res.send({ status: "FAILURE", message: "Query parameters missing, contact support immediately." });
@@ -103,8 +102,8 @@ async function verify_transaction(req, res) {
 																					to: founduser.Expo_push_token,
 																					sound: "default",
 																					badge: 1,
-																					title: "Ticket/s purchased",
-																					body: `You purchase was complete.`,
+																					title: `${completed} Ticket/s 🎫 purchased`,
+																					body: `Your purchase was complete ✅`,
 																				},
 																			];
 
@@ -137,7 +136,7 @@ async function verify_transaction(req, res) {
 													return res.send({
 														status: "SUCCESS",
 														message:
-															"Transaction verified, and all tickets created...",
+															"Transaction verified, and all tickets created... ✅",
 														code: "200",
 													});
 												}
@@ -170,10 +169,61 @@ async function verify_transaction(req, res) {
 											}
 											completed++;
 											if (completed == Ticket.qty) {
+												try {
+													getUserByUsername(
+														Ticket?.ticket_owner,
+														(err, founduser) => {
+															if (!err && founduser) {
+																try {
+																	if (
+																		!Expo.isExpoPushToken(
+																			founduser.Expo_push_token,
+																		)
+																	) {
+																		console.error(
+																			`Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
+																		);
+																	} else {
+																		messages = [
+																			{
+																				to: founduser.Expo_push_token,
+																				sound: "default",
+																				badge: 1,
+																				title: `${completed} Ticket/s 🎫 purchased`,
+																				body: `Your purchase was complete ✅`,
+																			},
+																		];
+
+																		(async () => {
+																			let chunks =
+																				expo.chunkPushNotifications(messages);
+																			let tickets = [];
+
+																			for (let chunk of chunks) {
+																				let ticketChunk =
+																					await expo.sendPushNotificationsAsync(
+																						chunk,
+																					);
+
+																				tickets.push(...ticketChunk);
+																				console.log(tickets);
+																			}
+																		})();
+																	}
+																} catch (err) {
+																	console.log(err);
+																}
+															}
+														},
+													);
+												} catch (err) {
+													console.log(err);
+												}
+
 												return res.send({
 													status: "SUCCESS",
 													message:
-														"Transaction verified, and all tickets created...",
+														"Transaction verified, and all tickets created... ✅",
 													code: "200",
 												});
 											}

@@ -106,7 +106,8 @@ const follow = async (req, res) => {
 												{
 													to: results.Expo_push_token,
 													sound: "default",
-													body: `User: '${req.decoded['username']}' followed you.`,
+													title: "New Follower ✨",
+													body: `User: '${req.decoded["username"]}' followed you.`,
 												},
 											];
 

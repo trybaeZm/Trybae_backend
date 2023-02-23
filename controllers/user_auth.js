@@ -159,7 +159,7 @@ const change_to_private_profile = (req, res) => {
 }
 
 const login = (req, res) => {
-	const { login, password, type, appkey, Expo_push_token } = req.body;
+	const { login, password, type, appkey, Expo_push_token = null } = req.body;
 
 	if (appkey != process.env.APP_KEY) {
 		return res.send({
@@ -194,8 +194,6 @@ const login = (req, res) => {
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
 									);
-									
-									
 										
 									if (refreshToken == false) {
 										return res.send({

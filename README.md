@@ -22,6 +22,7 @@ And DO NOT push it to github , keep it in .gitignore
 
 # Important !
 
+use the TEST env variable to switch between prod and test environments.
 When testing, use only the test mode infrastructure including database ,servers, buckets etc.
 
 # Advice
