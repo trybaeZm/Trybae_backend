@@ -213,7 +213,8 @@ const login = (req, res) => {
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
-										account_status: user.email_verified
+										account_status: user.email_verified,
+                                                                                username: user.username
 									});
 								} else {
 									return res.send({ status: 'FAILURE', message: "Incorrect password" });
