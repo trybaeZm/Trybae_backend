@@ -586,7 +586,7 @@ const buy_cinema_ticket = async (req, res) => {
 							},
 							json: {
 								tx_ref: tx_ref,
-								amount: amount + amount * 0.12, //Service cost
+								amount: amount + amount * 0.12, //Service cost 12%
 								currency: "ZMW",
 								redirect_url: "http://api.trybae.com/transactions/verifytxn",
 								meta: {

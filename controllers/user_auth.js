@@ -212,7 +212,8 @@ const login = (req, res) => {
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
 										account_status: user.email_verified,
-                                                                                username: user.username
+										username: user.username,
+										phone_number: user.phone
 									});
 								} else {
 									return res.send({ status: 'FAILURE', message: "Incorrect password" });
@@ -277,7 +278,8 @@ const login = (req, res) => {
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
 										account_status: user.email_verified,
-										username: user.username
+										username: user.username,
+										phone_number: user.phone
 									});
 								} else {
 									return res.send({
