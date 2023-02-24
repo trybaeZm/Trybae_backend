@@ -42,10 +42,16 @@ router.post(
 );
 
 router.get('/bulkverify', ticketController.bulk_verify_tickets)
-router.post(
+router.patch(
 	"/redeemticket",
 	middleware.verifyJWT,
 	ticketController.redeem_ticket,
+);
+
+router.patch(
+	"/bulkredeem",
+	middleware.verifyJWT,
+	ticketController.bulk_redeem,
 );
 
 router.patch('/bulktransfer', middleware.verifyJWT, ticketController.bulk_transfer)

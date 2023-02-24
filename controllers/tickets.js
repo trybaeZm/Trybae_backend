@@ -844,6 +844,51 @@ const bulk_transfer = (req, res) => {
 	}
 };
 
+const bulk_redeem = (req, res) => {
+	const { event_id, qty = 1 } = req.body;
+	const username = req.decoded['username'];
+
+	if (!event_id || !username || qty == undefined) {
+		return res.send({status: 'FAILURE', message: 'Missing details'})
+	} else {
+		const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`
+
+		Model.connection.query(query, [event_id, username], (err, result) => {
+			if (!err && result?.length == qty) {
+				const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ?`;
+				let completed = 0;
+
+				for (let i = 0; i < qty; i++) {
+					Model.connection.query(query2, [event_id, username], (err, done) => {
+						if (!err && done) {
+							completed++;
+						} else {
+							return res.send({
+								status: "SEMI-FAILURE",
+								message: "Error redeeming one of the tickets, maybe try again",
+							});
+						}
+					});
+				}
+
+				if (completed == qty) {
+					return res.send({
+						status: "SUCCESS",
+						message: `Bulk redeemed ${qty} tickets for given event`,
+					});
+				}
+
+			} else {
+				return res.send({
+					status: "FAILURE",
+					message: "Not enough tickets to bulk redeem",
+				});
+			}
+		});
+
+	}
+}
+
 const redeem_ticket = (req, res) => {
 	const { ticket_id, event_passcode } = req.body;
 
@@ -1178,4 +1223,5 @@ module.exports = {
 	get_transfer_logs,
 	create_ticket_query,
 	redeem_ticket,
+	bulk_redeem
 };
