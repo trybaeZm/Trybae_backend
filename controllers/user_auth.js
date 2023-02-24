@@ -164,7 +164,8 @@ const login = (req, res) => {
 	if (appkey != process.env.APP_KEY) {
 		return res.send({
 			status: 'FAILURE',
-			message: 'Could not verify integrity of application...'
+			message: 'Could not verify integrity of application...',
+			
 		})
 	}
 
@@ -172,16 +173,17 @@ const login = (req, res) => {
 		return res.send({
 			status: "FAILURE",
 			message: "One or more fields missing",
+			
 		});
 	}
 
 	if (type == "username") {
 		getUserByUsername(login, (err, user) => {
 			if (err) {
-				return res.send({ message: "Error getting user" });
+				return res.send({ message: "Error getting user", auth: false });
 			}
 			if (!user) {
-				return res.send({ message: "User not found" });
+				return res.send({ message: "User not found", auth: false });
 			}
 
 			if (user) {
@@ -198,6 +200,7 @@ const login = (req, res) => {
 									if (refreshToken == false) {
 										return res.send({
 											message: "Error creating token!",
+											auth: false
 										});
 									}
 									if (Expo.isExpoPushToken(Expo_push_token)) {
@@ -216,7 +219,11 @@ const login = (req, res) => {
 										phone_number: user.phone
 									});
 								} else {
-									return res.send({ status: 'FAILURE', message: "Incorrect password" });
+									return res.send({
+										status: "FAILURE",
+										message: "Incorrect password",
+										auth: false,
+									});
 								}
 							});
 						} else {
@@ -236,12 +243,12 @@ const login = (req, res) => {
 			
 			if (err) {
 		
-				return res.send({ message: "Error getting user" });
+				return res.send({ message: "Error getting user", auth: false });
 				
 			}
 			if (!user) {
 			
-				return res.send({ message: "User not found" });
+				return res.send({ message: "User not found", auth: false });
 			}
 			if (user) {
 				
@@ -250,7 +257,7 @@ const login = (req, res) => {
 					function (results) {
 						
 						if (results.length <= 0) {
-							console.log(login, "asdasdasdasdasdsadasdasd");
+						
 							bcrypt.compare(password, user.password, (error, result) => {
 								
 								if (result && !error) {
@@ -262,6 +269,7 @@ const login = (req, res) => {
 									if (refreshToken == false) {
 										return res.send({
 											message: "Error creating refresh token!",
+											auth: false
 										});
 									}
 
@@ -284,7 +292,7 @@ const login = (req, res) => {
 								} else {
 									return res.send({
 										status: "FAILURE",
-										message: "Incorrect password",
+										message: "Incorrect password", auth: false
 									});
 								}
 							});

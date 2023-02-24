@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `users`(
 );
 
 CREATE TABLE IF NOT EXISTS `Banned_users`(
-    `ban_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `ban_id` VARCHAR(36) PRIMARY KEY,
     `username` VARCHAR(255) NULL,
     `reason` TEXT NOT NULL,
     `ban_date` DATE NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `Banned_users`(
 );
 
 CREATE TABLE IF NOT EXISTS `Banned_hosts`(
-    `ban_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `ban_id` VARCHAR(36) PRIMARY KEY,
     `host_username` VARCHAR(255) NULL,
     `reason` VARCHAR(255) NOT NULL,
     `ban_date` DATE NOT NULL,
