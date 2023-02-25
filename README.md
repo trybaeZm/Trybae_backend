@@ -2,7 +2,7 @@
 
 Database is mysql and mongodb <br>
 Dockerising can be possible in the future. <br>
-Connects to one pool hosted remotely on planetscale and mongodb atlas.
+Connects remotely to planetscale and mongodb atlas.
 
 # to start server -
 

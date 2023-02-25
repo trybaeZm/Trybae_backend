@@ -472,6 +472,37 @@ const sendOTPVerificationEmail = async (user) => {
 };
 
 
+const delete_profile_pic = (req, res) => {
+	const username = req.decoded["username"];
+
+	if (!username) {
+		return res.send({ status: "FAILURE", message: "Missing details" });
+	} else {
+		const query = `UPDATE users SET profile_pic_url = ? where username = ?`;
+
+		try {
+			Model.connection.query(query, [null, username], (err, result) => {
+				if (!err && result) {
+					return res.send({
+						status: "SUCCESS",
+						message: "Deleted profile pic successfully",
+					});
+				} else {
+					return res.send({
+						status: "FAILURE",
+						message: "Unknown error occured",
+					});
+				}
+			});
+		} catch (error) {
+			return res.send({
+				status: "FAILURE",
+				message: "Unknown error occured",
+			});
+		}
+	}
+};
+
 async function update_verification_status(username, cb) {
 	let query = `UPDATE users SET email_verified = TRUE WHERE username = ?`;
 
@@ -506,7 +537,7 @@ const resend_OTP = async (req, res) => {
 								username: cred,
 								email: result.email,
 							});
-							return res.send({ status: "SUCCESS", message: "OTP sent!" });
+							return res.send({ status: "SUCCESS", message: "OTP sent!", username: result.username });
 						}
 					} else {
 						return res.send({
@@ -528,7 +559,7 @@ const resend_OTP = async (req, res) => {
 								username: result.username,
 								email: cred,
 							});
-							return res.send({ status: "SUCCESS", message: "OTP sent!" });
+							return res.send({ status: "SUCCESS", message: "OTP sent!", username: result.username });
 						}
 					} else {
 						return res.send({
@@ -893,5 +924,6 @@ module.exports = {
 	edit_profile,
 	getsociallinks,
 	change_to_private_profile,
-	deleteSocialLinks
+	deleteSocialLinks,
+	delete_profile_pic
 };

@@ -22,5 +22,10 @@ router.patch('/changepassword', middleware.verifyJWT, authController.change_pass
 router.patch('/editprofile', middleware.verifyJWT, authController.edit_profile);
 router.patch('/changeviewsettings', middleware.verifyJWT, authController.change_to_private_profile)
 router.patch('/notificationset', middleware.verifyJWT, authController.update_push_token)
+router.delete(
+	"/deleteprofilepic",
+	middleware.verifyJWT,
+	authController.delete_profile_pic,
+);
 
 module.exports = router;

@@ -112,7 +112,7 @@ const get_all_user_tickets_query = (username, cb) => {
 		events.number_of_people AS events_number_of_people, events.host_username AS events_host_username, 
 		events.active AS events_active, events.normal_price AS events_normal_price, 
 		events.category AS events_category, events.like_count AS events_like_count, 
-		events.cinema_id AS events_cinema_id, events.event_passcode AS events_event_passcode,
+		events.cinema_id AS events_cinema_id,
 		tickets.ticket_id AS tickets_ticket_id, tickets.ticket_owner AS tickets_ticket_owner, 
 		tickets.ticket_description AS tickets_ticket_description, 
 		tickets.show_under_participants AS tickets_show_under_participants, 
@@ -221,7 +221,7 @@ const get_participants = (req, res) => {
 };
 
 const redeem_ticket_query = (ticket_id, cb) => {
-	let query = `UPDATE tickets SET redeemed = TRUE WHERE ticket_id = ?`;
+	let query = `UPDATE tickets SET redeemed = 1 WHERE ticket_id = ?`;
 
 	Model.connection.query(query, [ticket_id], (err, results) => {
 		if (err) {
@@ -845,47 +845,62 @@ const bulk_transfer = (req, res) => {
 };
 
 const bulk_redeem = (req, res) => {
-	const { event_id, qty = 1 } = req.body;
+	const { event_id, qty = 1, event_passcode } = req.body;
 	const username = req.decoded['username'];
 
-	if (!event_id || !username || qty == undefined) {
-		return res.send({status: 'FAILURE', message: 'Missing details'})
+	if (!event_id || !username || qty == undefined || !event_passcode || isNaN(qty) == true) {
+		return res.send({status: 'FAILURE', message: 'Invalid or Missing details'})
 	} else {
-		const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`
+		const passcode_check = `SELECT event_passcode FROM events WHERE event_id = ?`;
 
-		Model.connection.query(query, [event_id, username], (err, result) => {
-			if (!err && result?.length == qty) {
-				const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ?`;
-				let completed = 0;
+		try {
+			Model.connection.query(passcode_check, [event_id], (err, results) => {
+			if (!err && results) {
+				if (results[0].event_passcode != event_passcode) {
+					return res.send({status: 'FAILURE', message: 'Invalid event passcode'})
+				} else {
+					const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
 
-				for (let i = 0; i < qty; i++) {
-					Model.connection.query(query2, [event_id, username], (err, done) => {
-						if (!err && done) {
-							completed++;
+					Model.connection.query(query, [event_id, username], (err, result) => {
+						if (!err && qty <= result?.length) {
+							const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0 LIMIT ${qty}`;
+
+								Model.connection.query(
+									query2,
+									[event_id, username],
+									(err, done) => {
+										if (!err && done) {
+											return res.send({
+												status: "SUCCESS",
+												message: `redeemed ${qty} ticket/s for given event`,
+											});
+										} else {
+											console.log(err)
+											return res.send({
+												status: "SEMI-FAILURE",
+												message:
+													"Error redeeming one of the tickets, maybe try again",
+											});
+										}
+									},
+								);
+
 						} else {
 							return res.send({
-								status: "SEMI-FAILURE",
-								message: "Error redeeming one of the tickets, maybe try again",
+								status: "FAILURE",
+								message: "Not enough tickets to bulk redeem",
 							});
 						}
 					});
 				}
-
-				if (completed == qty) {
-					return res.send({
-						status: "SUCCESS",
-						message: `Bulk redeemed ${qty} tickets for given event`,
-					});
-				}
-
 			} else {
-				return res.send({
-					status: "FAILURE",
-					message: "Not enough tickets to bulk redeem",
-				});
+				return res.send({ status: 'FAILURE', message: "Unable to verify event" });
 			}
 		});
-
+		} catch (err) {
+			return res.send({status: 'FAILURE', message: 'Unknown error, contact support'})
+		}
+		
 	}
 }
 
