@@ -1224,6 +1224,21 @@ const get_ticket_by_id = (req, res) => {
 	});
 };
 
+const new_ticket_purchase_check = async (req, res) => {
+	const username = req.decoded['username']
+
+	const found = await mongodb.newTicketPurchase.find({ userId: username })
+	console.log(found)
+	
+	if (found.length > 0) {
+		const done = await mongodb.newTicketPurchase.deleteMany({ userId: username })
+		return res.send({status: 'SUCCESS', anyrecent: true})
+		
+	} else {
+		return res.send({ status: "SUCCESS", anyrecent: false });
+	}
+}
+
 module.exports = {
 	get_all_user_tickets,
 	get_ticket_by_id,
@@ -1238,5 +1253,6 @@ module.exports = {
 	get_transfer_logs,
 	create_ticket_query,
 	redeem_ticket,
-	bulk_redeem
+	bulk_redeem,
+	new_ticket_purchase_check
 };

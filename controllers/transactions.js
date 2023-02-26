@@ -55,6 +55,11 @@ async function verify_transaction(req, res) {
 						});
 
 						if (Ticket) {
+							const newTicketPurchase = new mongodb.newTicketPurchase({
+								userId: Ticket?.ticket_owner,
+								event_id: Ticket?.event_id,
+							});
+							await newTicketPurchase.save();
 							if (Ticket.is_cinema_ticket == true) {
 								const seatsChosen = Ticket.seatsChosen;
 
@@ -102,8 +107,14 @@ async function verify_transaction(req, res) {
 																					to: founduser.Expo_push_token,
 																					sound: "default",
 																					badge: 1,
-																					title: `${completed} Ticket/s 🎫 purchased`,
-																					body: `Your purchase was complete ✅`,
+																					title: `${completed} Movie Ticket/s 🎫 purchased`,
+																					body: `Your purchase was successful ✅`,
+																					data: {
+																						new: true,
+																						event_id: Ticket?.event_id,
+																						is_cinema: true,
+																						bulk: true,
+																					}
 																				},
 																			];
 
@@ -190,7 +201,13 @@ async function verify_transaction(req, res) {
 																				sound: "default",
 																				badge: 1,
 																				title: `${completed} Ticket/s 🎫 purchased`,
-																				body: `Your purchase was complete ✅`,
+																				body: `Your purchase was successful ✅`,
+																				data: {
+																					new: true,
+																					event_id: Ticket?.event_id,
+																					is_cinema: false,
+																					bulk: true,
+																				},
 																			},
 																		];
 
@@ -220,6 +237,8 @@ async function verify_transaction(req, res) {
 													console.log(err);
 												}
 
+
+												
 												return res.send({
 													status: "SUCCESS",
 													message:
@@ -269,6 +288,7 @@ async function verify_transaction(req, res) {
 		});
 	}
 }
+
 
 module.exports = {
 	verify_transaction,

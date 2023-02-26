@@ -54,6 +54,8 @@ router.patch(
 	ticketController.bulk_redeem,
 );
 
+router.post('/newticketpurchasecheck', middleware.verifyJWT, ticketController.new_ticket_purchase_check)
+
 router.patch('/bulktransfer', middleware.verifyJWT, ticketController.bulk_transfer)
 
 module.exports = router;

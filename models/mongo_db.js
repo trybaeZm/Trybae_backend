@@ -228,6 +228,11 @@ const AdminEmailOTPVerificationSchema = new mongoose.Schema({
 	expiresAt: Date,
 });
 
+const newTicketPurchaseSchema = new mongoose.Schema({
+	userId: String,
+	event_id: String
+})
+
 const Tickets = mongoose.model("Ticket", ticketSchema);
 
 const Followers = mongoose.model("Followers", followersSchema);
@@ -291,6 +296,8 @@ const Cinemas = mongoose.model('Cinemas', CinemaSchema);
 
 const CinemaTimes = mongoose.model('CinemaTimes', CinemaTimeSchema)
 
+const newTicketPurchase = mongoose.model('newTicketPurchase', newTicketPurchaseSchema)
+
 
 module.exports = {
 	UserEmailOTPVerification,
@@ -310,5 +317,6 @@ module.exports = {
 	AdminRefreshToken,
 	AdminEmailOTPVerification,
 	Cinemas,
-	CinemaTimes
+	CinemaTimes,
+	newTicketPurchase
 };
