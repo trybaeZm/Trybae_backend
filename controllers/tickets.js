@@ -3,7 +3,6 @@ const Flutterwave = require("../middleware/flutterwave");
 const mongodb = require("../models/mongo_db");
 const mysql = require("mysql2");
 const got = require("got");
-const { getEventById } = require("./events");
 const { Expo } = require("expo-server-sdk");
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
@@ -1045,16 +1044,21 @@ const get_transfer_logs = (req, res) => {
 
 	const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`;
 
-	Model.connection.query(query, [username, username], (err, result) => {
-		if (!err && result.length > 0) {
-			return res.send({ status: "SUCCESS", data: result });
-		} else {
-			return res.send({
-				status: "FAILURE",
-				message: "No transfers done on this account",
-			});
-		}
-	});
+	try {
+		Model.connection.query(query, [username, username], (err, result) => {
+			if (!err && result.length > 0) {
+				return res.send({ status: "SUCCESS", data: result });
+			} else {
+				return res.send({
+					status: "FAILURE",
+					message: "No transfers done on this account",
+				});
+			}
+		});
+	} catch (error) {
+		console.log(error)
+	}
+	
 };
 
 const transfer_ticket = (req, res) => {
@@ -1207,21 +1211,27 @@ const get_ticket_by_id = (req, res) => {
 	const { ticket_id } = req.body;
 	const username = req.decoded["username"];
 
-	// Query the database for all the tickets belonging to the user
-	get_user_ticket_by_id_query(username, ticket_id, (err, tickets) => {
-		if (err) {
-			return res.send(err);
-		} else {
-			if (tickets.length < 1) {
-				return res.send({
-					status: "FAILURE",
-					message: "A ticket with this id not found on this account",
-				});
+
+	try {
+		// Query the database for all the tickets belonging to the user
+		get_user_ticket_by_id_query(username, ticket_id, (err, tickets) => {
+			if (err) {
+				return res.send(err);
 			} else {
-				return res.send({ status: "SUCCESS", ticket: tickets[0] });
+				if (tickets.length < 1) {
+					return res.send({
+						status: "FAILURE",
+						message: "A ticket with this id not found on this account",
+					});
+				} else {
+					return res.send({ status: "SUCCESS", ticket: tickets[0] });
+				}
 			}
-		}
-	});
+		});
+	} catch (error) {
+		console.log(error)
+	}
+	
 };
 
 const new_ticket_purchase_check = async (req, res) => {
@@ -1230,13 +1240,19 @@ const new_ticket_purchase_check = async (req, res) => {
 	const found = await mongodb.newTicketPurchase.find({ userId: username })
 	console.log(found)
 	
-	if (found.length > 0) {
-		const done = await mongodb.newTicketPurchase.deleteMany({ userId: username })
-		return res.send({status: 'SUCCESS', anyrecent: true})
-		
-	} else {
-		return res.send({ status: "SUCCESS", anyrecent: false });
+	try {
+		if (found.length > 0) {
+			const done = await mongodb.newTicketPurchase.deleteMany({
+				userId: username,
+			});
+			return res.send({ status: "SUCCESS", anyrecent: true });
+		} else {
+			return res.send({ status: "SUCCESS", anyrecent: false });
+		}
+	} catch (error) {
+		console.log(error)
 	}
+	
 }
 
 module.exports = {
