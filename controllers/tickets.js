@@ -769,7 +769,7 @@ const bulk_transfer = (req, res) => {
 														return res.send({
 															status: "FAILURE",
 															message:
-																"Some tickets might be transfered, but others might have not, try later.",
+																"Some tickets might be Transferred, but others might have not, try later.",
 														});
 													}
 
@@ -812,14 +812,14 @@ const bulk_transfer = (req, res) => {
 															return res.send({
 																status: "FAILURE",
 																message:
-																	"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
+																	"Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
 															});
 														}
 													}
 
 													return res.send({
 														status: "SUCCESS",
-														message: `Trasnfered ${qty} tickets to ${transfer_to}`,
+														message: `Transferred ${qty} tickets to ${transfer_to}`,
 													});
 												},
 											);
@@ -1165,7 +1165,7 @@ const transfer_ticket = (req, res) => {
 											return res.send({
 												status: "FAILURE",
 												message:
-													"Unknown error, ticket might have been transfered, restart app to confirm, if not try again later",
+													"Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
 											});
 										}
 									} catch (err) {
@@ -1173,7 +1173,7 @@ const transfer_ticket = (req, res) => {
 										return res.send({
 											status: "FAILURE",
 											message:
-												"Unknown error, ticket might have been transfered, restart app to confirm",
+												"Unknown error, ticket might have been Transferred, restart app to confirm",
 										});
 									}
 
