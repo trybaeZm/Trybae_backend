@@ -55,7 +55,9 @@ const saveOTP = async (user, otp) => {
 
 	const hashedOTP = await bcrypt.hash(otp, saltRounds);
 
-	await mongodb.HostEmailOTPVerification.deleteMany({userId: user.host_username}); // clear previous otps
+	await mongodb.HostEmailOTPVerification.deleteMany({
+		userId: user.host_username,
+	}); // clear previous otps
 	const newOTPVerification = mongodb.HostEmailOTPVerification({
 		userId: user.host_username,
 		otp: hashedOTP,
@@ -159,26 +161,22 @@ const signup = (req, res) => {
 					return res.send({ message: "Error getting host" });
 				}
 				if (!user) {
-					
-
-					
-						createHost(
-							host_name,
-							host_username,
-							host_email,
-							host_description,
-							host_password,
-							host_phone,
-							number_of_events_hosted,
-							(err, result) => {
-								if (err) {
-									return res.send({ message: "Error creating host" });
-								}
-								sendOTPVerificationEmail(req.body);
-								return res.send({ message: "Account created successfully" });
-							},
-						);
-					
+					createHost(
+						host_name,
+						host_username,
+						host_email,
+						host_description,
+						host_password,
+						host_phone,
+						number_of_events_hosted,
+						(err, result) => {
+							if (err) {
+								return res.send({ message: "Error creating host" });
+							}
+							sendOTPVerificationEmail(req.body);
+							return res.send({ message: "Account created successfully" });
+						},
+					);
 				} else {
 					return res.send({ message: "Username already exists" });
 				}
@@ -570,7 +568,6 @@ async function verifyOTP(req, res) {
 								if (err) {
 									return res.send({ message: "Error Verifying user" });
 								} else {
-									
 									res.json({
 										status: "SUCCESS",
 										message: "User email verified successfully.",

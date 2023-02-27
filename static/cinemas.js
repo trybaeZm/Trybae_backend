@@ -1,4 +1,4 @@
-const cinemas =  [
+const cinemas = [
 	{
 		cinema_id: "1",
 		cinema_name: "Freshview mandahill",
@@ -64,10 +64,10 @@ const cinemas =  [
 			"A4",
 			"A5",
 			"A6",
-            "A7",
-            'A8',
-            'A9',
-            'A10',
+			"A7",
+			"A8",
+			"A9",
+			"A10",
 			"B1",
 			"B2",
 			"B3",
@@ -334,7 +334,6 @@ const cinemas =  [
 	},
 ];
 
-
 module.exports = {
-    cinemas
-}
+	cinemas,
+};

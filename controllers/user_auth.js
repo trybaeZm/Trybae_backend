@@ -31,7 +31,17 @@ const calculateAge = (dob) => {
 	return age;
 };
 
-const createUser = (fullname, username, email, password, phone, DOB, location = null, Expo_push_token = null, cb) => {
+const createUser = (
+	fullname,
+	username,
+	email,
+	password,
+	phone,
+	DOB,
+	location = null,
+	Expo_push_token = null,
+	cb,
+) => {
 	bcrypt.hash(password, SALT_ROUNDS, (err, hashedPassword) => {
 		if (err) {
 			return cb(err);
@@ -48,7 +58,7 @@ const createUser = (fullname, username, email, password, phone, DOB, location = 
 				hashedPassword,
 				phone,
 				JSON.stringify(location),
-				Expo_push_token
+				Expo_push_token,
 			],
 			(error, results) => {
 				if (error) {
@@ -108,19 +118,23 @@ const update_push_token = (req, res) => {
 	const query = `UPDATE users SET Expo_push_token = ? WHERE username = ?`;
 
 	try {
-		Model.connection.query(query, [Expo_push_token, username], (err, result) => {
-			if (!err && result) {
-				return res.send({
-					status: "SUCCESS",
-					message: "Success",
-				});
-			} else {
-				return res.send({
-					status: "FAILURE",
-					message: "Unknown error occured",
-				});
-			}
-		});
+		Model.connection.query(
+			query,
+			[Expo_push_token, username],
+			(err, result) => {
+				if (!err && result) {
+					return res.send({
+						status: "SUCCESS",
+						message: "Success",
+					});
+				} else {
+					return res.send({
+						status: "FAILURE",
+						message: "Unknown error occured",
+					});
+				}
+			},
+		);
 	} catch (error) {
 		res.json({
 			status: "FAILED",
@@ -130,11 +144,11 @@ const update_push_token = (req, res) => {
 };
 
 const change_to_private_profile = (req, res) => {
-	const username = req.decoded['username'];
+	const username = req.decoded["username"];
 
-	const { option } = req.body
-	
-	const query = `UPDATE users SET private_profile = ? WHERE username = ?`
+	const { option } = req.body;
+
+	const query = `UPDATE users SET private_profile = ? WHERE username = ?`;
 
 	try {
 		Model.connection.query(query, [option, username], (err, result) => {
@@ -156,24 +170,22 @@ const change_to_private_profile = (req, res) => {
 			message: "Unknown error, try later.",
 		});
 	}
-}
+};
 
 const login = (req, res) => {
 	const { login, password, type, appkey, Expo_push_token = null } = req.body;
 
 	if (appkey != process.env.APP_KEY) {
 		return res.send({
-			status: 'FAILURE',
-			message: 'Could not verify integrity of application...',
-			
-		})
+			status: "FAILURE",
+			message: "Could not verify integrity of application...",
+		});
 	}
 
 	if (!login || !password || !type) {
 		return res.send({
 			status: "FAILURE",
 			message: "One or more fields missing",
-			
 		});
 	}
 
@@ -196,11 +208,11 @@ const login = (req, res) => {
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
 									);
-										
+
 									if (refreshToken == false) {
 										return res.send({
 											message: "Error creating token!",
-											auth: false
+											auth: false,
 										});
 									}
 									if (Expo.isExpoPushToken(Expo_push_token)) {
@@ -216,7 +228,7 @@ const login = (req, res) => {
 										refreshToken: refreshToken,
 										account_status: user.email_verified,
 										username: user.username,
-										phone_number: user.phone
+										phone_number: user.phone,
 									});
 								} else {
 									return res.send({
@@ -240,28 +252,19 @@ const login = (req, res) => {
 	} else {
 		//console.log(email, password)
 		getUserByEmail(login, (err, user) => {
-			
 			if (err) {
-		
 				return res.send({ message: "Error getting user", auth: false });
-				
 			}
 			if (!user) {
-			
 				return res.send({ message: "User not found", auth: false });
 			}
 			if (user) {
-				
 				BAN_CONTROLLER.getBannedUserByUsername(
 					user.username,
 					function (results) {
-						
 						if (results.length <= 0) {
-						
 							bcrypt.compare(password, user.password, (error, result) => {
-								
 								if (result && !error) {
-								
 									const refreshToken = middleware.generateRefreshToken(
 										user.username,
 									);
@@ -269,7 +272,7 @@ const login = (req, res) => {
 									if (refreshToken == false) {
 										return res.send({
 											message: "Error creating refresh token!",
-											auth: false
+											auth: false,
 										});
 									}
 
@@ -281,18 +284,19 @@ const login = (req, res) => {
 										);
 									}
 
-									console.log('hit')
+									console.log("hit");
 									return res.send({
 										token: middleware.createJWTtoken(user.username),
 										refreshToken: refreshToken,
 										account_status: user.email_verified,
 										username: user.username,
-										phone_number: user.phone
+										phone_number: user.phone,
 									});
 								} else {
 									return res.send({
 										status: "FAILURE",
-										message: "Incorrect password", auth: false
+										message: "Incorrect password",
+										auth: false,
 									});
 								}
 							});
@@ -312,7 +316,7 @@ const login = (req, res) => {
 
 const refresh = async (req, res) => {
 	const refreshToken = req.body.refreshToken;
-	const username = req.body.username
+	const username = req.body.username;
 
 	if (!refreshToken || refreshToken == undefined) {
 		return res.send({ message: "No Token Provided!" });
@@ -321,9 +325,17 @@ const refresh = async (req, res) => {
 };
 
 const signup = (req, res) => {
-	const { fullname, username, email, password, phone, DOB, interests, location = null, Expo_push_token = null
-	} =
-		req.body;
+	const {
+		fullname,
+		username,
+		email,
+		password,
+		phone,
+		DOB,
+		interests,
+		location = null,
+		Expo_push_token = null,
+	} = req.body;
 
 	getUserByEmail(email.toLowerCase(), (err, user) => {
 		if (err) {
@@ -343,32 +355,31 @@ const signup = (req, res) => {
 					});
 				}
 				if (!user) {
-						createUser(
-							fullname,
-							username.toLowerCase(),
-							email.toLowerCase(),
-							password,
-							phone,
-							DOB,
-							location,
-							Expo_push_token,
-							(err, result) => {
-								if (err) {
-									return res.send({
-										status: "FAILURE",
-										message: "Unknown error",
-									});
-								} else {
-									console.log(location)
-									sendOTPVerificationEmail(req.body);
-									return res.send({
-										status: "SUCCESS",
-										message: "Account created successfully",
-									});
-								}
-							},
-						);
-					
+					createUser(
+						fullname,
+						username.toLowerCase(),
+						email.toLowerCase(),
+						password,
+						phone,
+						DOB,
+						location,
+						Expo_push_token,
+						(err, result) => {
+							if (err) {
+								return res.send({
+									status: "FAILURE",
+									message: "Unknown error",
+								});
+							} else {
+								console.log(location);
+								sendOTPVerificationEmail(req.body);
+								return res.send({
+									status: "SUCCESS",
+									message: "Account created successfully",
+								});
+							}
+						},
+					);
 				} else {
 					return res.send({
 						status: "FAILURE",
@@ -471,7 +482,6 @@ const sendOTPVerificationEmail = async (user) => {
 	});
 };
 
-
 const delete_profile_pic = (req, res) => {
 	const username = req.decoded["username"];
 
@@ -537,7 +547,11 @@ const resend_OTP = async (req, res) => {
 								username: cred,
 								email: result.email,
 							});
-							return res.send({ status: "SUCCESS", message: "OTP sent!", username: result.username });
+							return res.send({
+								status: "SUCCESS",
+								message: "OTP sent!",
+								username: result.username,
+							});
 						}
 					} else {
 						return res.send({
@@ -559,7 +573,11 @@ const resend_OTP = async (req, res) => {
 								username: result.username,
 								email: cred,
 							});
-							return res.send({ status: "SUCCESS", message: "OTP sent!", username: result.username });
+							return res.send({
+								status: "SUCCESS",
+								message: "OTP sent!",
+								username: result.username,
+							});
 						}
 					} else {
 						return res.send({
@@ -580,7 +598,6 @@ const resend_OTP = async (req, res) => {
 
 const reset_Password = async (req, res) => {
 	try {
-		
 		let { userId, otp, newpassword } = req.body;
 		if (!userId || !otp || !newpassword) {
 			return res.send({ status: "FAILED", message: "Empty details!" });
@@ -638,13 +655,13 @@ const reset_Password = async (req, res) => {
 	}
 };
 
-async function change_password(req, res){
-	const username = req.decoded['username'];
+async function change_password(req, res) {
+	const username = req.decoded["username"];
 
-	const { currentpassword, newpassword } = req.body
-	
+	const { currentpassword, newpassword } = req.body;
+
 	if (!currentpassword || !newpassword) {
-		return res.send({ status: 'FAILURE', message: 'empty fields' })
+		return res.send({ status: "FAILURE", message: "empty fields" });
 	} else {
 		getUserByUsername(username, (err, result) => {
 			if (!err && result) {
@@ -652,54 +669,61 @@ async function change_password(req, res){
 					if (!err && result) {
 						bcrypt.hash(newpassword, SALT_ROUNDS, (err, hashedPassword) => {
 							if (err) {
-								return res.send({ status: 'FAILURE', message: "Failed to set new password" })
-							}
-							else {
+								return res.send({
+									status: "FAILURE",
+									message: "Failed to set new password",
+								});
+							} else {
 								updateUserQuery("password", hashedPassword, username);
 								return res.send({
 									status: "SUCCESS",
 									message: "new password set successfully",
 								});
 							}
-						})
+						});
 					} else {
-						return res.send({ status: 'FAILURE', message: "Invalid current password" })
+						return res.send({
+							status: "FAILURE",
+							message: "Invalid current password",
+						});
 					}
-				})
+				});
 			} else {
-				return res.send({status: 'FAILURE', message: 'User not found'})
+				return res.send({ status: "FAILURE", message: "User not found" });
 			}
-		})
+		});
 	}
 }
 
 async function edit_profile(req, res) {
-	const username = req.decoded['username']
-	const { fullname, email, phone, DOB } = req.body
-	
+	const username = req.decoded["username"];
+	const { fullname, email, phone, DOB } = req.body;
+
 	if (!fullname || !email || !phone || !DOB) {
 		return res.send({ status: "FAILURE", message: "empty fields" });
 	} else {
 		getUserByUsername(username, (err, result) => {
 			if (!err && result) {
 				try {
-					updateUserQuery('fullname', fullname, username);
-					updateUserQuery('email', email, username);
-					updateUserQuery('DOB', DOB, username);
-					updateUserQuery('phone', phone, username);
-					updateUserQuery('email_verified', false, username)
+					updateUserQuery("fullname", fullname, username);
+					updateUserQuery("email", email, username);
+					updateUserQuery("DOB", DOB, username);
+					updateUserQuery("phone", phone, username);
+					updateUserQuery("email_verified", false, username);
 					return res.send({
 						status: "SUCCESS",
 						message: "All fields updated successfully",
 					});
 				} catch (error) {
-					return res.send({status: 'SEMI-FAILURE', message: 'Fields semi updated'})
+					return res.send({
+						status: "SEMI-FAILURE",
+						message: "Fields semi updated",
+					});
 				}
-				
 			} else {
 				return res.send({ status: "FAILURE", message: "User not found" });
-			 }
-		})
+			}
+		});
 	}
 }
 
@@ -709,7 +733,6 @@ async function getsociallinks(req, res) {
 	if (!username) {
 		return res.send({ status: "FAILURE", message: "empty fields" });
 	} else {
-
 		try {
 			const result = await mongodb.User_Social_Links.find({
 				user_id: username,
@@ -721,7 +744,6 @@ async function getsociallinks(req, res) {
 					message: "Social links for user not found",
 				});
 			} else {
-				
 				return res.send({ status: "SUCCESS", data: result });
 			}
 		} catch (err) {
@@ -730,14 +752,13 @@ async function getsociallinks(req, res) {
 				message: "Unknown error",
 			});
 		}
-		
 	}
 }
 
 async function uploadSociallinks(req, res) {
 	const { links } = req.body;
 
-	console.log(links)
+	console.log(links);
 
 	const username = req.decoded["username"];
 
@@ -746,7 +767,10 @@ async function uploadSociallinks(req, res) {
 	}
 
 	if (links?.length < 2 || links?.length > 3) {
-		return res.send({ status: "FAILURE", message: "Only up to 3 links allowed and 2 minimum, otherwise keep none." });
+		return res.send({
+			status: "FAILURE",
+			message: "Only up to 3 links allowed and 2 minimum, otherwise keep none.",
+		});
 	}
 
 	const found = await mongodb.User_Social_Links.find({
@@ -774,7 +798,6 @@ async function uploadSociallinks(req, res) {
 				});
 
 				await social_link.save();
-			 
 			}
 		}
 		return res.send({
@@ -783,22 +806,20 @@ async function uploadSociallinks(req, res) {
 		});
 	} catch (err) {
 		return res.send({
-			status: 'FAILURE',
-			message: 'Unknown error'
-		})
+			status: "FAILURE",
+			message: "Unknown error",
+		});
 	}
-	
 }
 
 async function deleteSocialLinks(req, res) {
-	const username = req.decoded['username']
+	const username = req.decoded["username"];
 
 	if (!username) {
-		return res.send({ status: 'FAILURE', message: 'Missing details'})
+		return res.send({ status: "FAILURE", message: "Missing details" });
 	} else {
-
 		try {
-			await mongodb.User_Social_Links.deleteMany({ user_id: username })
+			await mongodb.User_Social_Links.deleteMany({ user_id: username });
 
 			return res.send({
 				status: "SUCCESS",
@@ -925,5 +946,5 @@ module.exports = {
 	getsociallinks,
 	change_to_private_profile,
 	deleteSocialLinks,
-	delete_profile_pic
+	delete_profile_pic,
 };

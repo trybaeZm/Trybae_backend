@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `host_Bank_accounts`(
     `account_no` VARCHAR(255) NOT NULL
 );
 
--- FOREIGN KEYS (Planet scale does not allow foreign keys !!!)
+-- FOREIGN KEYS (This wont work on Planet scale coz it does not allow foreign keys !!!)
 
 ALTER TABLE
     `tickets` ADD `tickets_event_id_foreign` FOREIGN KEY(`event_id`) REFERENCES `events`(`event_id`) 

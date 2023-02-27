@@ -276,42 +276,43 @@ async function addEvent(req, res) {
 		Latitude,
 	} = req.body;
 
-		const passcode = Math.floor(10000 + Math.random() * 90000); // random 5 digit passcode
-	
-		const event = {
-			event_name: event_name,
-			event_date: event_date,
-			event_time: event_time,
-			event_location: event_location,
-			About: About == undefined ? null : About,
-			Image_url: imageUrl == undefined ? null : imageUrl,
-			Video_url: videoUrl == undefined ? null : videoUrl,
-			number_of_people: number_of_people == undefined ? 0 : number_of_people,
-			host_username: host_username,
-			active: active == undefined ? true : active,
-			normal_price: normal_price,
-			like_count: like_count == undefined ? 0 : like_count,
-			category: category,
-			Latitude: Latitude,
-			Longitude: Longitude,
-			event_passcode: passcode
-		};
+	const passcode = Math.floor(10000 + Math.random() * 90000); // random 5 digit passcode
 
-		Model.connection.query(
-			"INSERT INTO events SET ?",
-			event,
-			async function (error, results) {
-				if (error) res.send({ status: "FAILURE", message: "Unknown error" });
-				if (results) {
-					await setTicketTypes(results.insertId, "normal_price", normal_price);
-					res.send({
-						status: "SUCCESS",
-						message: "successfully created event, keep the event passcode secure.",
-						event_passcode: passcode
-					});
-				}
-			},
-		);
+	const event = {
+		event_name: event_name,
+		event_date: event_date,
+		event_time: event_time,
+		event_location: event_location,
+		About: About == undefined ? null : About,
+		Image_url: imageUrl == undefined ? null : imageUrl,
+		Video_url: videoUrl == undefined ? null : videoUrl,
+		number_of_people: number_of_people == undefined ? 0 : number_of_people,
+		host_username: host_username,
+		active: active == undefined ? true : active,
+		normal_price: normal_price,
+		like_count: like_count == undefined ? 0 : like_count,
+		category: category,
+		Latitude: Latitude,
+		Longitude: Longitude,
+		event_passcode: passcode,
+	};
+
+	Model.connection.query(
+		"INSERT INTO events SET ?",
+		event,
+		async function (error, results) {
+			if (error) res.send({ status: "FAILURE", message: "Unknown error" });
+			if (results) {
+				await setTicketTypes(results.insertId, "normal_price", normal_price);
+				res.send({
+					status: "SUCCESS",
+					message:
+						"successfully created event, keep the event passcode secure.",
+					event_passcode: passcode,
+				});
+			}
+		},
+	);
 }
 
 const setTicketTypes = async (event_id, ticket_type, ticket_price) => {
@@ -364,7 +365,6 @@ const setTicketTypesEndpoint = async (req, res) => {
 	}
 
 	try {
-
 		for (let i = 0; i < ticket_types?.length; i++) {
 			const ticket_type = await mongo_db.TicketTypes.findOne({
 				event_id: `${ticket_types[i].event_id}`,
@@ -380,22 +380,22 @@ const setTicketTypesEndpoint = async (req, res) => {
 			}
 		}
 
-		let completed = 0
+		let completed = 0;
 		for (let i = 0; i < ticket_types?.length; i++) {
 			const new_ticket_type = new mongo_db.TicketTypes({
 				event_id: `${ticket_types[i].event_id}`,
 				ticket_type: ticket_types[i].ticket_type,
 				ticket_price: ticket_types[i].ticket_price,
 			});
-			
-			await new_ticket_type.save()
+
+			await new_ticket_type.save();
 
 			completed++;
 
 			if (completed == ticket_types?.length) {
 				return res.send({
-					status: 'SUCCESS',
-					message: 'All ticket types created'
+					status: "SUCCESS",
+					message: "All ticket types created",
 				});
 			}
 		}

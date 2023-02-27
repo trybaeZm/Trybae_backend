@@ -1,5 +1,5 @@
 const mongodb = require("../models/mongo_db");
-const Model = require('../models/TryBae_db')
+const Model = require("../models/TryBae_db");
 const ticketController = require("./tickets");
 const Flutterwave = require("../middleware/flutterwave");
 const { Expo } = require("expo-server-sdk");
@@ -18,7 +18,10 @@ const getUserByUsername = (username, cb) => {
 
 async function verify_transaction(req, res) {
 	if (!req.query.status || !req.query.transaction_id || !req.query.tx_ref) {
-		return res.send({ status: "FAILURE", message: "Query parameters missing, contact support immediately." });
+		return res.send({
+			status: "FAILURE",
+			message: "Query parameters missing, contact support immediately.",
+		});
 	}
 
 	try {
@@ -65,11 +68,10 @@ async function verify_transaction(req, res) {
 
 								let completed = 0;
 								for (let i = 0; i < Ticket.seatsChosen.length; i++) {
-									
 									let modifiedTicket = Ticket.toObject();
 
 									modifiedTicket.seat_number = seatsChosen[i];
-									console.log(modifiedTicket)
+									console.log(modifiedTicket);
 									try {
 										ticketController.create_ticket_query(
 											modifiedTicket,
@@ -82,11 +84,9 @@ async function verify_transaction(req, res) {
 															err,
 														code: "102",
 													});
-													
 												}
 												completed++;
 												if (completed == Ticket.seatsChosen.length) {
-
 													try {
 														getUserByUsername(
 															Ticket?.ticket_owner,
@@ -114,7 +114,7 @@ async function verify_transaction(req, res) {
 																						event_id: Ticket?.event_id,
 																						is_cinema: true,
 																						bulk: true,
-																					}
+																					},
 																				},
 																			];
 
@@ -141,9 +141,9 @@ async function verify_transaction(req, res) {
 															},
 														);
 													} catch (err) {
-														console.log(err)
+														console.log(err);
 													}
-													
+
 													return res.send({
 														status: "SUCCESS",
 														message:
@@ -157,8 +157,7 @@ async function verify_transaction(req, res) {
 										return res.send({
 											status: "FAILURE",
 											message:
-												"Unknown error, contact support, or try later." +
-												err,
+												"Unknown error, contact support, or try later." + err,
 											code: "102",
 										});
 									}
@@ -237,8 +236,6 @@ async function verify_transaction(req, res) {
 													console.log(err);
 												}
 
-
-												
 												return res.send({
 													status: "SUCCESS",
 													message:
@@ -288,7 +285,6 @@ async function verify_transaction(req, res) {
 		});
 	}
 }
-
 
 module.exports = {
 	verify_transaction,

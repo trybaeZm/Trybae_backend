@@ -147,7 +147,7 @@ const sendOTPVerificationEmail = async (user) => {
 			from: process.env.EMAIL,
 			to: user.admin_email, // CHANGE LATER to user.email
 			subject: "Trybae OTP",
-            html: `<h3>Hello <h2>${user.admin_username}</h2></h3> <br/> 
+			html: `<h3>Hello <h2>${user.admin_username}</h2></h3> <br/> 
             <p>your otp for TryBae is:</p> <br/> <h2><em> ${otp} </em></h2>`,
 		};
 
@@ -191,7 +191,10 @@ async function verifyOTP(req, res) {
 	try {
 		let { userId, otp } = req.body;
 		if (!userId || !otp) {
-			return res.send({ status: "FAILED", message: "Empty details, please relogin!" });
+			return res.send({
+				status: "FAILED",
+				message: "Empty details, please relogin!",
+			});
 		} else {
 			const AdminEmailOTPVerificationRecord =
 				await mongodb.AdminEmailOTPVerification.find({
@@ -246,12 +249,13 @@ async function verifyOTP(req, res) {
 	}
 }
 
-
 const resend_OTP = async (req, res) => {
 	try {
 		let { username } = req.body;
 
-		const record = await mongodb.trybae_admins.findOne({ admin_username: username });
+		const record = await mongodb.trybae_admins.findOne({
+			admin_username: username,
+		});
 
 		if (!record) {
 			return res.send({
@@ -265,7 +269,6 @@ const resend_OTP = async (req, res) => {
 			});
 			return res.send({ status: "SUCCESS", message: "OTP sent!" });
 		}
-
 	} catch (error) {
 		return res.send({
 			status: "FAILED",
@@ -278,5 +281,5 @@ module.exports = {
 	login,
 	signup,
 	verifyOTP,
-	resend_OTP
+	resend_OTP,
 };

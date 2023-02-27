@@ -12,4 +12,4 @@ connection.connect((err) => {
 	else console.log("Connection to sql DB Successful! ✅");
 });
 
-module.exports = {connection};
+module.exports = { connection };

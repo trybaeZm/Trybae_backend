@@ -125,7 +125,7 @@ const follow = async (req, res) => {
 											})();
 										}
 									} catch (err) {
-										console.log(err)
+										console.log(err);
 									}
 									const newfollower = mongodb.Followers({
 										follower_id: follower_id,
@@ -296,7 +296,7 @@ const getSpecificFollowers = async (req, res) => {
 			following_id: following_id,
 			following_type: following_type,
 		});
-	return res.send({ status: "SUCCESS", followers: followers });
+		return res.send({ status: "SUCCESS", followers: followers });
 	} catch (err) {
 		return res.send({
 			status: "FAILURE",
@@ -313,7 +313,7 @@ const getSpecificFollowing = async (req, res) => {
 			follower_id: follower_id,
 			follower_type: follower_type,
 		});
-	return	res.send({ status: "SUCCESS", following: following });
+		return res.send({ status: "SUCCESS", following: following });
 	} catch (err) {
 		return res.send({
 			status: "FAILURE",

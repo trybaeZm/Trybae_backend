@@ -34,12 +34,18 @@ function securityMiddleware(req, res, next) {
 			(key) => isXSS(headers[key]) || isSQLI(headers[key]),
 		)
 	) {
-        return res.status(403).send({ status: "Forbidden", message: "Forbidden request"});
-    }
-    
+		return res
+			.status(403)
+			.send({ status: "Forbidden", message: "Forbidden request" });
+	}
+
 	next();
 }
 
 module.exports = {
 	securityMiddleware,
 };
+
+
+// can be enhanced
+

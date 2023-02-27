@@ -11,7 +11,7 @@ mongoose.connect(uri, (err) => {
 	if (!err) console.log("Connection to mongo DB Successful! ✅");
 	else {
 		console.log("Error connecting to mongo DB ❌");
-	} 
+	}
 });
 
 const UserEmailOTPVerificationSchema = new mongoose.Schema({
@@ -112,8 +112,8 @@ const transactionSchema = new mongoose.Schema({
 		type: Date,
 	},
 	seatsChosen: {
-		type: Array
-	}
+		type: Array,
+	},
 });
 
 const TicketTypesSchema = new mongoose.Schema({
@@ -125,8 +125,8 @@ const TicketTypesSchema = new mongoose.Schema({
 		type: String,
 	},
 	ticket_price: {
-		type: Number
-	}
+		type: Number,
+	},
 });
 
 const Host_Social_Links_Schema = new mongoose.Schema({
@@ -169,34 +169,34 @@ const ticketSchema = new mongoose.Schema({
 	seatsChosen: { type: Array },
 	is_cinema_ticket: { type: Boolean, default: false },
 	cinema_time: { type: String },
-	cinema_date: {type: String}
+	cinema_date: { type: String },
 });
 
 const trybae_admin_Schema = new mongoose.Schema({
 	admin_username: {
 		type: String,
-		required: true
+		required: true,
 	},
 	admin_password: {
 		type: String,
-		required: true
+		required: true,
 	},
 	admin_email: {
 		type: String,
-		required: true
+		required: true,
 	},
 	profile_pic_url: {
 		type: String,
 	},
 	admin_phone: {
 		type: String,
-		required: true
+		required: true,
 	},
 	admin_position: {
 		type: String,
-		required: true
-	}
-})
+		required: true,
+	},
+});
 
 const AdminRefreshTokenSchema = new mongoose.Schema({
 	token: { type: String, required: true, unique: true },
@@ -208,18 +208,18 @@ const CinemaSchema = new mongoose.Schema({
 	cinema_id: String,
 	cinema_name: String,
 	cinema_seats: {
-		type: Array
-	}
-})
+		type: Array,
+	},
+});
 
 const CinemaTimeSchema = new mongoose.Schema({
 	cinema_id: String,
 	event_id: String,
 	cinema_date: String,
 	cinema_times: {
-		type: Array
-	}
-})
+		type: Array,
+	},
+});
 
 const AdminEmailOTPVerificationSchema = new mongoose.Schema({
 	userId: String,
@@ -230,8 +230,8 @@ const AdminEmailOTPVerificationSchema = new mongoose.Schema({
 
 const newTicketPurchaseSchema = new mongoose.Schema({
 	userId: String,
-	event_id: String
-})
+	event_id: String,
+});
 
 const Tickets = mongoose.model("Ticket", ticketSchema);
 
@@ -280,24 +280,26 @@ const Host_Social_Links = mongoose.model(
 	Host_Social_Links_Schema,
 );
 
-const trybae_admins = mongoose.model(
-	'trybae_admins',
-	trybae_admin_Schema
-)
+const trybae_admins = mongoose.model("trybae_admins", trybae_admin_Schema);
 
 const AdminEmailOTPVerification = mongoose.model(
 	"AdminEmailOTPVerifications",
-	AdminEmailOTPVerificationSchema
+	AdminEmailOTPVerificationSchema,
 );
 
-const AdminRefreshToken = mongoose.model("AdminRefreshToken", AdminRefreshTokenSchema);
+const AdminRefreshToken = mongoose.model(
+	"AdminRefreshToken",
+	AdminRefreshTokenSchema,
+);
 
-const Cinemas = mongoose.model('Cinemas', CinemaSchema);
+const Cinemas = mongoose.model("Cinemas", CinemaSchema);
 
-const CinemaTimes = mongoose.model('CinemaTimes', CinemaTimeSchema)
+const CinemaTimes = mongoose.model("CinemaTimes", CinemaTimeSchema);
 
-const newTicketPurchase = mongoose.model('newTicketPurchase', newTicketPurchaseSchema)
-
+const newTicketPurchase = mongoose.model(
+	"newTicketPurchase",
+	newTicketPurchaseSchema,
+);
 
 module.exports = {
 	UserEmailOTPVerification,
@@ -318,5 +320,5 @@ module.exports = {
 	AdminEmailOTPVerification,
 	Cinemas,
 	CinemaTimes,
-	newTicketPurchase
+	newTicketPurchase,
 };

@@ -1,14 +1,14 @@
 const mongo_db = require("../models/mongo_db");
 const cinemas_static = require("../static/cinemas");
 const Model = require("../models/TryBae_db");
-const redisClient = require('../models/redis')
+const redisClient = require("../models/redis");
 
 const insert_static = async (req, res) => {
 	if (req.decoded["privs"] != "admin") {
 		res.send("insufficient privileges");
 	} else {
 		try {
-			const result =  await mongo_db.Cinemas.insertMany(cinemas_static.cinemas);
+			const result = await mongo_db.Cinemas.insertMany(cinemas_static.cinemas);
 			console.log(result);
 
 			if (result.length == cinemas_static.cinemas.length) {
@@ -126,7 +126,7 @@ const insert_cinema_times_and_dates = async (req, res) => {
 		!cinema_id ||
 		!event_id ||
 		!cinema_times ||
-		cinema_times?.length < 1 || 
+		cinema_times?.length < 1 ||
 		!cinema_date
 	) {
 		return res.send({

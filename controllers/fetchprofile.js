@@ -3,7 +3,6 @@ const mysql = require("mysql2");
 const mongo_db = require("../models/mongo_db");
 const { createMulter } = require("../middleware/multer-upload");
 
-
 const getUserByUsername = (username, cb) => {
 	const query = `SELECT * FROM users WHERE username = ?`;
 	Model.connection.query(query, [username], (error, results) => {

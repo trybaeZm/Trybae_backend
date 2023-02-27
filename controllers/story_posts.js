@@ -17,7 +17,6 @@ function getAllStoryPosts(req, res) {
 	);
 }
 
-
 // Select story post by ID
 function getStoryPostById(req, res) {
 	const id = req.body.id;

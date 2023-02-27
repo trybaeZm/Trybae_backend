@@ -55,11 +55,11 @@ function addUserInterest(req, res) {
 				if (error) {
 					res.send({ status: "FAILURE", message: "Unknown error" });
 				} else {
-					console.log(results.insertId)
+					console.log(results.insertId);
 				}
 			},
 		);
-	
+
 		res.send({ status: "SUCCESS", message: "added interests" });
 	} catch (err) {
 		res.send({ status: "FAILURE", message: "unknow error" });
