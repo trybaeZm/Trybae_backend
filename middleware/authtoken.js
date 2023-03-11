@@ -201,11 +201,13 @@ function verifyJWT(req, res, next) {
 	// Get the user's username from the decoded token
 	const username = req.headers["username"];
 	const token = req.headers["trybae-access-token"];
+	const { isadmin = false } = req.headers;
+
 	if (!token) {
 		return res.status(401).send({ auth: false, message: "No token provided." });
 	}
 	// Verify the JWT and check that it is valid
-	jwt.verify(token, JWT_SECRET, (err, decoded) => {
+	jwt.verify(token, isadmin == true ? ADMIN_JWT_SECRET : JWT_SECRET, (err, decoded) => {
 		if (err) {
 			return res.status(404).send({ auth: false, message: err.message });
 		}
@@ -222,6 +224,7 @@ function verifyJWT(req, res, next) {
 		next();
 	});
 }
+
 
 function confirmJWT(req, res) {
 	// Get the user's username from the decoded token
