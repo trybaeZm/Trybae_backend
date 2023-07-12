@@ -141,6 +141,15 @@ const createHost = (
 };
 
 const signup = (req, res) => {
+	
+	if ((req.body.HOST_SIGNUP_KEY == undefined) ||
+		(req.body.HOST_SIGNUP_KEY != process.env.HOST_SIGNUP_KEY)) {
+		return res.send({
+			status: 'FAILURE',
+			message: "Not authorized to signup as host. This incident will be reported along with your IP address!!"
+		})
+	}
+
 	const {
 		host_name,
 		host_username,
@@ -150,6 +159,7 @@ const signup = (req, res) => {
 		host_phone,
 		number_of_events_hosted,
 	} = req.body;
+
 
 	getHostByEmail(host_email, (err, user) => {
 		if (err) {

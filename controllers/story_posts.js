@@ -3,10 +3,7 @@ const { createMulter } = require("../middleware/multer-upload");
 
 function getAllStoryPosts(req, res) {
 	Model.connection.query(
-		`SELECT *
-		FROM story_posts
-		JOIN hosts
-		ON story_posts.username = hosts.host_username;`,
+		`SELECT * FROM story_posts`,
 		function (error, results) {
 			if (error) {
 				return res.send({ status: "FAILURE", message: "Unknown error" });
@@ -48,6 +45,10 @@ function getStoryPostsByUsername(req, res) {
 }
 
 function uploadstory(req, res) {
+	if (req.decoded.privs !== 'admin' || req.decoded.privs !== 'host') {
+		return res.send({ status: "FAILURE", message: "insufficient priveleges" });
+	}
+
 	const upload = createMulter(
 		"public-read",
 		"Stories/images",
@@ -144,8 +145,11 @@ function updateStoryPostViews(req, res) {
 
 // Delete story post by ID
 function deleteStoryPost(req, res) {
-	const { id } = req.body;
+	if (req.decoded.privs !== "admin") {
+		return res.send({ status: "FAILURE", message: "insufficient priveleges" });
+	}
 
+	const { id } = req.body;
 	if (id != undefined) {
 		Model.connection.query(
 			"SELECT * FROM story_posts WHERE story_id = ?",

@@ -207,7 +207,7 @@ function verifyJWT(req, res, next) {
 		return res.status(401).send({ auth: false, message: "No token provided." });
 	}
 	// Verify the JWT and check that it is valid
-	jwt.verify(token, isadmin == true ? ADMIN_JWT_SECRET : JWT_SECRET, (err, decoded) => {
+	jwt.verify(token, isadmin == true || isadmin == "true" ? ADMIN_JWT_SECRET : JWT_SECRET, (err, decoded) => {
 		if (err) {
 			return res.status(404).send({ auth: false, message: err.message });
 		}

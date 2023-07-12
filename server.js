@@ -20,6 +20,7 @@ app.use(
 		origin: "*"
 	}),
 );
+
 app.set("trust proxy", 1); // to trust loadbalancers like nginx so that, that ip doesn`t get limited.
 
 const userauthRouter = require("./routers/userauth_router");
