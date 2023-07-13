@@ -277,9 +277,21 @@ const resend_OTP = async (req, res) => {
 	}
 };
 
+const refresh = async (req, res) => {
+	const refreshToken = req.body.refreshToken;
+	const username = req.body.username;
+
+	if (!refreshToken || refreshToken == undefined) {
+		return res.send({ message: "No Token Provided!" });
+	}
+	await middleware.verifyRefreshToken(refreshToken, username, res);
+};
+
+
 module.exports = {
 	login,
 	signup,
 	verifyOTP,
 	resend_OTP,
+	refresh
 };

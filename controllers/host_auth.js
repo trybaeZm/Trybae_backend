@@ -319,11 +319,12 @@ const login = (req, res) => {
 
 const refresh = async (req, res) => {
 	const refreshToken = req.body.refreshToken;
+	const username = req.body.username;
 
 	if (!refreshToken || refreshToken == undefined) {
 		return res.send({ message: "No Token Provided!" });
 	}
-	await middleware.verifyRefreshToken(refreshToken, res);
+	await middleware.verifyRefreshToken(refreshToken,username, res);
 };
 
 const upload_profile_pic = (req, res) => {

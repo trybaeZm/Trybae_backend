@@ -3,7 +3,9 @@ const { createMulter } = require("../middleware/multer-upload");
 
 function getAllStoryPosts(req, res) {
 	Model.connection.query(
-		`SELECT * FROM story_posts`,
+		`SELECT sp.*, h.profile_pic_url
+		FROM story_posts sp
+		JOIN hosts h ON sp.username = h.host_username;`,
 		function (error, results) {
 			if (error) {
 				return res.send({ status: "FAILURE", message: "Unknown error" });
@@ -45,7 +47,7 @@ function getStoryPostsByUsername(req, res) {
 }
 
 function uploadstory(req, res) {
-	if (req.decoded.privs !== 'admin' || req.decoded.privs !== 'host') {
+	if (req.decoded.privs !== 'admin' && req.decoded.privs !== 'host') {
 		return res.send({ status: "FAILURE", message: "insufficient priveleges" });
 	}
 
@@ -58,9 +60,11 @@ function uploadstory(req, res) {
 	try {
 		upload.single("image")(req, res, (err) => {
 			if (err) {
+				console.log(err)
 				return res.send({
 					status: "FAILURE",
 					message: "Disallowed file type",
+
 				});
 			}
 			if (req.file) {
@@ -69,7 +73,7 @@ function uploadstory(req, res) {
 					image_url: req.file.location,
 					description: req.body.description,
 					title: req.body.title,
-					username: req.decoded["username"],
+					username: req.body.username,
 					date: new Date().toISOString().slice(0, 10),
 					time:
 						("0" + time.getHours()).slice(-2) +

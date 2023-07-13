@@ -118,6 +118,7 @@ const verifyRefreshToken = (token, username, res) => {
 			return res.status(404).send({ auth: false, message: "Token mismatch" });
 		}
 
+
 		if (decoded.privs == "user") {
 			mongo_db.RefreshToken.findOne({ token: token }, (err, doc) => {
 				if (err || !doc) {
@@ -180,7 +181,7 @@ const verifyRefreshToken = (token, username, res) => {
 				// Generate a new JWT for the user with the ID stored in the refresh token
 				const jwt = createJWTtoken(decoded.username, decoded.privs);
 				// Send the new JWT to the client
-				res.send({ status: true, jwt });
+				return res.send({ status: true, jwt });
 			});
 		}
 	} catch (err) {
