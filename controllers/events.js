@@ -284,8 +284,6 @@ async function addEvent(req, res) {
 		event_time: event_time,
 		event_location: event_location,
 		About: About == undefined ? null : About,
-		Image_url: imageUrl == undefined ? null : imageUrl,
-		Video_url: videoUrl == undefined ? null : videoUrl,
 		number_of_people: number_of_people == undefined ? 0 : number_of_people,
 		host_username: host_username,
 		active: active == undefined ? true : active,
@@ -308,6 +306,7 @@ async function addEvent(req, res) {
 					status: "SUCCESS",
 					message:
 						"successfully created event, keep the event passcode secure.",
+					event_name: event_name,
 					event_passcode: passcode,
 				});
 			}

@@ -56,6 +56,10 @@ app.get("/appcheck", limiter, (req, res) => {
 	);
 });
 
+app.get('/apiversion', limiter, (req, res) => {
+	return res.send({ status: "SUCCESS", data: process.env.API_VERSION || 'v.1.0.0'});
+})
+
 app.listen(process.env.PORT || 4455, () => {
 	console.log("Server listening on port", process.env.PORT || 4455);
 	console.log('Server running in ' + process.env.MODE + ' Mode')
