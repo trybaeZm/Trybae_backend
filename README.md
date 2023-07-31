@@ -9,7 +9,7 @@ Connects remotely to planetscale and mongodb atlas.
 npm i -g nodemon <br>
 nodemon server.js
 
-# to start server -
+# to start server in production -
 
 npm install <br>
 npm install -g pm2 <br>
