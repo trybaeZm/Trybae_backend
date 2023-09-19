@@ -465,6 +465,8 @@ const sendOTPVerificationEmail = async (user) => {
 
 	await saveOTP(user, otp);
 
+	console.log(user, otp, "<<<<<<<");
+
 	const message = {
 		from: process.env.EMAIL,
 		to: user.email, // CHANGE LATER to user.email
