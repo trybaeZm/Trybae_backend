@@ -23,8 +23,8 @@ class PaymentService {
         <PaymentAmount>${amount}</PaymentAmount>
         <PaymentCurrency>${this.currency}</PaymentCurrency>
         <CompanyRef>${this.companyRef}</CompanyRef>
-        <RedirectURL>http://www.domain.com/payurl.php</RedirectURL>
-        <BackURL>http://www.domain.com/backurl.php</BackURL>
+        <RedirectURL>https://webhook.site/ee67e87e-7149-4366-b9f7-fba849e05ef9</RedirectURL>
+        <BackURL>https://webhook.site/ee67e87e-7149-4366-b9f7-fba849e05ef9</BackURL>
         <CompanyRefUnique>0</CompanyRefUnique>
         <PTL>5</PTL>
       </Transaction>

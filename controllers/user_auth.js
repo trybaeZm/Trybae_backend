@@ -173,7 +173,6 @@ const change_to_private_profile = (req, res) => {
 };
 
 const login = (req, res) => {
-  console.log(req.body, "this is a good news chief");
   const { login, password, type, appkey, Expo_push_token = null } = req.body;
 
   if (appkey != process.env.APP_KEY) {

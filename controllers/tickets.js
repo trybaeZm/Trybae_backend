@@ -561,11 +561,14 @@ const buy_ticket = async (req, res) => {
         event_id === undefined ||
         ticket_type === undefined
       ) {
+        console.log("its hanging on here");
         return res.send({
           status: "FAILURE",
           messgae: "Missing some ticket details",
         });
       }
+
+      console.log("its hanging on here 2");
 
       try {
         const payment = await paymentService.requestPayment(
