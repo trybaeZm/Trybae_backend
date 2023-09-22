@@ -21,6 +21,36 @@ const requestPayment = async (req, res) => {
   }
 };
 
+const checkPayment = async (req, res) => {
+  const { ticket_id } = req.params;
+
+  const { username } = req.decoded;
+
+  const { status } = await PaymentService.checkPayment(ticket_id, username);
+
+  res.status(200).json({ status });
+};
+
+const fromPaymentRedirect = async (req, res) => {
+  const {
+    TransID,
+    CCDapproval,
+    PnrID,
+    TransactionToken: transactionToken,
+    CompanyRef,
+  } = req.query;
+
+  const { status } = await PaymentService.verifyPaymentForUser(
+    transactionToken
+  );
+
+  // update the transaction status
+
+  res.status(200).json({ status });
+};
+
 module.exports = {
   requestPayment,
+  checkPayment,
+  fromPaymentRedirect,
 };
