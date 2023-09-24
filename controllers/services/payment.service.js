@@ -234,6 +234,187 @@ class PaymentService {
     }
   }
 
+  async purchaseTicket() {
+    try {
+      const Ticket = await mongodb.Tickets.findOne({
+        tx_ref: response.data.tx_ref,
+      });
+
+      if (Ticket) {
+        const newTicketPurchase = new mongodb.newTicketPurchase({
+          userId: Ticket?.ticket_owner,
+          event_id: Ticket?.event_id,
+        });
+        await newTicketPurchase.save();
+        if (Ticket.is_cinema_ticket == true) {
+          const seatsChosen = Ticket.seatsChosen;
+
+          let completed = 0;
+          for (let i = 0; i < Ticket.seatsChosen.length; i++) {
+            let modifiedTicket = Ticket.toObject();
+
+            modifiedTicket.seat_number = seatsChosen[i];
+            console.log(modifiedTicket);
+            try {
+              ticketController.create_ticket_query(
+                modifiedTicket,
+                (err, results) => {
+                  if (err || !results) {
+                    return res.send({
+                      status: "FAILURE",
+                      message:
+                        "Unknown error, contact support, or try later." + err,
+                      code: "102",
+                    });
+                  }
+                  completed++;
+                  if (completed == Ticket.seatsChosen.length) {
+                    try {
+                      getUserByUsername(
+                        Ticket?.ticket_owner,
+                        (err, founduser) => {
+                          if (!err && founduser) {
+                            try {
+                              if (
+                                !Expo.isExpoPushToken(founduser.Expo_push_token)
+                              ) {
+                                console.error(
+                                  `Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
+                                );
+                              } else {
+                                messages = [
+                                  {
+                                    to: founduser.Expo_push_token,
+                                    sound: "default",
+                                    badge: 1,
+                                    title: `${completed} Movie Ticket/s 🎫 purchased`,
+                                    body: `Your purchase was successful ✅`,
+                                    data: {
+                                      new: true,
+                                      event_id: Ticket?.event_id,
+                                      is_cinema: true,
+                                      bulk: true,
+                                    },
+                                  },
+                                ];
+
+                                (async () => {
+                                  let chunks =
+                                    expo.chunkPushNotifications(messages);
+                                  let tickets = [];
+
+                                  for (let chunk of chunks) {
+                                    let ticketChunk =
+                                      await expo.sendPushNotificationsAsync(
+                                        chunk
+                                      );
+
+                                    tickets.push(...ticketChunk);
+                                    console.log(tickets);
+                                  }
+                                })();
+                              }
+                            } catch (err) {
+                              console.log(err);
+                            }
+                          }
+                        }
+                      );
+                    } catch (err) {
+                      console.log(err);
+                    }
+
+                    return res.send({
+                      status: "SUCCESS",
+                      message:
+                        "Transaction verified, and all tickets created... ✅",
+                      code: "200",
+                    });
+                  }
+                }
+              );
+            } catch (err) {
+              return res.send({
+                status: "FAILURE",
+                message: "Unknown error, contact support, or try later." + err,
+                code: "102",
+              });
+            }
+          }
+        } else {
+          let completed = 0;
+          for (let i = 0; i < Ticket.qty; i++) {
+            ticketController.create_ticket_query(Ticket, (err, results) => {
+              if (err || !results) {
+                return res.send({
+                  status: "FAILURE",
+                  message:
+                    "Unknown error, contact support, or try later." + err,
+                  code: "102",
+                });
+              }
+              completed++;
+              if (completed == Ticket.qty) {
+                try {
+                  getUserByUsername(Ticket?.ticket_owner, (err, founduser) => {
+                    if (!err && founduser) {
+                      try {
+                        if (!Expo.isExpoPushToken(founduser.Expo_push_token)) {
+                          console.error(
+                            `Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
+                          );
+                        } else {
+                          messages = [
+                            {
+                              to: founduser.Expo_push_token,
+                              sound: "default",
+                              badge: 1,
+                              title: `${completed} Ticket/s 🎫 purchased`,
+                              body: `Your purchase was successful ✅`,
+                              data: {
+                                new: true,
+                                event_id: Ticket?.event_id,
+                                is_cinema: false,
+                                bulk: true,
+                              },
+                            },
+                          ];
+
+                          (async () => {
+                            let chunks = expo.chunkPushNotifications(messages);
+                            let tickets = [];
+
+                            for (let chunk of chunks) {
+                              let ticketChunk =
+                                await expo.sendPushNotificationsAsync(chunk);
+
+                              tickets.push(...ticketChunk);
+                              console.log(tickets);
+                            }
+                          })();
+                        }
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    }
+                  });
+                } catch (err) {
+                  console.log(err);
+                }
+
+                return res.send({
+                  status: "SUCCESS",
+                  message:
+                    "Transaction verified, and all tickets created... ✅",
+                  code: "200",
+                });
+              }
+            });
+          }
+        }
+      }
+    } catch (error) {}
+  }
   // other methods...
 }
 

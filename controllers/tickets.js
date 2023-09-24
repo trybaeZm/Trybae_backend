@@ -580,7 +580,6 @@ const buy_ticket = async (req, res) => {
 
         console.log(payment.paymentLink, "url");
 
-        // [TODO:] // Save the payment details to the database
         return res.send({
           status: "SUCCESS",
           message: "payment link created",
