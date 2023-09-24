@@ -15,6 +15,7 @@ class PaymentService {
     this.serviceType = process.env.DPO_SERVICE_TYPE;
     this.currency = process.env.DPO_CURRENCY;
     this.paymentUrl = process.env.DPO_PAYMENT_URL;
+    this.DPO_URL = process.env.DPO_URL;
   }
 
   async requestPayment(amount, username, description, eventId) {
@@ -46,11 +47,7 @@ class PaymentService {
       };
 
       // Make the POST request using axios
-      const response = await axios.post(
-        "https://secure.3gdirectpay.com/API/v6/",
-        xmlData,
-        { headers }
-      );
+      const response = await axios.post(this.DPO_URL, xmlData, { headers });
 
       // Handle the response
       const responseData = response.data;
@@ -158,17 +155,12 @@ class PaymentService {
       };
 
       // Make the POST request using axios
-      const response = await axios.post(
-        "https://secure.3gdirectpay.com/API/v6/",
-        xmlData,
-        { headers }
-      );
+      const response = await axios.post(this.DPO_URL, xmlData, { headers });
 
       // Handle the response
 
       const responseData = response.data;
 
-      console.log(responseData);
       // You can parse the XML response if needed (using xml2js, for example)
       const parsedData = await xml2js.parseStringPromise(responseData);
 
@@ -414,6 +406,84 @@ class PaymentService {
         }
       }
     } catch (error) {}
+  }
+
+  async DPOVerifyPayment(transactionToken) {
+    try {
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+      <API3G>
+          <CompanyToken>${this.companyToken}</CompanyToken>
+          <Request>verifyToken</Request>
+          <TransactionToken>${transactionToken}</TransactionToken>
+      </API3G>`;
+
+      // Set the headers for the POST request
+      const headers = {
+        "Content-Type": "application/xml",
+      };
+
+      // Make the POST request using axios
+      const response = await axios.post(
+        "https://secure.3gdirectpay.com/API/v6/",
+        xmlData,
+        { headers }
+      );
+
+      // Handle the response
+      const responseData = response.data;
+
+      // You can parse the XML response if needed (using xml2js, for example)
+      const parsedData = await xml2js.parseStringPromise(responseData);
+
+      // Extract the specific values
+      const result = {
+        result: parsedData.API3G.Result,
+        resultExplanation: parsedData.API3G.ResultExplanation,
+        customerName: parsedData.API3G.CustomerName,
+        customerPhone: parsedData.API3G.CustomerPhone,
+        transaxtionFinalAmount: parsedData.API3G.TransactionFinalAmount,
+        transactionAmount: parsedData.API3G.TransactionAmount,
+        transactionCurrency: parsedData.API3G.TransactionCurrency,
+      };
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateTransactionStatus(transactionToken, status) {
+    try {
+      const transaction = await Model.payments
+        .findOne({
+          transactionToken,
+        })
+        .exec();
+
+      if (transaction) {
+        transaction.transactionStatus = status;
+
+        await transaction.save();
+      }
+
+      return;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTransactionDetails(transactionToken) {
+    try {
+      const transaction = await Model.payments
+        .findOne({
+          transactionToken,
+        })
+        .exec();
+
+      return transaction;
+    } catch (error) {
+      throw error;
+    }
   }
   // other methods...
 }

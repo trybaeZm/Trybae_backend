@@ -14,6 +14,7 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
+app.set("view engine", "pug");
 app.use(express.json());
 app.use(security.securityMiddleware);
 app.use(

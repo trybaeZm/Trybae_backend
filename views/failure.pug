@@ -1,0 +1,17 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    // Bootstrap CSS
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+    title Payment Failure
+  body
+    .container
+      .row.justify-content-center.align-items-center(style="height: 100vh")
+        .col-6
+          .card.text-center
+            .card-body
+              h5.card-title Payment Failure
+              p.card-text Unfortunately, your payment was not successful, #{username}. Please try again.
+              a.btn.btn-primary(href="your-app-url-here") Return to App

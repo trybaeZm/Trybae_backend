@@ -1,5 +1,5 @@
 // all controller functions related to payment are defined here
-
+const mongodb = require("../models/mongo_db");
 const PaymentService = require("./services/payment.service");
 
 const requestPayment = async (req, res) => {
@@ -32,21 +32,90 @@ const checkPayment = async (req, res) => {
 };
 
 const fromPaymentRedirect = async (req, res) => {
-  const {
-    TransID,
-    CCDapproval,
-    PnrID,
-    TransactionToken: transactionToken,
-    CompanyRef,
-  } = req.query;
+  try {
+    const {
+      TransID,
+      CCDapproval,
+      PnrID,
+      TransactionToken: transactionToken,
+      CompanyRef,
+    } = req.query;
 
-  const { status } = await PaymentService.verifyPaymentForUser(
-    transactionToken
-  );
+    // verify the payment from transaction token
 
-  // update the transaction status
+    console.log({ transactionToken });
+    const transaction = await PaymentService.DPOVerifyPayment(transactionToken);
 
-  res.status(200).json({ status });
+    if (transaction?.result[0] === "000") {
+      // update the transaction status
+      await PaymentService.updateTransactionStatus(
+        transactionToken,
+        "completed"
+      );
+
+      const transationsDetails = await PaymentService.getTransactionDetails(
+        transactionToken
+      );
+
+      const { eventId, username } = transationsDetails;
+
+      const newTicketPurchase = new mongodb.newTicketPurchase({
+        userId: username,
+        event_id: eventId,
+      });
+      await newTicketPurchase.save();
+
+      const Ticket = await mongodb.Tickets.findOne({
+        tx_ref: transactionToken,
+      });
+
+      if (Ticket) {
+        const seatsChosen = Ticket.seatsChosen;
+
+        let completed = 0;
+        for (let i = 0; i < Ticket.seatsChosen.length; i++) {
+          let modifiedTicket = Ticket.toObject();
+
+          modifiedTicket.seat_number = seatsChosen[i];
+          console.log(modifiedTicket);
+          try {
+            await mongodb.Tickets.findOneAndUpdate(
+              { _id: Ticket._id },
+              modifiedTicket
+            );
+            completed++;
+          } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+              error: "An error occurred while updating the ticket.",
+            });
+          }
+        }
+
+        if (completed === Ticket.seatsChosen.length) {
+          console.log("All tickets updated");
+        }
+      }
+
+      //
+      // redirect to a success page served by the pug template
+      return res.render("success", {
+        transactionToken,
+        eventId,
+        username,
+      });
+    }
+
+    // redirect to a failure page served by the pug template
+    return res.render("failure", {
+      transactionToken,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: `An error occurred. ${error?.message}` });
+  }
 };
 
 module.exports = {
