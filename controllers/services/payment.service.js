@@ -27,8 +27,8 @@ class PaymentService {
         <PaymentAmount>${amount}</PaymentAmount>
         <PaymentCurrency>${this.currency}</PaymentCurrency>
         <CompanyRef>${this.companyRef}</CompanyRef>
-        <RedirectURL>${this.DPO_REDIRECT_URL}</RedirectURL>
-        <BackURL>${this.DPO_BACKURL}</BackURL>
+        <RedirectURL>${this.redirectURL}</RedirectURL>
+        <BackURL>${this.backURL}</BackURL>
         <CompanyRefUnique>0</CompanyRefUnique>
         <PTL>5</PTL>
       </Transaction>
