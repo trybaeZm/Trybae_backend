@@ -98,7 +98,7 @@ class PaymentService {
 
     if (doesUserHaveTransaction?.transactionStatus === "completed") {
       return {
-        status: "COMPLETED",
+        status: "completed",
         data: "Payment successful",
         ticket_id,
       };
