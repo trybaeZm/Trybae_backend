@@ -3,9 +3,32 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const security = require("./middleware/Security");
 const morgan = require("morgan");
+const socketIo = require("socket.io");
 
 require("dotenv").config();
 const app = express();
+
+// Socket.io
+const server = require("http").createServer(app);
+
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  // When the payment is done, emit an event to the client
+  socket.on("paymentDone", () => {
+    io.sockets.emit("paymentUpdate", { done: true });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
 const limiter = rateLimit({
   windowMs: 3 * 60 * 1000, // 3 minutes
   max: 150, // Limit each IP to 150 requests
@@ -60,6 +83,11 @@ app.get("/appcheck", limiter, (req, res) => {
   );
 });
 
+app.get("test-payment", (req, res) => {
+  io.sockets.emit("paymentUpdate", { done: true });
+  return res.send("Done");
+});
+
 app.get("/apiversion", limiter, (req, res) => {
   return res.send({
     status: "SUCCESS",
@@ -67,7 +95,7 @@ app.get("/apiversion", limiter, (req, res) => {
   });
 });
 
-app.listen(process.env.PORT || 4455, () => {
+server.listen(process.env.PORT || 4455, () => {
   console.log("Server listening on port", process.env.PORT || 4455);
   console.log("Server running in " + process.env.MODE + " Mode");
 });
