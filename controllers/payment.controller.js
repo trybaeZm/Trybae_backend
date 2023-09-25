@@ -103,6 +103,8 @@ const fromPaymentRedirect = async (req, res) => {
         eventId,
         username,
       });
+
+      console.log("expected to have run");
       //
       // redirect to a success page served by the pug template
       return res.render("success", {
