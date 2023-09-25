@@ -17,6 +17,8 @@ const io = socketIo(server, {
   },
 });
 
+app.io = io;
+
 io.on("connection", (socket) => {
   console.log("New client connected");
 
@@ -83,7 +85,7 @@ app.get("/appcheck", limiter, (req, res) => {
   );
 });
 
-app.get("test-payment", (req, res) => {
+app.get("/test-payment", (req, res) => {
   io.sockets.emit("paymentUpdate", { done: true });
   return res.send("Done");
 });

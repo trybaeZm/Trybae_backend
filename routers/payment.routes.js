@@ -27,4 +27,15 @@ router.post("/callback", (req, res) => {
 //check payment for current user and event
 router.get("/checkpayment/:ticket_id", middleware.verifyJWT, checkPayment);
 
+router.get("/test-socket", async (req, res) => {
+  try {
+    const io = req.app.io;
+
+    io.sockets.emit("paymentUpdate", { done: true });
+    return res.send("Done");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error.message);
+  }
+});
 module.exports = router;

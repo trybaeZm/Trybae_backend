@@ -41,9 +41,9 @@ const fromPaymentRedirect = async (req, res) => {
       CompanyRef,
     } = req.query;
 
+    const io = req.app.io;
     // verify the payment from transaction token
 
-    console.log({ transactionToken });
     const transaction = await PaymentService.DPOVerifyPayment(transactionToken);
 
     if (transaction?.result[0] === "000") {
@@ -97,6 +97,12 @@ const fromPaymentRedirect = async (req, res) => {
         }
       }
 
+      // emit an event to the client to update the payment status
+      io.sockets.emit("paymentUpdate", {
+        success: "completed",
+        eventId,
+        username,
+      });
       //
       // redirect to a success page served by the pug template
       return res.render("success", {
