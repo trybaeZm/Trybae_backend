@@ -3,13 +3,29 @@ const mongodb = require("../models/mongo_db");
 const PaymentService = require("./services/payment.service");
 
 const requestPayment = async (req, res) => {
-  const { amount, customerId, description, eventId } = req.body;
   try {
+    const {
+      ticket_owner,
+      ticket_description,
+      show_under_participants,
+      event_id,
+      ticket_type,
+      qty = 1,
+      time = new Date(),
+      redeemed = false,
+    } = req.body.ticket;
+
+    const { username } = req.decoded;
     const responseData = await PaymentService.requestPayment(
-      amount,
-      customerId,
-      description,
-      eventId
+      ticket_owner,
+      ticket_description,
+      show_under_participants,
+      event_id,
+      ticket_type,
+      qty,
+      time,
+      (redeemed = false),
+      username
     );
 
     res.status(200).json({ response: responseData });

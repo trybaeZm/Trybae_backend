@@ -529,13 +529,12 @@ const buy_ticket = async (req, res) => {
     event_id,
     ticket_type,
     qty = 1,
-    time = new Date(),
     redeemed = false,
   } = req.body.ticket;
 
   getEvent_query("event_id", event_id, async (err, result) => {
     if (!err && result) {
-      console.log(result, "<<<result");
+      console.log(result, "<<<result from getEvent_query");
       const amount = await amount_calculator(
         req.body.ticket.ticket_type,
         qty,
@@ -543,6 +542,7 @@ const buy_ticket = async (req, res) => {
         result.normal_price
       );
 
+      console.log(amount, "<<<amount brfore anything else");
       if (amount == false) {
         return res.send({
           status: "FAILURE",
@@ -568,14 +568,22 @@ const buy_ticket = async (req, res) => {
         });
       }
 
-      console.log("its hanging on here 2");
-
       try {
+        const tx_ref = `user:'${
+          req.decoded["username"]
+        }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
+
+        console.log(tx_ref, "tx_ref");
         const payment = await paymentService.requestPayment(
-          amount,
           ticket_owner,
           ticket_description,
-          event_id
+          show_under_participants,
+          event_id,
+          ticket_type,
+          amount,
+          redeemed,
+          req.decoded["username"],
+          qty
         );
 
         console.log(payment.paymentLink, "url");
@@ -586,6 +594,7 @@ const buy_ticket = async (req, res) => {
           link: payment.paymentLink,
         });
       } catch (error) {
+        console.log("this is happening");
         console.error(error);
         return res.send({
           status: "FAILURE",

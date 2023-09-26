@@ -1,4 +1,4 @@
-const Model = require("../../models/mongo_db");
+const mongodb = require("../../models/mongo_db");
 const axios = require("axios");
 const xml2js = require("xml2js");
 const dotenv = require("dotenv");
@@ -18,8 +18,31 @@ class PaymentService {
     this.DPO_URL = process.env.DPO_URL;
   }
 
-  async requestPayment(amount, username, description, eventId) {
+  // async requestPayment(amount, username, description, eventId) {
+  async requestPayment(
+    ticket_owner,
+    ticket_description,
+    show_under_participants,
+    event_id,
+    ticket_type,
+    amount = 10.0,
+    redeemed,
+    username,
+    qty
+  ) {
     try {
+      const time = new Date();
+      console.log(
+        { ticket_owner },
+        { ticket_description },
+        { show_under_participants },
+        { event_id },
+        { ticket_type },
+        (amount = 10.0),
+        { redeemed },
+        { username },
+        "check for params"
+      );
       const xmlData = `<API3G>
       <CompanyToken>${this.companyToken}</CompanyToken>
       <Request>createToken</Request>
@@ -35,7 +58,7 @@ class PaymentService {
       <Services>
         <Service>
           <ServiceType>${this.serviceType}</ServiceType>
-          <ServiceDescription>${description}</ServiceDescription>
+          <ServiceDescription>${ticket_description}</ServiceDescription>
           <ServiceDate>2013/12/20 19:00</ServiceDate>
         </Service>
       </Services>
@@ -55,10 +78,11 @@ class PaymentService {
       // You can parse the XML response if needed (using xml2js, for example)
       const parsedData = await xml2js.parseStringPromise(responseData);
 
+      // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
 
-      const transaction = new Model.payments({
-        eventId,
+      const transaction = new mongodb.payments({
+        eventId: event_id,
         username,
         transactionToken: parsedData.API3G.TransToken[0],
         transactionAmount: amount,
@@ -68,6 +92,30 @@ class PaymentService {
       });
 
       await transaction.save();
+
+      // try to do it how it was done in the old code
+      const newPendingTicket = mongodb.Tickets({
+        ticket_owner: ticket_owner,
+        ticket_description: ticket_description,
+        show_under_participants:
+          show_under_participants !== false ? true : show_under_participants,
+        ticket_type: ticket_type,
+        event_id: event_id,
+        date_of_purchase: new Date().toISOString().slice(0, 10),
+        time_of_purchase:
+          ("0" + time.getHours()).slice(-2) +
+          ":" +
+          ("0" + time.getMinutes()).slice(-2) +
+          ":" +
+          ("0" + time.getSeconds()).slice(-2),
+        redeemed: false,
+        tx_ref: parsedData.API3G.TransToken[0],
+        qty: qty,
+      });
+
+      const pendTicket = await newPendingTicket.save();
+
+      console.log(pendTicket, "check for pending ticke");
 
       // Extract the specific values
       const result = {
@@ -87,7 +135,7 @@ class PaymentService {
 
   async checkPayment(ticket_id, username) {
     console.log(ticket_id, username);
-    const doesUserHaveTransaction = await Model.payments
+    const doesUserHaveTransaction = await mongodb.payments
       .findOne({
         eventId: ticket_id,
         username,

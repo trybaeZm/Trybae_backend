@@ -10,10 +10,11 @@ const xml2js = require("xml2js");
 const router = express.Router();
 const Model = require("../models/mongo_db");
 const middleware = require("../middleware/authtoken");
+const { buy_ticket } = require("../controllers/tickets");
 router.post("/example");
 
 // request payment
-router.post("/request", requestPayment);
+router.post("/request", middleware.verifyJWT, buy_ticket);
 
 // redirect url
 router.get("/redirect", fromPaymentRedirect);
