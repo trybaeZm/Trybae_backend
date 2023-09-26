@@ -26,9 +26,12 @@ const checkPayment = async (req, res) => {
 
   const { username } = req.decoded;
 
-  const { status } = await PaymentService.checkPayment(ticket_id, username);
+  const { status, eventId } = await PaymentService.checkPayment(
+    ticket_id,
+    username
+  );
 
-  res.status(200).json({ status });
+  res.status(200).json({ status, eventId });
 };
 
 const fromPaymentRedirect = async (req, res) => {
