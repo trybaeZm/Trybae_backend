@@ -160,7 +160,7 @@ class PaymentService {
       console.log({ hours });
       if (hours > 1) {
         // delete the transaction
-        await Model.payments
+        await mongodb.payments
           .findOneAndDelete({
             eventId: ticket_id,
             username,
