@@ -25,7 +25,7 @@ class PaymentService {
     show_under_participants,
     event_id,
     ticket_type,
-    amount = 10.0,
+    amount,
     redeemed,
     username,
     qty
@@ -38,7 +38,7 @@ class PaymentService {
         { show_under_participants },
         { event_id },
         { ticket_type },
-        (amount = 10.0),
+        amount,
         { redeemed },
         { username },
         "check for params"
@@ -115,8 +115,6 @@ class PaymentService {
 
       const pendTicket = await newPendingTicket.save();
 
-      console.log(pendTicket, "check for pending ticke");
-
       // Extract the specific values
       const result = {
         Result: parsedData.API3G.Result[0],
@@ -157,7 +155,7 @@ class PaymentService {
         Date.now(),
         doesUserHaveTransaction.transactionDateAndTime
       );
-      console.log({ hours });
+
       if (hours > 1) {
         // delete the transaction
         await mongodb.payments

@@ -528,10 +528,16 @@ const buy_ticket = async (req, res) => {
     show_under_participants,
     event_id,
     ticket_type,
-    qty = 1,
     redeemed = false,
   } = req.body.ticket;
 
+  const qty = req.body.qty || 1;
+
+  const mui = req.body;
+
+  console.log({ mui }, "bottom");
+
+  console.log({ qty }, "check");
   getEvent_query("event_id", event_id, async (err, result) => {
     if (!err && result) {
       console.log(result, "<<<result from getEvent_query");
