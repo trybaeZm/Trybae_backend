@@ -440,16 +440,20 @@ async function verify_transaction_dpo(req, res) {
               }
             }
           } else {
+            postMessage;
             let completed = 0;
             for (let i = 0; i < Ticket.qty; i++) {
               ticketController.create_ticket_query(Ticket, (err, results) => {
                 if (err || !results) {
-                  return res.send({
-                    status: "FAILURE",
-                    message:
-                      "Unknown error, contact support, or try later." + err,
-                    code: "102",
+                  return res.render("failure", {
+                    transactionToken,
                   });
+                  // return res.send({
+                  //   status: "FAILURE",
+                  //   message:
+                  //     "Unknown error, contact support, or try later." + err,
+                  //   code: "102",
+                  // });
                 }
                 completed++;
                 if (completed == Ticket.qty) {
@@ -508,38 +512,50 @@ async function verify_transaction_dpo(req, res) {
                     console.log(err);
                   }
 
-                  return res.send({
-                    status: "SUCCESS",
-                    message:
-                      "Transaction verified, and all tickets created... ✅",
-                    code: "200",
+                  return res.render("success", {
+                    transactionToken,
                   });
+                  // return res.send({
+                  //   status: "SUCCESS",
+                  //   message:
+                  //     "Transaction verified, and all tickets created... ✅",
+                  //   code: "200",
+                  // });
                 }
               });
             }
           }
         } else {
-          return res.send({
-            status: "FAILURE",
-            message: "Could not find pending ticket",
-            code: "100",
+          return res.render("failure", {
+            transactionToken,
           });
+          // return res.send({
+          //   status: "FAILURE",
+          //   message: "Could not find pending ticket",
+          //   code: "100",
+          // });
         }
       } else {
-        return res.send({
-          status: "FAILURE",
-          message: "Transaction already Verified!",
+        return res.render("failure", {
+          transactionToken,
         });
+        // return res.send({
+        //   status: "FAILURE",
+        //   message: "Transaction already Verified!",
+        // });
       }
     }
   } catch (err) {
     console.log(err);
-    return res.send({
-      status: "FAILURE",
-      message:
-        "Unable to verify transaction, please contact support immediately or try again later",
-      code: "101",
+    return res.render("failure", {
+      transactionToken,
     });
+    // return res.send({
+    //   status: "FAILURE",
+    //   message:
+    //     "Unable to verify transaction, please contact support immediately or try again later",
+    //   code: "101",
+    // });
   }
 }
 
