@@ -445,6 +445,8 @@ async function verify_transaction_dpo(req, res) {
             for (let i = 0; i < Ticket.qty; i++) {
               ticketController.create_ticket_query(Ticket, (err, results) => {
                 if (err || !results) {
+                  console.log(err, "err");
+                  console.log("this is not creating a ticker", results);
                   return res.render("failure", {
                     transactionToken,
                   });
