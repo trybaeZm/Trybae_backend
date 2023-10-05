@@ -440,7 +440,6 @@ async function verify_transaction_dpo(req, res) {
               }
             }
           } else {
-            postMessage;
             let completed = 0;
             for (let i = 0; i < Ticket.qty; i++) {
               ticketController.create_ticket_query(Ticket, (err, results) => {
