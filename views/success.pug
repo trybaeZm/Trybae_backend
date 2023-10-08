@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    // Bootstrap CSS
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+    title Payment Success
+  body
+    .container
+      .row.justify-content-center.align-items-center(style="height: 100vh")
+        .col-6
+          .card.text-center
+            .card-body
+              h5.card-title Payment Success
+              p.card-text Your payment with the transaction Id of #{transactionToken} was successful. You can close this page and return to the app.
+              p.card-text
+                small.text-muted
+                  | If you have any questions, please contact us at
+                  a(href="mailto:Trybae@gmail.com")
+                    
