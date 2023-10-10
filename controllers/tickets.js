@@ -8,6 +8,8 @@ const paymentService = require("./services/payment.service");
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
 
+const CONVENIENCE_FEE = 5; // IMPORTANT: 5 kwacha service cost / convenience fee...
+
 const create_ticket_query = (record, cb) => {
   const {
     ticket_owner,
@@ -356,7 +358,7 @@ const amount_calculator = async (
     } else {
       price = found.ticket_price;
 
-      return price == 0 ? false : (price *= qty);
+      return price == 0 ? false : (price *= qty); 
     }
   } catch (error) {
     return false;
@@ -581,16 +583,16 @@ const buy_ticket = async (req, res) => {
 
         console.log(tx_ref, "tx_ref");
         const payment = await paymentService.requestPayment(
-          ticket_owner,
-          ticket_description,
-          show_under_participants,
-          event_id,
-          ticket_type,
-          amount,
-          redeemed,
-          req.decoded["username"],
-          qty
-        );
+					ticket_owner,
+					ticket_description,
+					show_under_participants,
+					event_id,
+					ticket_type,
+					amount + CONVENIENCE_FEE,
+					redeemed,
+					req.decoded["username"],
+					qty,
+				);
 
         console.log(payment.paymentLink, "url");
 
