@@ -588,7 +588,7 @@ const buy_ticket = async (req, res) => {
 					show_under_participants,
 					event_id,
 					ticket_type,
-					amount + CONVENIENCE_FEE,
+					amount + (CONVENIENCE_FEE * qty), // convenience cost of K5 per ticket
 					redeemed,
 					req.decoded["username"],
 					qty,
