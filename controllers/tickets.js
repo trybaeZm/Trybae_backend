@@ -358,7 +358,7 @@ const amount_calculator = async (
     } else {
       price = found.ticket_price;
 
-      return price == 0 ? false : (price *= qty); 
+      return price == 0 ? false : (price *= qty);
     }
   } catch (error) {
     return false;
@@ -537,9 +537,6 @@ const buy_ticket = async (req, res) => {
 
   const mui = req.body;
 
-  console.log({ mui }, "bottom");
-
-  console.log({ qty }, "check");
   getEvent_query("event_id", event_id, async (err, result) => {
     if (!err && result) {
       console.log(result, "<<<result from getEvent_query");
@@ -550,7 +547,6 @@ const buy_ticket = async (req, res) => {
         result.normal_price
       );
 
-      console.log(amount, "<<<amount brfore anything else");
       if (amount == false) {
         return res.send({
           status: "FAILURE",
@@ -569,7 +565,6 @@ const buy_ticket = async (req, res) => {
         event_id === undefined ||
         ticket_type === undefined
       ) {
-        console.log("its hanging on here");
         return res.send({
           status: "FAILURE",
           messgae: "Missing some ticket details",
@@ -581,20 +576,17 @@ const buy_ticket = async (req, res) => {
           req.decoded["username"]
         }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
 
-        console.log(tx_ref, "tx_ref");
         const payment = await paymentService.requestPayment(
-					ticket_owner,
-					ticket_description,
-					show_under_participants,
-					event_id,
-					ticket_type,
-					amount + (CONVENIENCE_FEE * qty), // convenience cost of K5 per ticket
-					redeemed,
-					req.decoded["username"],
-					qty,
-				);
-
-        console.log(payment.paymentLink, "url");
+          ticket_owner,
+          ticket_description,
+          show_under_participants,
+          event_id,
+          ticket_type,
+          amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
+          redeemed,
+          req.decoded["username"],
+          qty
+        );
 
         return res.send({
           status: "SUCCESS",
@@ -602,8 +594,6 @@ const buy_ticket = async (req, res) => {
           link: payment.paymentLink,
         });
       } catch (error) {
-        console.log("this is happening");
-        console.error(error);
         return res.send({
           status: "FAILURE",
           message: "An error occurred while making the request.",
