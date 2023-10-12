@@ -63,6 +63,7 @@ const searchRouter = require("./routers/search_router");
 const fetchProfileRouter = require("./routers/fetchprofile_router");
 const cinemaRouter = require("./routers/cinema_router");
 const paymentRouter = require("./routers/payment.routes");
+const dashboardRouter = require('./routers/dashboard')
 
 app.use("/userauth", limiter, userauthRouter);
 app.use("/hostauth", limiter, hostauthRouter);
@@ -77,6 +78,7 @@ app.use("/tbadmins", limiter, adminauthRouter);
 app.use("/profiles", limiter, fetchProfileRouter);
 app.use("/cinemas", limiter, cinemaRouter);
 app.use("/payments", limiter, paymentRouter);
+app.use("/dashboard", limiter, dashboardRouter);
 
 // Test
 app.get("/appcheck", limiter, (req, res) => {

@@ -1363,6 +1363,105 @@ const new_ticket_purchase_check = async (req, res) => {
   }
 };
 
+// Daily Sales by ENIGMA
+const getDailySales = async (req, res) => {
+	const { event_id, startDate, endDate } = req.body;
+
+	getdailySales_query(event_id, startDate, endDate, (error, results) => {
+		if (error) {
+			res.send({ status: "FAILURE", message: "Unkown error" });
+		} else {
+			res.send({ status: "SUCCESS", result: results });
+		}
+	})
+}
+
+// Monthly Sales by ENIGMA
+const getMonthSales = async (req, res) => {
+	const { event_id, startDate, endDate } = req.body;
+
+	getmonthlySales_query(event_id, startDate, endDate, (error, results) => {
+		if (error) {
+			res.send({ status: "FAILURE", message: "Unkown error" });
+		} else {
+			res.send({ status: "SUCCESS", result: results });
+		}
+	})
+}
+
+function getdailySales_query(value, valueTwo, valueThree, callback) {
+	const query = mysql.format("SELECT DATE(Date_of_Purchase) AS day, COUNT(*) AS daily_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY day ORDER BY day", [
+		value,
+		valueTwo,
+		valueThree,
+	]);
+	Model.connection.query(query, function (error, results) {
+		if (error) {
+			callback(error, null);
+		} else {
+			callback(null, results);
+		}
+	});
+}
+
+function getmonthlySales_query(field, fieldTwo, fieldThree, callback) {
+	const query = mysql.format("SELECT DATE_FORMAT(Date_of_purchase, '%M') AS month_name, COUNT(*) AS monthly_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY month_name ORDER BY month_name;", [
+		field,
+		fieldTwo,
+		fieldThree,
+	]);
+	Model.connection.query(query, function (error, results) {
+		if (error) {
+			callback(error, null);
+		} else {
+			callback(null, results);
+		}
+	});
+}
+
+const breakdown = async (req, res) => {
+	const { host_username } = req.body
+
+	getBreakdown( host_username, (error, result) =>{
+		if(error) {
+			res.send({ status: "FAILURE", message: "Unkown error" });
+		}else{
+			res.send({ status: "success", message: result})
+		}
+	})
+}
+
+function getBreakdown(value, callback){
+	const query = mysql.format("SELECT events.event_name, SUM(events.normal_price) AS total_normal_price FROM tickets JOIN events ON tickets.event_id = events.event_id where events.host_username = ? GROUP BY events.event_name;", [
+		value
+	]);
+	Model.connection.query(query, function (error, results) {
+		if (error) {
+			callback(error, null);
+		} else {
+			callback(null, results);
+		}
+	});
+}
+const get_all_participants = (req, res) => {
+	const { event_id } = req.body;
+
+	if (!event_id) {
+		res.send({ status: "FAILURE", message: "event id required" });
+	}
+
+	const query = `SELECT * FROM tickets WHERE event_id = ?;`;
+
+	Model.connection.query(query, [event_id], (err, results) => {
+		if (err) {
+			res.send({ status: "FAILURE", message: "query failed" });
+		}
+		if (results) {
+			res.send({ status: "SUCCESS", participants: results });
+		}
+	});
+};
+
 module.exports = {
   get_all_user_tickets,
   get_ticket_by_id,
@@ -1379,4 +1478,8 @@ module.exports = {
   redeem_ticket,
   bulk_redeem,
   new_ticket_purchase_check,
+  getDailySales,
+	getMonthSales,
+	breakdown,
+	get_all_participants
 };

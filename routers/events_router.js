@@ -16,6 +16,7 @@ router.post("/uploadeventvideo", eventController.uploadVideo);
 router.patch("/updatelikecount", eventController.Update_like_count);
 router.patch("/settickettypes", eventController.setTicketTypesEndpoint);
 router.post("/gettickettypes", eventController.getTicketTypesEndpoint);
+router.get("/getHostEvents", eventController.getHostEvents);
 
 
 module.exports = router;

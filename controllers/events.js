@@ -445,9 +445,35 @@ function deleteEvent(req, res) {
   );
 }
 
+function getHostEvents(req, res) {
+	const username = req.decoded["username"]
+	getEvent_querys("host_username", username, (error, results) => {
+		if (error) {
+			res.send({ status: "FAILURE", message: "Unkown error" });
+		} else {
+			res.send({ status: "SUCCESS", result: results });	
+		}
+	});
+}
+
+function getEvent_querys(fieldOne, valueOne, callback) {
+	const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
+		fieldOne,
+		valueOne,
+	]);
+	Model.connection.query(query, function (error, results) {
+		if (error) {
+			callback(error, null);
+		} else {
+			callback(null, results);
+		}
+	});
+}
+
 module.exports = {
   getAllEvents: getAllEvents,
   getEventById: getEventById,
+  getHostEvents: getHostEvents,
   addEvent: addEvent,
   Update_like_count: Update_like_count,
   updateEvent: updateEvent,

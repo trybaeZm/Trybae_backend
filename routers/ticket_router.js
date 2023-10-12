@@ -33,7 +33,26 @@ router.patch(
 	middleware.verifyJWT,
 	ticketController.transfer_ticket,
 );
-
+router.post(
+	"/getdailysales",
+	middleware.verifyJWT,
+	ticketController.getDailySales,
+);
+router.post(
+	"/getmonthlysales",
+	middleware.verifyJWT,
+	ticketController.getMonthSales,
+);
+router.post(
+	"/getBreakdownSales",
+	middleware.verifyJWT,
+	ticketController.breakdown,
+);
+router.post(
+	"/getallparticipants",
+	middleware.verifyJWT,
+	ticketController.get_all_participants,
+);
 router.post('/gettransfers', middleware.verifyJWT, ticketController.get_transfer_logs)
 router.post(
 	"/buycinematicket",
