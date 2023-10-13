@@ -375,154 +375,6 @@ const checkObject = (obj) => {
   return false;
 };
 
-// const buy_ticket = async (req, res) => {
-// 	const {
-// 		ticket_owner,
-// 		ticket_description,
-// 		show_under_participants,
-// 		event_id,
-// 		ticket_type,
-// 		time = new Date(),
-// 		redeemed = false,
-// 	} = req.body.ticket;
-// 	const qty = req.body.qty || 1;
-
-// 	if (
-// 		ticket_owner === undefined ||
-// 		ticket_description === undefined ||
-// 		show_under_participants === undefined ||
-// 		event_id === undefined ||
-// 		ticket_type === undefined
-// 	) {
-// 		return res.send({
-// 			status: "FAILURE",
-// 			messgae: "Missing some ticket details",
-// 		});
-// 	} else {
-// 		try {
-// 			getEvent_query("event_id", event_id, async (err, result) => {
-// 				if (!err && result) {
-// 					const amount = await amount_calculator(
-// 						req.body.ticket.ticket_type,
-// 						qty,
-// 						event_id,
-// 						result.normal_price,
-// 					);
-
-// 					if (amount == false) {
-// 						return res.send({
-// 							status: "FAILURE",
-// 							message:
-// 								"invalid ticket type or event not found for ticket type comparison",
-// 						});
-// 					} else {
-// 						const tx_ref = `user:'${
-// 							req.decoded["username"]
-// 						}_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
-
-// 						const Payment_payload = {
-// 							headers: {
-// 								Authorization: `Bearer ${
-// 									process.env.MODE == "TEST"
-// 										? process.env.FLW_SECRET_KEY_TEST
-// 										: process.env.FLW_SECRET_KEY
-// 								}`,
-// 							},
-// 							json: {
-// 								tx_ref: tx_ref,
-// 								amount: amount + amount * 0.12,
-// 								currency: "ZMW",
-// 								redirect_url: "http://api.trybae.com/transactions/verifytxn",
-// 								meta: {
-// 									consumer_id: req.decoded["username"],
-// 								},
-// 								customer: {
-// 									email: req.body.Payment_payload.customer.email,
-// 									phonenumber: req.body.Payment_payload.customer.phone,
-// 									name: req.decoded["username"],
-// 								},
-// 								customizations: {
-// 									title: "TryBae tickets",
-// 								},
-// 							},
-// 						};
-// 						if (checkObject(Payment_payload) == false) {
-// 							let response;
-
-// 							try {
-// 								response = await got.post(
-// 									"https://api.flutterwave.com/v3/payments",
-// 									Payment_payload,
-// 								);
-// 							} catch (err) {
-// 								console.log(err);
-// 								return res.send({
-// 									status: "FAILURE",
-// 									message:
-// 										"Internal payment api error, contact support or try later",
-// 								});
-// 							}
-
-// 							let body = JSON.parse(response.body);
-
-// 							if (body.status == "success") {
-// 								const newPendingTicket = mongodb.Tickets({
-// 									ticket_owner: ticket_owner,
-// 									ticket_description: ticket_description,
-// 									show_under_participants:
-// 										show_under_participants !== false
-// 											? true
-// 											: show_under_participants,
-// 									ticket_type: ticket_type,
-// 									event_id: event_id,
-// 									date_of_purchase: new Date().toISOString().slice(0, 10),
-// 									time_of_purchase:
-// 										("0" + time.getHours()).slice(-2) +
-// 										":" +
-// 										("0" + time.getMinutes()).slice(-2) +
-// 										":" +
-// 										("0" + time.getSeconds()).slice(-2),
-// 									redeemed: redeemed,
-// 									tx_ref: tx_ref,
-// 									qty: qty,
-// 								});
-
-// 								await newPendingTicket.save();
-// 								return res.send({
-// 									status: "SUCCESS",
-// 									message: "Redirect to payment link",
-// 									link: body.data.link,
-// 								});
-// 							} else {
-// 								return res.send({
-// 									status: "FAILURE",
-// 									message:
-// 										"Middleware error, please contact support or try later",
-// 								});
-// 							}
-// 						} else {
-// 							return res.send({
-// 								status: "FAILURE",
-// 								message: "One or more properties of payment payload undefined",
-// 							});
-// 						}
-// 					}
-// 				} else {
-// 					return res.send({
-// 						status: "FAILURE",
-// 						message: "Event not found, contact support to fix this",
-// 					});
-// 				}
-// 			});
-// 		} catch (err) {
-// 			return res.send({
-// 				status: "FAILURE",
-// 				message: "Unknown error, contact support, or try later.",
-// 				code: "99",
-// 			});
-// 		}
-// 	}
-// };
 const buy_ticket = async (req, res) => {
   const {
     ticket_owner,
@@ -539,7 +391,6 @@ const buy_ticket = async (req, res) => {
 
   getEvent_query("event_id", event_id, async (err, result) => {
     if (!err && result) {
-      console.log(result, "<<<result from getEvent_query");
       const amount = await amount_calculator(
         req.body.ticket.ticket_type,
         qty,
@@ -657,32 +508,23 @@ const buy_cinema_ticket = async (req, res) => {
               seatsChosen?.length || qty
             }_type:${ticket_type}_seats_${seatsChosen}`;
 
-            const Payment_payload = {
-              headers: {
-                Authorization: `Bearer ${
-                  process.env.MODE == "TEST"
-                    ? process.env.FLW_SECRET_KEY_TEST
-                    : process.env.FLW_SECRET_KEY
-                }`,
-              },
-              json: {
-                tx_ref: tx_ref,
-                amount: amount + amount * 0.12, //Service cost 12%
-                currency: "ZMW",
-                redirect_url: "http://api.trybae.com/transactions/verifytxn",
-                meta: {
-                  consumer_id: req.decoded["username"],
-                },
-                customer: {
-                  email: req.body.Payment_payload.customer.email,
-                  phonenumber: req.body.Payment_payload.customer.phone,
-                  name: req.decoded["username"],
-                },
-                customizations: {
-                  title: "TryBae tickets",
-                },
-              },
-            };
+            const is_cinema_ticket = true;
+            const payment = await paymentService.requestPayment(
+              ticket_owner,
+              ticket_description,
+              show_under_participants,
+              event_id,
+              ticket_type,
+              amount + amount * 0.12, //Service cost 12%
+              redeemed,
+              req.decoded["username"],
+              qty,
+              is_cinema_ticket,
+              seatsChosen,
+              cinema_time,
+              cinema_date
+            );
+
             if (checkObject(Payment_payload) == false) {
               let response;
 
@@ -764,6 +606,167 @@ const buy_cinema_ticket = async (req, res) => {
     }
   }
 };
+// const buy_cinema_ticket = async (req, res) => {
+//   const {
+//     ticket_owner,
+//     ticket_description,
+//     show_under_participants,
+//     event_id,
+//     ticket_type,
+//     time = new Date(),
+//     redeemed = false,
+//   } = req.body.ticket;
+//   const qty = req.body.qty || 1;
+//   const { seatsChosen } = req.body;
+//   const { cinema_time } = req.body;
+//   const { cinema_date } = req.body;
+
+//   if (
+//     ticket_owner === undefined ||
+//     ticket_description === undefined ||
+//     show_under_participants === undefined ||
+//     event_id === undefined ||
+//     ticket_type === undefined ||
+//     seatsChosen?.length < 1 ||
+//     seatsChosen == undefined ||
+//     cinema_time == undefined ||
+//     cinema_date == undefined
+//   ) {
+//     return res.send({
+//       status: "FAILURE",
+//       messgae: "Missing some ticket details",
+//     });
+//   } else {
+//     try {
+//       getEvent_query("event_id", event_id, async (err, result) => {
+//         if (!err && result) {
+//           const amount = await amount_calculator(
+//             req.body.ticket.ticket_type,
+//             qty,
+//             event_id,
+//             result.normal_price
+//           );
+
+//           if (amount == false) {
+//             return res.send({
+//               status: "FAILURE",
+//               message:
+//                 "invalid ticket type or event not found for ticket type comparison",
+//             });
+//           } else {
+//             const tx_ref = `user:'${
+//               req.decoded["username"]
+//             }_date:${new Date()}_event:${event_id}_qty:${
+//               seatsChosen?.length || qty
+//             }_type:${ticket_type}_seats_${seatsChosen}`;
+
+//             const Payment_payload = {
+//               headers: {
+//                 Authorization: `Bearer ${
+//                   process.env.MODE == "TEST"
+//                     ? process.env.FLW_SECRET_KEY_TEST
+//                     : process.env.FLW_SECRET_KEY
+//                 }`,
+//               },
+//               json: {
+//                 tx_ref: tx_ref,
+//                 amount: amount + amount * 0.12, //Service cost 12%
+//                 currency: "ZMW",
+//                 redirect_url: "http://api.trybae.com/transactions/verifytxn",
+//                 meta: {
+//                   consumer_id: req.decoded["username"],
+//                 },
+//                 customer: {
+//                   email: req.body.Payment_payload.customer.email,
+//                   phonenumber: req.body.Payment_payload.customer.phone,
+//                   name: req.decoded["username"],
+//                 },
+//                 customizations: {
+//                   title: "TryBae tickets",
+//                 },
+//               },
+//             };
+//             if (checkObject(Payment_payload) == false) {
+//               let response;
+
+//               try {
+//                 response = await got.post(
+//                   "https://api.flutterwave.com/v3/payments",
+//                   Payment_payload
+//                 );
+//               } catch (err) {
+//                 console.log(err);
+//                 return res.send({
+//                   status: "FAILURE",
+//                   message:
+//                     "Internal payment api error, contact support or try later",
+//                 });
+//               }
+
+//               let body = JSON.parse(response.body);
+
+//               if (body.status == "success") {
+//                 const newPendingTicket = mongodb.Tickets({
+//                   ticket_owner: ticket_owner,
+//                   ticket_description: ticket_description,
+//                   show_under_participants:
+//                     show_under_participants !== false
+//                       ? true
+//                       : show_under_participants,
+//                   ticket_type: ticket_type,
+//                   event_id: event_id,
+//                   date_of_purchase: new Date().toISOString().slice(0, 10),
+//                   time_of_purchase:
+//                     ("0" + time.getHours()).slice(-2) +
+//                     ":" +
+//                     ("0" + time.getMinutes()).slice(-2) +
+//                     ":" +
+//                     ("0" + time.getSeconds()).slice(-2),
+//                   redeemed: redeemed,
+//                   tx_ref: tx_ref,
+//                   qty: qty,
+//                   seatsChosen: seatsChosen,
+//                   is_cinema_ticket: true,
+//                   cinema_time: cinema_time,
+//                   cinema_date: cinema_date,
+//                 });
+
+//                 await newPendingTicket.save();
+//                 return res.send({
+//                   status: "SUCCESS",
+//                   message: "Redirect to payment link",
+//                   link: body.data.link,
+//                 });
+//               } else {
+//                 return res.send({
+//                   status: "FAILURE",
+//                   message:
+//                     "Middleware error, please contact support or try later",
+//                 });
+//               }
+//             } else {
+//               return res.send({
+//                 status: "FAILURE",
+//                 message: "One or more properties of payment payload undefined",
+//               });
+//             }
+//           }
+//         } else {
+//           return res.send({
+//             status: "FAILURE",
+//             message: "Event not found, contact support to fix this",
+//           });
+//         }
+//       });
+//     } catch (err) {
+//       return res.send({
+//         status: "FAILURE",
+//         message: "Unknown error, contact support, or try later.",
+//         code: "99",
+//       });
+//     }
+//   }
+// };
 
 const bulk_transfer = (req, res) => {
   const { event_id, qty, transfer_to, comment = null } = req.body;

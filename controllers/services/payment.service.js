@@ -28,21 +28,15 @@ class PaymentService {
     amount,
     redeemed,
     username,
-    qty
+    qty,
+    is_cinema_ticket = false,
+    seatsChosen,
+    cinema_time,
+    cinema_date
   ) {
     try {
       const time = new Date();
-      console.log(
-        { ticket_owner },
-        { ticket_description },
-        { show_under_participants },
-        { event_id },
-        { ticket_type },
-        amount,
-        { redeemed },
-        { username },
-        "check for params"
-      );
+
       const xmlData = `<API3G>
       <CompanyToken>${this.companyToken}</CompanyToken>
       <Request>createToken</Request>
@@ -81,6 +75,51 @@ class PaymentService {
       // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
 
+      let newPendingTicket;
+      if (is_cinema_ticket) {
+        newPendingTicket = mongodb.Tickets({
+          ticket_owner: ticket_owner,
+          ticket_description: ticket_description,
+          show_under_participants:
+            show_under_participants !== false ? true : show_under_participants,
+          ticket_type: ticket_type,
+          event_id: event_id,
+          date_of_purchase: new Date().toISOString().slice(0, 10),
+          time_of_purchase:
+            ("0" + time.getHours()).slice(-2) +
+            ":" +
+            ("0" + time.getMinutes()).slice(-2) +
+            ":" +
+            ("0" + time.getSeconds()).slice(-2),
+          redeemed: redeemed,
+          tx_ref: tx_ref,
+          qty: qty,
+          seatsChosen: seatsChosen,
+          is_cinema_ticket: true,
+          cinema_time: cinema_time,
+          cinema_date: cinema_date,
+        });
+      } else {
+        newPendingTicket = mongodb.Tickets({
+          ticket_owner: ticket_owner,
+          ticket_description: ticket_description,
+          show_under_participants:
+            show_under_participants !== false ? true : show_under_participants,
+          ticket_type: ticket_type,
+          event_id: event_id,
+          date_of_purchase: new Date().toISOString().slice(0, 10),
+          time_of_purchase:
+            ("0" + time.getHours()).slice(-2) +
+            ":" +
+            ("0" + time.getMinutes()).slice(-2) +
+            ":" +
+            ("0" + time.getSeconds()).slice(-2),
+          redeemed: false,
+          tx_ref: parsedData.API3G.TransToken[0],
+          qty: qty,
+        });
+      }
+
       const transaction = new mongodb.payments({
         eventId: event_id,
         username,
@@ -90,31 +129,8 @@ class PaymentService {
         transactionFee: 0,
         transactionStatus: "pending",
       });
-
+      await newPendingTicket.save();
       await transaction.save();
-
-      // try to do it how it was done in the old code
-      const newPendingTicket = mongodb.Tickets({
-        ticket_owner: ticket_owner,
-        ticket_description: ticket_description,
-        show_under_participants:
-          show_under_participants !== false ? true : show_under_participants,
-        ticket_type: ticket_type,
-        event_id: event_id,
-        date_of_purchase: new Date().toISOString().slice(0, 10),
-        time_of_purchase:
-          ("0" + time.getHours()).slice(-2) +
-          ":" +
-          ("0" + time.getMinutes()).slice(-2) +
-          ":" +
-          ("0" + time.getSeconds()).slice(-2),
-        redeemed: false,
-        tx_ref: parsedData.API3G.TransToken[0],
-        qty: qty,
-      });
-
-      const pendTicket = await newPendingTicket.save();
-
       // Extract the specific values
       const result = {
         Result: parsedData.API3G.Result[0],
