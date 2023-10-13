@@ -502,11 +502,9 @@ const buy_cinema_ticket = async (req, res) => {
                 "invalid ticket type or event not found for ticket type comparison",
             });
           } else {
-            const tx_ref = `user:'${
-              req.decoded["username"]
-            }_date:${new Date()}_event:${event_id}_qty:${
-              seatsChosen?.length || qty
-            }_type:${ticket_type}_seats_${seatsChosen}`;
+            const tx_ref = `user:'${req.decoded["username"]
+              }_date:${new Date()}_event:${event_id}_qty:${seatsChosen?.length || qty
+              }_type:${ticket_type}_seats_${seatsChosen}`;
 
             const is_cinema_ticket = true;
             const payment = await paymentService.requestPayment(
@@ -525,78 +523,14 @@ const buy_cinema_ticket = async (req, res) => {
               cinema_date
             );
 
-            if (checkObject(Payment_payload) == false) {
-              let response;
-
-              try {
-                response = await got.post(
-                  "https://api.flutterwave.com/v3/payments",
-                  Payment_payload
-                );
-              } catch (err) {
-                console.log(err);
-                return res.send({
-                  status: "FAILURE",
-                  message:
-                    "Internal payment api error, contact support or try later",
-                });
-              }
-
-              let body = JSON.parse(response.body);
-
-              if (body.status == "success") {
-                const newPendingTicket = mongodb.Tickets({
-                  ticket_owner: ticket_owner,
-                  ticket_description: ticket_description,
-                  show_under_participants:
-                    show_under_participants !== false
-                      ? true
-                      : show_under_participants,
-                  ticket_type: ticket_type,
-                  event_id: event_id,
-                  date_of_purchase: new Date().toISOString().slice(0, 10),
-                  time_of_purchase:
-                    ("0" + time.getHours()).slice(-2) +
-                    ":" +
-                    ("0" + time.getMinutes()).slice(-2) +
-                    ":" +
-                    ("0" + time.getSeconds()).slice(-2),
-                  redeemed: redeemed,
-                  tx_ref: tx_ref,
-                  qty: qty,
-                  seatsChosen: seatsChosen,
-                  is_cinema_ticket: true,
-                  cinema_time: cinema_time,
-                  cinema_date: cinema_date,
-                });
-
-                await newPendingTicket.save();
-                return res.send({
-                  status: "SUCCESS",
-                  message: "Redirect to payment link",
-                  link: body.data.link,
-                });
-              } else {
-                return res.send({
-                  status: "FAILURE",
-                  message:
-                    "Middleware error, please contact support or try later",
-                });
-              }
-            } else {
-              return res.send({
-                status: "FAILURE",
-                message: "One or more properties of payment payload undefined",
-              });
-            }
+            return res.send({
+              status: "SUCCESS",
+              message: "payment link created",
+              link: payment.paymentLink,
+            });
           }
-        } else {
-          return res.send({
-            status: "FAILURE",
-            message: "Event not found, contact support to fix this",
-          });
         }
-      });
+      })
     } catch (err) {
       return res.send({
         status: "FAILURE",
