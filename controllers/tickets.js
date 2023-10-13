@@ -11,103 +11,103 @@ let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
 const CONVENIENCE_FEE = 5; // IMPORTANT: 5 kwacha service cost / convenience fee...
 
 const create_ticket_query = (record, cb) => {
-  const {
-    ticket_owner,
-    ticket_description,
-    show_under_participants,
-    event_id,
-    ticket_type,
-    date_of_purchase,
-    time_of_purchase,
-    redeemed = 0,
-    is_cinema_ticket = false,
-    seat_number = null,
-    cinema_time = null,
-    cinema_date = null,
-  } = record;
+	const {
+		ticket_owner,
+		ticket_description,
+		show_under_participants,
+		event_id,
+		ticket_type,
+		date_of_purchase,
+		time_of_purchase,
+		redeemed = 0,
+		is_cinema_ticket = false,
+		seat_number = null,
+		cinema_time = null,
+		cinema_date = null,
+	} = record;
 
-  if (is_cinema_ticket == false) {
-    Model.connection.query(
-      `INSERT INTO tickets (ticket_id, ticket_owner, ticket_description, show_under_participants, event_id, 
+	if (is_cinema_ticket == false) {
+		Model.connection.query(
+			`INSERT INTO tickets (ticket_id, ticket_owner, ticket_description, show_under_participants, event_id, 
 		ticket_type, Date_of_purchase, time_of_purchase, redeemed)
         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        ticket_owner,
-        ticket_description,
-        show_under_participants,
-        event_id,
-        ticket_type,
-        date_of_purchase,
-        time_of_purchase,
-        redeemed,
-      ],
-      (error, results) => {
-        if (error) {
-          return cb(error);
-        }
-        // Send the results back to the client
-        cb(null, results);
-      }
-    );
-  } else {
-    Model.connection.query(
-      `INSERT INTO tickets (ticket_id, ticket_owner, ticket_description, show_under_participants, event_id, 
+			[
+				ticket_owner,
+				ticket_description,
+				show_under_participants,
+				event_id,
+				ticket_type,
+				date_of_purchase,
+				time_of_purchase,
+				redeemed,
+			],
+			(error, results) => {
+				if (error) {
+					return cb(error);
+				}
+				// Send the results back to the client
+				cb(null, results);
+			},
+		);
+	} else {
+		Model.connection.query(
+			`INSERT INTO tickets (ticket_id, ticket_owner, ticket_description, show_under_participants, event_id, 
 		ticket_type, Date_of_purchase, time_of_purchase, redeemed, seat_number, cinema_time, cinema_date)
         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        ticket_owner,
-        ticket_description,
-        show_under_participants,
-        event_id,
-        ticket_type,
-        date_of_purchase,
-        time_of_purchase,
-        redeemed,
-        seat_number,
-        cinema_time,
-        cinema_date,
-      ],
-      (error, results) => {
-        if (error) {
-          return cb(error);
-        }
-        // Send the results back to the client
-        cb(null, results);
-      }
-    );
-  }
+			[
+				ticket_owner,
+				ticket_description,
+				show_under_participants,
+				event_id,
+				ticket_type,
+				date_of_purchase,
+				time_of_purchase,
+				redeemed,
+				seat_number,
+				cinema_time,
+				cinema_date,
+			],
+			(error, results) => {
+				if (error) {
+					return cb(error);
+				}
+				// Send the results back to the client
+				cb(null, results);
+			},
+		);
+	}
 };
 
 const delete_ticket_by_id_query = (ticket_id, cb) => {
-  Model.connection.query(
-    `DELETE FROM tickets WHERE ticket_id = ?`,
-    [ticket_id],
-    (error, results) => {
-      if (error) {
-        return cb(error);
-      }
-      // Send the results back to the client
-      cb(null, results);
-    }
-  );
+	Model.connection.query(
+		`DELETE FROM tickets WHERE ticket_id = ?`,
+		[ticket_id],
+		(error, results) => {
+			if (error) {
+				return cb(error);
+			}
+			// Send the results back to the client
+			cb(null, results);
+		},
+	);
 };
 
 // Update event by ID
 function updateTicketQuery(field, value, event_id) {
-  Model.connection.query(
-    "UPDATE tickets SET ?? = ? WHERE ticket_id = ?",
-    [field, value, event_id],
-    function (err, results) {
-      if (err) throw err;
-    }
-  );
+	Model.connection.query(
+		"UPDATE tickets SET ?? = ? WHERE ticket_id = ?",
+		[field, value, event_id],
+		function (err, results) {
+			if (err) throw err;
+		},
+	);
 }
 
 // NOT APPLICABLE RN
 
 const get_all_user_tickets_query = (username, cb) => {
-  Model.connection.query(
-    `SELECT events.event_id AS events_event_id, events.event_name AS events_event_name, 
+	Model.connection.query(
+		`SELECT events.event_id AS events_event_id, events.event_name AS events_event_name, 
 		events.event_date AS events_event_date, events.event_time AS events_event_time, 
 		events.event_location AS events_event_location, events.About AS events_About, 
 		events.Image_url AS events_Image_url, events.Video_url AS events_Video_url, 
@@ -127,418 +127,443 @@ const get_all_user_tickets_query = (username, cb) => {
 		ON events.event_id = tickets.event_id
 		WHERE tickets.ticket_owner = ?;
 		`,
-    [username],
-    (error, results) => {
-      if (error) {
-        return cb(error);
-      }
-      // Send the results back to the client
-      cb(null, results);
-    }
-  );
+		[username],
+		(error, results) => {
+			if (error) {
+				return cb(error);
+			}
+			// Send the results back to the client
+			cb(null, results);
+		},
+	);
 };
 
 const get_user_ticket_by_id_query = (username, ticket_id, cb) => {
-  Model.connection.query(
-    "SELECT * FROM tickets WHERE ticket_owner = ? AND ticket_id = ?",
-    [username, ticket_id],
-    (error, results) => {
-      if (error) {
-        return cb(error);
-      }
-      // Send the results back to the client
-      cb(null, results);
-    }
-  );
+	Model.connection.query(
+		"SELECT * FROM tickets WHERE ticket_owner = ? AND ticket_id = ?",
+		[username, ticket_id],
+		(error, results) => {
+			if (error) {
+				return cb(error);
+			}
+			// Send the results back to the client
+			cb(null, results);
+		},
+	);
 };
 
 const delete_ticket_by_id = (req, res) => {
-  const { ticket_id } = req.body;
+	const { ticket_id } = req.body;
 
-  if (!ticket_id || ticket_id == undefined || ticket_id == null) {
-    return res.send({
-      status: "FAILURE",
-      message: "Please provide a ticket id.",
-    });
-  }
-  try {
-    get_user_ticket_by_id_query(
-      (username = req.decoded["username"]),
-      ticket_id,
-      (err, tickets) => {
-        if (err) {
-          res.send({
-            status: "FAILURE",
-            message: err,
-          });
-        } else {
-          if (tickets.length < 1) {
-            return res.send({
-              status: "FAILURE",
-              message: "A ticket with this id not found on your account!",
-            });
-          } else {
-            delete_ticket_by_id_query(ticket_id, (err, results) => {
-              if (err) {
-                res.send({
-                  status: "FAILURE",
-                  message: err,
-                });
-              } else {
-                res.send({
-                  status: "SUCCESS",
-                  message: "Deleted successfully",
-                });
-              }
-            });
-          }
-        }
-      }
-    );
-  } catch (err) {
-    return res.send({ status: "FAILURE", message: "Unknown error" });
-  }
+	if (!ticket_id || ticket_id == undefined || ticket_id == null) {
+		return res.send({
+			status: "FAILURE",
+			message: "Please provide a ticket id.",
+		});
+	}
+	try {
+		get_user_ticket_by_id_query(
+			(username = req.decoded["username"]),
+			ticket_id,
+			(err, tickets) => {
+				if (err) {
+					res.send({
+						status: "FAILURE",
+						message: err,
+					});
+				} else {
+					if (tickets.length < 1) {
+						return res.send({
+							status: "FAILURE",
+							message: "A ticket with this id not found on your account!",
+						});
+					} else {
+						delete_ticket_by_id_query(ticket_id, (err, results) => {
+							if (err) {
+								res.send({
+									status: "FAILURE",
+									message: err,
+								});
+							} else {
+								res.send({
+									status: "SUCCESS",
+									message: "Deleted successfully",
+								});
+							}
+						});
+					}
+				}
+			},
+		);
+	} catch (err) {
+		return res.send({ status: "FAILURE", message: "Unknown error" });
+	}
 };
 
 const get_participants = (req, res) => {
-  const { event_id } = req.body;
+	const { event_id } = req.body;
 
-  if (!event_id) {
-    res.send({ status: "FAILURE", message: "event id required" });
-  }
+	if (!event_id) {
+		res.send({ status: "FAILURE", message: "event id required" });
+	}
 
-  const query = `SELECT DISTINCT tickets.ticket_owner, users.username, users.fullname, 
+	const query = `SELECT DISTINCT tickets.ticket_owner, users.username, users.fullname, 
 	users.profile_pic_url, users.follower_count FROM tickets
 	JOIN users ON tickets.ticket_owner = users.username
 	WHERE tickets.event_id = ? AND show_under_participants = 1;`;
 
-  Model.connection.query(query, [event_id], (err, results) => {
-    if (err) {
-      res.send({ status: "FAILURE", message: "query failed" });
-    }
-    if (results) {
-      res.send({ status: "SUCCESS", participants: results });
-    }
-  });
+	Model.connection.query(query, [event_id], (err, results) => {
+		if (err) {
+			res.send({ status: "FAILURE", message: "query failed" });
+		}
+		if (results) {
+			res.send({ status: "SUCCESS", participants: results });
+		}
+	});
 };
 
 const redeem_ticket_query = (ticket_id, cb) => {
-  let query = `UPDATE tickets SET redeemed = 1 WHERE ticket_id = ?`;
+	let query = `UPDATE tickets SET redeemed = 1 WHERE ticket_id = ?`;
 
-  Model.connection.query(query, [ticket_id], (err, results) => {
-    if (err) {
-      return cb(err);
-    }
-    // Send the results back to the client
-    cb(null, results);
-  });
+	Model.connection.query(query, [ticket_id], (err, results) => {
+		if (err) {
+			return cb(err);
+		}
+		// Send the results back to the client
+		cb(null, results);
+	});
 };
 
 const check_if_redeemed_query = (ticket_id, cb) => {
-  let query = `SELECT redeemed from tickets WHERE ticket_id = ?`;
-  Model.connection.query(query, [ticket_id], (err, result) => {
-    if (!err && result) {
-      return cb(null, result);
-    } else {
-      return cb(null);
-    }
-  });
+	let query = `SELECT redeemed from tickets WHERE ticket_id = ?`;
+	Model.connection.query(query, [ticket_id], (err, result) => {
+		if (!err && result) {
+			return cb(null, result);
+		} else {
+			return cb(null);
+		}
+	});
 };
 
 const verify_ticket = (req, res) => {
-  try {
-    const { ticket_id } = req.query;
+	try {
+		const { ticket_id } = req.query;
 
-    if (!ticket_id || ticket_id == undefined || ticket_id == null) {
-      return res.send({
-        status: "FAILURE",
-        message: "Please provide a ticket id.",
-      });
-    }
+		if (!ticket_id || ticket_id == undefined || ticket_id == null) {
+			return res.send({
+				status: "FAILURE",
+				message: "Please provide a ticket id.",
+			});
+		}
 
-    const query = `SELECT * FROM tickets WHERE ticket_id = ?`;
+		const query = `SELECT * FROM tickets WHERE ticket_id = ?`;
 
-    Model.connection.query(query, [ticket_id], (err, results) => {
-      if (!err && results.length > 0) {
-        return res.send(
-          `<h2 style="color:green;">Ticket with id: <em>${ticket_id}</em> is valid and belongs to user: <em>${results[0].ticket_owner}</em></h2>`
-        );
-      } else {
-        return res.send(
-          `<h2 style="color:red;">Ticket not found, Report user immediately!</h2>`
-        );
-      }
-    });
-  } catch (err) {
-    return res.send(`<h2>Try again in a short while or contact support.</h2>`);
-  }
+		Model.connection.query(query, [ticket_id], (err, results) => {
+			if (!err && results.length > 0) {
+				return res.send(
+					`<h2 style="color:green;">Ticket with id: <em>${ticket_id}</em> is valid and belongs to user: <em>${results[0].ticket_owner}</em></h2>`,
+				);
+			} else {
+				return res.send(
+					`<h2 style="color:red;">Ticket not found, Report user immediately!</h2>`,
+				);
+			}
+		});
+	} catch (err) {
+		return res.send(`<h2>Try again in a short while or contact support.</h2>`);
+	}
 };
 
 const bulk_verify_tickets = (req, res) => {
-  try {
-    const { event_id, username } = req.query;
+	try {
+		const { event_id, username } = req.query;
 
-    if (!event_id || event_id == undefined || event_id == null || !username) {
-      return res.send({
-        status: "FAILURE",
-        message: "Please provide a event id and username",
-      });
-    }
+		if (!event_id || event_id == undefined || event_id == null || !username) {
+			return res.send({
+				status: "FAILURE",
+				message: "Please provide a event id and username",
+			});
+		}
 
-    const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
+		const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
 
-    Model.connection.query(query, [event_id, username], (err, results) => {
-      if (!err && results.length > 0) {
-        return res.send(
-          `<h2 style="color:green;">user: <em>${results[0]?.ticket_owner}</em> has ${results?.length} active ticket/s for this event.</h2>`
-        );
-      } else {
-        return res.send(
-          `<h2 style="color:red;">User: <em>${results[0]?.ticket_owner}</em> has No active tickets for this event</h2>`
-        );
-      }
-    });
-  } catch (err) {
-    return res.send(
-      `<h2>Try again in a short while or contact support. ${err}</h2>`
-    );
-  }
+		Model.connection.query(query, [event_id, username], (err, results) => {
+			if (!err && results.length > 0) {
+				return res.send(
+					`<h2 style="color:green;">user: <em>${results[0]?.ticket_owner}</em> has ${results?.length} active ticket/s for this event.</h2>`,
+				);
+			} else {
+				return res.send(
+					`<h2 style="color:red;">User: <em>${results[0]?.ticket_owner}</em> has No active tickets for this event</h2>`,
+				);
+			}
+		});
+	} catch (err) {
+		return res.send(
+			`<h2>Try again in a short while or contact support. ${err}</h2>`,
+		);
+	}
 };
 
 const get_all_user_tickets = (req, res) => {
-  // Get the user's username from the decoded token
-  const username = req.decoded["username"];
+	// Get the user's username from the decoded token
+	const username = req.decoded["username"];
 
-  if (!username) {
-    return res.send({ status: "FAILURE", message: "insufficient privileges" });
-  } else {
-    // Query the database for all the tickets belonging to the user
-    get_all_user_tickets_query(username, (err, tickets) => {
-      if (err) {
-        return res.send({ message: "err" });
-      } else {
-        return res.send(tickets);
-      }
-    });
-  }
+	if (!username) {
+		return res.send({ status: "FAILURE", message: "insufficient privileges" });
+	} else {
+		// Query the database for all the tickets belonging to the user
+		get_all_user_tickets_query(username, (err, tickets) => {
+			if (err) {
+				return res.send({ message: "err" });
+			} else {
+				return res.send(tickets);
+			}
+		});
+	}
 };
 
 const date_from_to_calc = (days_before = 2) => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const TO_DATE = `${year}-${month}-${day}`;
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day = date.getDate().toString().padStart(2, "0");
+	const TO_DATE = `${year}-${month}-${day}`;
 
-  date.setDate(date.getDate() - days_before);
-  const year2 = date.getFullYear();
-  const month2 = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day2 = date.getDate().toString().padStart(2, "0");
-  const FROM_DATE = `${year2}-${month2}-${day2}`;
+	date.setDate(date.getDate() - days_before);
+	const year2 = date.getFullYear();
+	const month2 = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day2 = date.getDate().toString().padStart(2, "0");
+	const FROM_DATE = `${year2}-${month2}-${day2}`;
 
-  return { FROM_DATE, TO_DATE };
+	return { FROM_DATE, TO_DATE };
 };
 
 const amount_calculator = async (
-  ticket_type,
-  qty = 1,
-  event_id,
-  normal_price = 0
+	ticket_type,
+	qty = 1,
+	event_id,
+	normal_price = 0,
 ) => {
-  let found = await mongodb.TicketTypes.findOne({
-    event_id: event_id,
-    ticket_type: ticket_type,
-  });
+	let found = await mongodb.TicketTypes.findOne({
+		event_id: event_id,
+		ticket_type: ticket_type,
+	});
 
-  try {
-    let price = 0;
+	try {
+		let price = 0;
 
-    if (!found) {
-      return normal_price == 0 ? false : (normal_price *= qty);
-    } else {
-      price = found.ticket_price;
+		if (!found) {
+			return normal_price == 0 ? false : (normal_price *= qty);
+		} else {
+			price = found.ticket_price;
 
-      return price == 0 ? false : (price *= qty);
-    }
-  } catch (error) {
-    return false;
-  }
+			return price == 0 ? false : (price *= qty);
+		}
+	} catch (error) {
+		return false;
+	}
 };
 
 const checkObject = (obj) => {
-  for (let key in obj) {
-    if (obj[key] === undefined) return true;
-    if (typeof obj[key] === "object") {
-      if (checkObject(obj[key])) return true;
-    }
-  }
-  return false;
+	for (let key in obj) {
+		if (obj[key] === undefined) return true;
+		if (typeof obj[key] === "object") {
+			if (checkObject(obj[key])) return true;
+		}
+	}
+	return false;
 };
 
 const buy_ticket = async (req, res) => {
-  const {
-    ticket_owner,
-    ticket_description,
-    show_under_participants,
-    event_id,
-    ticket_type,
-    redeemed = false,
-  } = req.body.ticket;
+	const {
+		ticket_owner,
+		ticket_description,
+		show_under_participants,
+		event_id,
+		ticket_type,
+		redeemed = false,
+	} = req.body.ticket;
 
-  const qty = req.body.qty || 1;
+	const qty = req.body.qty || 1;
 
-  const mui = req.body;
+	const mui = req.body;
 
-  getEvent_query("event_id", event_id, async (err, result) => {
-    if (!err && result) {
-      const amount = await amount_calculator(
-        req.body.ticket.ticket_type,
-        qty,
-        event_id,
-        result.normal_price
-      );
+	getEvent_query("event_id", event_id, async (err, result) => {
+		if (!err && result) {
+			const amount = await amount_calculator(
+				req.body.ticket.ticket_type,
+				qty,
+				event_id,
+				result.normal_price,
+			);
 
-      if (amount == false) {
-        return res.send({
-          status: "FAILURE",
-          message:
-            "invalid ticket type or event not found for ticket type comparison",
-        });
-      }
-      const tx_ref = `user:'${
-        req.decoded["username"]
-      }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
+			if (amount == false) {
+				return res.send({
+					status: "FAILURE",
+					message:
+						"invalid ticket type or event not found for ticket type comparison",
+				});
+			}
+			const tx_ref = `user:'${
+				req.decoded["username"]
+			}_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
 
-      if (
-        ticket_owner === undefined ||
-        ticket_description === undefined ||
-        show_under_participants === undefined ||
-        event_id === undefined ||
-        ticket_type === undefined
-      ) {
-        return res.send({
-          status: "FAILURE",
-          messgae: "Missing some ticket details",
-        });
-      }
+			if (
+				ticket_owner === undefined ||
+				ticket_description === undefined ||
+				show_under_participants === undefined ||
+				event_id === undefined ||
+				ticket_type === undefined
+			) {
+				return res.send({
+					status: "FAILURE",
+					messgae: "Missing some ticket details",
+				});
+			}
 
-      try {
-        const tx_ref = `user:'${
-          req.decoded["username"]
-        }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
+			try {
+				const tx_ref = `user:'${
+					req.decoded["username"]
+				}_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
+        
+        try {
+					const payment = await paymentService.requestPayment(
+						ticket_owner,
+						ticket_description,
+						show_under_participants,
+						event_id,
+						ticket_type,
+						amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
+						redeemed,
+						req.decoded["username"],
+						qty,
+						false,
+						null,
+						null,
+            null,
+            tx_ref
+					);
 
-        const payment = await paymentService.requestPayment(
-          ticket_owner,
-          ticket_description,
-          show_under_participants,
-          event_id,
-          ticket_type,
-          amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
-          redeemed,
-          req.decoded["username"],
-          qty
-        );
-
-        return res.send({
-          status: "SUCCESS",
-          message: "payment link created",
-          link: payment.paymentLink,
-        });
-      } catch (error) {
-        return res.send({
-          status: "FAILURE",
-          message: "An error occurred while making the request.",
-        });
-      }
-    }
-  });
+					return res.send({
+						status: "SUCCESS",
+						message: "payment link created",
+						link: payment.paymentLink,
+					});
+				} catch (error) {
+					return res.send({
+						status: "FAILURE",
+						message: "An error occurred while making the request.",
+					});
+				}
+			} catch (error) {
+				return res.send({
+					status: "FAILURE",
+					message: "An error occurred while making the request.",
+				});
+			}
+		}
+	});
 };
 
 const buy_cinema_ticket = async (req, res) => {
-  const {
-    ticket_owner,
-    ticket_description,
-    show_under_participants,
-    event_id,
-    ticket_type,
-    time = new Date(),
-    redeemed = false,
-  } = req.body.ticket;
-  const qty = req.body.qty || 1;
-  const { seatsChosen } = req.body;
-  const { cinema_time } = req.body;
-  const { cinema_date } = req.body;
+	const {
+		ticket_owner,
+		ticket_description,
+		show_under_participants,
+		event_id,
+		ticket_type,
+		time = new Date(),
+		redeemed = false,
+	} = req.body.ticket;
+	const qty = req.body.qty || 1;
+	const { seatsChosen } = req.body;
+	const { cinema_time } = req.body;
+	const { cinema_date } = req.body;
 
-  if (
-    ticket_owner === undefined ||
-    ticket_description === undefined ||
-    show_under_participants === undefined ||
-    event_id === undefined ||
-    ticket_type === undefined ||
-    seatsChosen?.length < 1 ||
-    seatsChosen == undefined ||
-    cinema_time == undefined ||
-    cinema_date == undefined
-  ) {
-    return res.send({
-      status: "FAILURE",
-      messgae: "Missing some ticket details",
-    });
-  } else {
-    try {
-      getEvent_query("event_id", event_id, async (err, result) => {
-        if (!err && result) {
-          const amount = await amount_calculator(
-            req.body.ticket.ticket_type,
-            qty,
-            event_id,
-            result.normal_price
-          );
+	if (
+		ticket_owner === undefined ||
+		ticket_description === undefined ||
+		show_under_participants === undefined ||
+		event_id === undefined ||
+		ticket_type === undefined ||
+		seatsChosen?.length < 1 ||
+		seatsChosen == undefined ||
+		cinema_time == undefined ||
+		cinema_date == undefined
+	) {
+		return res.send({
+			status: "FAILURE",
+			messgae: "Missing some ticket details",
+		});
+	} else {
+		try {
+			getEvent_query("event_id", event_id, async (err, result) => {
+				if (!err && result) {
+					const amount = await amount_calculator(
+						req.body.ticket.ticket_type,
+						qty,
+						event_id,
+						result.normal_price,
+					);
 
-          if (amount == false) {
-            return res.send({
-              status: "FAILURE",
-              message:
-                "invalid ticket type or event not found for ticket type comparison",
-            });
-          } else {
-            const tx_ref = `user:'${req.decoded["username"]
-              }_date:${new Date()}_event:${event_id}_qty:${seatsChosen?.length || qty
-              }_type:${ticket_type}_seats_${seatsChosen}`;
+					if (amount == false) {
+						return res.send({
+							status: "FAILURE",
+							message:
+								"invalid ticket type or event not found for ticket type comparison",
+						});
+					} else {
+						const tx_ref = `user:'${
+							req.decoded["username"]
+						}_date:${new Date()}_event:${event_id}_qty:${
+							seatsChosen?.length || qty
+						}_type:${ticket_type}_seats_${seatsChosen}`;
 
-            const is_cinema_ticket = true;
-            const payment = await paymentService.requestPayment(
-              ticket_owner,
-              ticket_description,
-              show_under_participants,
-              event_id,
-              ticket_type,
-              amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
-              redeemed,
-              req.decoded["username"],
-              qty,
-              is_cinema_ticket,
-              seatsChosen,
-              cinema_time,
-              cinema_date
-            );
+						const is_cinema_ticket = true;
 
-            return res.send({
-              status: "SUCCESS",
-              message: "payment link created",
-              link: payment.paymentLink,
-            });
-          }
-        }
-      })
-    } catch (err) {
-      return res.send({
-        status: "FAILURE",
-        message: "Unknown error, contact support, or try later.",
-        code: "99",
-      });
-    }
-  }
+						try {
+							const payment = await paymentService.requestPayment(
+								ticket_owner,
+								ticket_description,
+								show_under_participants,
+								event_id,
+								ticket_type,
+								amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
+								redeemed,
+								req.decoded["username"],
+								qty,
+								is_cinema_ticket,
+								seatsChosen,
+								cinema_time,
+                cinema_date,
+                tx_ref
+							);
+
+							return res.send({
+								status: "SUCCESS",
+								message: "payment link created",
+								link: payment.paymentLink,
+							});
+            } catch (err) {
+              
+							return res.send({
+								status: "FAILURE",
+								message: "Unknown error, contact support, or try later.",
+								code: "99",
+							});
+						}
+					}
+				}
+			});
+		} catch (err) {
+			return res.send({
+				status: "FAILURE",
+				message: "Unknown error, contact support, or try later.",
+				code: "99",
+			});
+		}
+	}
 };
 // const buy_cinema_ticket = async (req, res) => {
 //   const {
@@ -703,591 +728,591 @@ const buy_cinema_ticket = async (req, res) => {
 // };
 
 const bulk_transfer = (req, res) => {
-  const { event_id, qty, transfer_to, comment = null } = req.body;
-  const username = req.decoded["username"];
+	const { event_id, qty, transfer_to, comment = null } = req.body;
+	const username = req.decoded["username"];
 
-  if (!event_id || !qty || !username || qty == 0 || !transfer_to) {
-    return res.send({
-      status: "FAILURE",
-      message: "Invalid or missing details.",
-    });
-  } else {
-    getEvent_query("event_id", event_id, (err, found) => {
-      if (!err && found) {
-        Date.prototype.cutHours = function (h) {
-          this.setHours(this.getHours() - h);
-          return this;
-        };
+	if (!event_id || !qty || !username || qty == 0 || !transfer_to) {
+		return res.send({
+			status: "FAILURE",
+			message: "Invalid or missing details.",
+		});
+	} else {
+		getEvent_query("event_id", event_id, (err, found) => {
+			if (!err && found) {
+				Date.prototype.cutHours = function (h) {
+					this.setHours(this.getHours() - h);
+					return this;
+				};
 
-        Date.prototype.addHours = function (h) {
-          this.setHours(this.getHours() + h);
-          return this;
-        };
+				Date.prototype.addHours = function (h) {
+					this.setHours(this.getHours() + h);
+					return this;
+				};
 
-        let jsDate;
-        let cuthours = 3;
+				let jsDate;
+				let cuthours = 3;
 
-        jsDate = new Date(found.event_date);
-        cuthours = 23;
+				jsDate = new Date(found.event_date);
+				cuthours = 23;
 
-        if (jsDate.cutHours(cuthours) <= new Date()) {
-          return res.send({
-            status: "FAILURE",
-            message: "Cannot transfer 23 hours before the event",
-          });
-        } else {
-          const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
+				if (jsDate.cutHours(cuthours) <= new Date()) {
+					return res.send({
+						status: "FAILURE",
+						message: "Cannot transfer 23 hours before the event",
+					});
+				} else {
+					const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
 
-          Model.connection.query(
-            query,
-            [event_id, username],
-            (err, results) => {
-              if (err) {
-                return res.send({
-                  status: "FAILURE",
-                  message: "Unknown error, contact support",
-                });
-              }
-              if (results.length < qty) {
-                return res.send({
-                  status: "FAILURE",
-                  message: "Insufficeint tickets",
-                });
-              } else {
-                getUserByUsername(transfer_to, (err, founduser) => {
-                  if (!err && founduser) {
-                    let ticket_ids = results?.map((obj) => obj.ticket_id);
-                    let query = `UPDATE tickets SET ticket_owner = ? WHERE ticket_id = ?`;
-                    let completed = 0;
+					Model.connection.query(
+						query,
+						[event_id, username],
+						(err, results) => {
+							if (err) {
+								return res.send({
+									status: "FAILURE",
+									message: "Unknown error, contact support",
+								});
+							}
+							if (results.length < qty) {
+								return res.send({
+									status: "FAILURE",
+									message: "Insufficeint tickets",
+								});
+							} else {
+								getUserByUsername(transfer_to, (err, founduser) => {
+									if (!err && founduser) {
+										let ticket_ids = results?.map((obj) => obj.ticket_id);
+										let query = `UPDATE tickets SET ticket_owner = ? WHERE ticket_id = ?`;
+										let completed = 0;
 
-                    for (let i = 0; i < qty; i++) {
-                      Model.connection.query(
-                        query,
-                        [transfer_to, ticket_ids[i]],
-                        (err, done) => {
-                          if (!err && done) {
-                            new_transfer_log(
-                              {
-                                ticket_transfered: ticket_ids[i],
-                                transfer_to: transfer_to,
-                                transfer_from: username,
-                                comment: comment,
-                              },
-                              (err, results) => {
-                                if (err) {
-                                  console.log(err);
-                                } else {
-                                  console.log(
-                                    "Transfer log saved successfully!"
-                                  );
-                                }
-                              }
-                            );
-                            completed++;
-                          } else {
-                            return res.send({
-                              status: "FAILURE",
-                              message:
-                                "Some tickets might be Transferred, but others might have not, try later.",
-                            });
-                          }
+										for (let i = 0; i < qty; i++) {
+											Model.connection.query(
+												query,
+												[transfer_to, ticket_ids[i]],
+												(err, done) => {
+													if (!err && done) {
+														new_transfer_log(
+															{
+																ticket_transfered: ticket_ids[i],
+																transfer_to: transfer_to,
+																transfer_from: username,
+																comment: comment,
+															},
+															(err, results) => {
+																if (err) {
+																	console.log(err);
+																} else {
+																	console.log(
+																		"Transfer log saved successfully!",
+																	);
+																}
+															},
+														);
+														completed++;
+													} else {
+														return res.send({
+															status: "FAILURE",
+															message:
+																"Some tickets might be Transferred, but others might have not, try later.",
+														});
+													}
 
-                          if (completed == qty - 1 || completed == qty) {
-                            try {
-                              if (
-                                !Expo.isExpoPushToken(founduser.Expo_push_token)
-                              ) {
-                                console.error(
-                                  `Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
-                                );
-                              } else {
-                                messages = [
-                                  {
-                                    to: founduser.Expo_push_token,
-                                    sound: "default",
-                                    badge: 1,
-                                    title: "Tickets Recieved 🎫",
-                                    body: `Hello ${founduser.username}, You recieved ${qty} ticket/s from '${username}' \nComment: '${comment}'.`,
-                                  },
-                                ];
+													if (completed == qty - 1 || completed == qty) {
+														try {
+															if (
+																!Expo.isExpoPushToken(founduser.Expo_push_token)
+															) {
+																console.error(
+																	`Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
+																);
+															} else {
+																messages = [
+																	{
+																		to: founduser.Expo_push_token,
+																		sound: "default",
+																		badge: 1,
+																		title: "Tickets Recieved 🎫",
+																		body: `Hello ${founduser.username}, You recieved ${qty} ticket/s from '${username}' \nComment: '${comment}'.`,
+																	},
+																];
 
-                                (async () => {
-                                  let chunks =
-                                    expo.chunkPushNotifications(messages);
-                                  let tickets = [];
+																(async () => {
+																	let chunks =
+																		expo.chunkPushNotifications(messages);
+																	let tickets = [];
 
-                                  for (let chunk of chunks) {
-                                    let ticketChunk =
-                                      await expo.sendPushNotificationsAsync(
-                                        chunk
-                                      );
+																	for (let chunk of chunks) {
+																		let ticketChunk =
+																			await expo.sendPushNotificationsAsync(
+																				chunk,
+																			);
 
-                                    tickets.push(...ticketChunk);
-                                    console.log(tickets);
-                                  }
-                                })();
-                              }
-                            } catch (err) {
-                              return res.send({
-                                status: "FAILURE",
-                                message:
-                                  "Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
-                              });
-                            }
-                          }
+																		tickets.push(...ticketChunk);
+																		console.log(tickets);
+																	}
+																})();
+															}
+														} catch (err) {
+															return res.send({
+																status: "FAILURE",
+																message:
+																	"Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
+															});
+														}
+													}
 
-                          return res.send({
-                            status: "SUCCESS",
-                            message: `Transferred ${qty} tickets to ${transfer_to}`,
-                          });
-                        }
-                      );
-                    }
-                  } else {
-                    return res.send({
-                      status: "FAILURE",
-                      message:
-                        "The user you are trying to transfer to is not found",
-                    });
-                  }
-                });
-              }
-            }
-          );
-        }
-      } else {
-        return res.send({ status: "FAILURE", message: "Event not found" });
-      }
-    });
-  }
+													return res.send({
+														status: "SUCCESS",
+														message: `Transferred ${qty} tickets to ${transfer_to}`,
+													});
+												},
+											);
+										}
+									} else {
+										return res.send({
+											status: "FAILURE",
+											message:
+												"The user you are trying to transfer to is not found",
+										});
+									}
+								});
+							}
+						},
+					);
+				}
+			} else {
+				return res.send({ status: "FAILURE", message: "Event not found" });
+			}
+		});
+	}
 };
 
 const bulk_redeem = (req, res) => {
-  const { event_id, qty = 1, event_passcode } = req.body;
-  const username = req.decoded["username"];
+	const { event_id, qty = 1, event_passcode } = req.body;
+	const username = req.decoded["username"];
 
-  if (
-    !event_id ||
-    !username ||
-    qty == undefined ||
-    !event_passcode ||
-    isNaN(qty) == true
-  ) {
-    return res.send({
-      status: "FAILURE",
-      message: "Invalid or Missing details",
-    });
-  } else {
-    const passcode_check = `SELECT event_passcode FROM events WHERE event_id = ?`;
+	if (
+		!event_id ||
+		!username ||
+		qty == undefined ||
+		!event_passcode ||
+		isNaN(qty) == true
+	) {
+		return res.send({
+			status: "FAILURE",
+			message: "Invalid or Missing details",
+		});
+	} else {
+		const passcode_check = `SELECT event_passcode FROM events WHERE event_id = ?`;
 
-    try {
-      Model.connection.query(passcode_check, [event_id], (err, results) => {
-        if (!err && results) {
-          if (results[0].event_passcode != event_passcode) {
-            return res.send({
-              status: "FAILURE",
-              message: "Invalid event passcode",
-            });
-          } else {
-            const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
+		try {
+			Model.connection.query(passcode_check, [event_id], (err, results) => {
+				if (!err && results) {
+					if (results[0].event_passcode != event_passcode) {
+						return res.send({
+							status: "FAILURE",
+							message: "Invalid event passcode",
+						});
+					} else {
+						const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
 
-            Model.connection.query(
-              query,
-              [event_id, username],
-              (err, result) => {
-                if (!err && qty <= result?.length) {
-                  const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0 LIMIT ${qty}`;
+						Model.connection.query(
+							query,
+							[event_id, username],
+							(err, result) => {
+								if (!err && qty <= result?.length) {
+									const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0 LIMIT ${qty}`;
 
-                  Model.connection.query(
-                    query2,
-                    [event_id, username],
-                    (err, done) => {
-                      if (!err && done) {
-                        return res.send({
-                          status: "SUCCESS",
-                          message: `redeemed ${qty} ticket/s for given event`,
-                        });
-                      } else {
-                        console.log(err);
-                        return res.send({
-                          status: "SEMI-FAILURE",
-                          message:
-                            "Error redeeming one of the tickets, maybe try again",
-                        });
-                      }
-                    }
-                  );
-                } else {
-                  return res.send({
-                    status: "FAILURE",
-                    message: "Not enough tickets to bulk redeem",
-                  });
-                }
-              }
-            );
-          }
-        } else {
-          return res.send({
-            status: "FAILURE",
-            message: "Unable to verify event",
-          });
-        }
-      });
-    } catch (err) {
-      return res.send({
-        status: "FAILURE",
-        message: "Unknown error, contact support",
-      });
-    }
-  }
+									Model.connection.query(
+										query2,
+										[event_id, username],
+										(err, done) => {
+											if (!err && done) {
+												return res.send({
+													status: "SUCCESS",
+													message: `redeemed ${qty} ticket/s for given event`,
+												});
+											} else {
+												console.log(err);
+												return res.send({
+													status: "SEMI-FAILURE",
+													message:
+														"Error redeeming one of the tickets, maybe try again",
+												});
+											}
+										},
+									);
+								} else {
+									return res.send({
+										status: "FAILURE",
+										message: "Not enough tickets to bulk redeem",
+									});
+								}
+							},
+						);
+					}
+				} else {
+					return res.send({
+						status: "FAILURE",
+						message: "Unable to verify event",
+					});
+				}
+			});
+		} catch (err) {
+			return res.send({
+				status: "FAILURE",
+				message: "Unknown error, contact support",
+			});
+		}
+	}
 };
 
 const redeem_ticket = (req, res) => {
-  const { ticket_id, event_passcode } = req.body;
+	const { ticket_id, event_passcode } = req.body;
 
-  if (
-    !ticket_id ||
-    ticket_id == undefined ||
-    ticket_id == null ||
-    !event_passcode
-  ) {
-    return res.send({
-      status: "FAILURE",
-      message: "Please provide a ticket id and event passcode",
-    });
-  }
+	if (
+		!ticket_id ||
+		ticket_id == undefined ||
+		ticket_id == null ||
+		!event_passcode
+	) {
+		return res.send({
+			status: "FAILURE",
+			message: "Please provide a ticket id and event passcode",
+		});
+	}
 
-  get_user_ticket_by_id_query(
-    (username = req.decoded["username"]),
-    ticket_id,
-    (err, tickets) => {
-      if (err) {
-        res.send({
-          status: "FAILURE",
-          message: "Unknown error",
-        });
-      } else {
-        if (tickets.length < 1) {
-          return res.send({
-            status: "FAILURE",
-            message: "A ticket with this id not found on your account!",
-          });
-        } else {
-          getEvent_query("event_id", tickets[0].event_id, (err, event) => {
-            if (err || !event) {
-              return res.send({
-                status: "FAILURE",
-                message: "Error retrieving event",
-              });
-            }
-            if (event.event_passcode !== event_passcode) {
-              return res.send({
-                status: "FAILURE",
-                message: "Invalid event passcode",
-              });
-            } else {
-              check_if_redeemed_query(ticket_id, (err, result) => {
-                if (result[0]?.redeemed == 0 && !err) {
-                  redeem_ticket_query(ticket_id, (err, results) => {
-                    if (err || !results) {
-                      res.send({
-                        status: "FAILURE",
-                        message: `Unknown error, contact support`,
-                      });
-                    } else {
-                      res.send({
-                        status: "SUCCESS",
-                        message: "Ticket Redeemed successfully",
-                      });
-                    }
-                  });
-                } else {
-                  res.send({
-                    status: "FAILURE",
-                    message: "Ticket already redeemed",
-                  });
-                }
-              });
-            }
-          });
-        }
-      }
-    }
-  );
+	get_user_ticket_by_id_query(
+		(username = req.decoded["username"]),
+		ticket_id,
+		(err, tickets) => {
+			if (err) {
+				res.send({
+					status: "FAILURE",
+					message: "Unknown error",
+				});
+			} else {
+				if (tickets.length < 1) {
+					return res.send({
+						status: "FAILURE",
+						message: "A ticket with this id not found on your account!",
+					});
+				} else {
+					getEvent_query("event_id", tickets[0].event_id, (err, event) => {
+						if (err || !event) {
+							return res.send({
+								status: "FAILURE",
+								message: "Error retrieving event",
+							});
+						}
+						if (event.event_passcode !== event_passcode) {
+							return res.send({
+								status: "FAILURE",
+								message: "Invalid event passcode",
+							});
+						} else {
+							check_if_redeemed_query(ticket_id, (err, result) => {
+								if (result[0]?.redeemed == 0 && !err) {
+									redeem_ticket_query(ticket_id, (err, results) => {
+										if (err || !results) {
+											res.send({
+												status: "FAILURE",
+												message: `Unknown error, contact support`,
+											});
+										} else {
+											res.send({
+												status: "SUCCESS",
+												message: "Ticket Redeemed successfully",
+											});
+										}
+									});
+								} else {
+									res.send({
+										status: "FAILURE",
+										message: "Ticket already redeemed",
+									});
+								}
+							});
+						}
+					});
+				}
+			}
+		},
+	);
 };
 
 function getEvent_query(field, value, callback) {
-  const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
-    field,
-    value,
-  ]);
-  Model.connection.query(query, function (error, results) {
-    if (error) {
-      callback(error, null);
-    } else {
-      callback(null, results[0]);
-    }
-  });
+	const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
+		field,
+		value,
+	]);
+	Model.connection.query(query, function (error, results) {
+		if (error) {
+			callback(error, null);
+		} else {
+			callback(null, results[0]);
+		}
+	});
 }
 
 const getUserByUsername = (username, cb) => {
-  const query = `SELECT * FROM users WHERE username = ?`;
-  Model.connection.query(query, [username], (error, results) => {
-    if (error) {
-      return cb(error);
-    }
-    cb(null, results[0]);
-  });
+	const query = `SELECT * FROM users WHERE username = ?`;
+	Model.connection.query(query, [username], (error, results) => {
+		if (error) {
+			return cb(error);
+		}
+		cb(null, results[0]);
+	});
 };
 
 const new_transfer_log = (data, cb) => {
-  const time = new Date();
-  const {
-    transfer_to,
-    transfer_from,
-    comment = null,
-    ticket_transfered,
-    transfer_date = new Date().toISOString().slice(0, 10),
-    transfer_time = ("0" + time.getHours()).slice(-2) +
-      ":" +
-      ("0" + time.getMinutes()).slice(-2) +
-      ":" +
-      ("0" + time.getSeconds()).slice(-2),
-  } = data;
+	const time = new Date();
+	const {
+		transfer_to,
+		transfer_from,
+		comment = null,
+		ticket_transfered,
+		transfer_date = new Date().toISOString().slice(0, 10),
+		transfer_time = ("0" + time.getHours()).slice(-2) +
+			":" +
+			("0" + time.getMinutes()).slice(-2) +
+			":" +
+			("0" + time.getSeconds()).slice(-2),
+	} = data;
 
-  const query = `INSERT INTO ticket_transfer_logs 
+	const query = `INSERT INTO ticket_transfer_logs 
 	(transfer_id, transfer_from, transfer_to, comment, ticket_transfered, transfer_date, transfer_time)
 	VALUES(UUID(), ?, ?, ?, ?, ?, ?)`;
-  Model.connection.query(
-    query,
-    [
-      transfer_from,
-      transfer_to,
-      comment,
-      ticket_transfered,
-      transfer_date,
-      transfer_time,
-    ],
-    (err, results) => {
-      if (err || !results) {
-        return cb(err);
-      } else {
-        cb(null, results);
-      }
-    }
-  );
+	Model.connection.query(
+		query,
+		[
+			transfer_from,
+			transfer_to,
+			comment,
+			ticket_transfered,
+			transfer_date,
+			transfer_time,
+		],
+		(err, results) => {
+			if (err || !results) {
+				return cb(err);
+			} else {
+				cb(null, results);
+			}
+		},
+	);
 };
 
 const get_transfer_logs = (req, res) => {
-  const username = req.decoded["username"];
+	const username = req.decoded["username"];
 
-  const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`;
+	const query = `SELECT * FROM ticket_transfer_logs WHERE transfer_from = ? OR transfer_to = ?`;
 
-  try {
-    Model.connection.query(query, [username, username], (err, result) => {
-      if (!err && result.length > 0) {
-        return res.send({ status: "SUCCESS", data: result });
-      } else {
-        return res.send({
-          status: "FAILURE",
-          message: "No transfers done on this account",
-        });
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
+	try {
+		Model.connection.query(query, [username, username], (err, result) => {
+			if (!err && result.length > 0) {
+				return res.send({ status: "SUCCESS", data: result });
+			} else {
+				return res.send({
+					status: "FAILURE",
+					message: "No transfers done on this account",
+				});
+			}
+		});
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 const transfer_ticket = (req, res) => {
-  const { ticket_id, transfer_to, comment } = req.body;
+	const { ticket_id, transfer_to, comment } = req.body;
 
-  const username = req.decoded["username"];
+	const username = req.decoded["username"];
 
-  if (username == transfer_to) {
-    return res.send({
-      status: "FAILURE",
-      message: "Cannot transfer to self",
-    });
-  }
+	if (username == transfer_to) {
+		return res.send({
+			status: "FAILURE",
+			message: "Cannot transfer to self",
+		});
+	}
 
-  try {
-    get_user_ticket_by_id_query(username, ticket_id, async (err, result) => {
-      if (!err && result[0] !== undefined && result[0].redeemed == 0) {
-        getEvent_query("event_id", result[0].event_id, (err, found) => {
-          if (!err && found) {
-            Date.prototype.cutHours = function (h) {
-              this.setHours(this.getHours() - h);
-              return this;
-            };
+	try {
+		get_user_ticket_by_id_query(username, ticket_id, async (err, result) => {
+			if (!err && result[0] !== undefined && result[0].redeemed == 0) {
+				getEvent_query("event_id", result[0].event_id, (err, found) => {
+					if (!err && found) {
+						Date.prototype.cutHours = function (h) {
+							this.setHours(this.getHours() - h);
+							return this;
+						};
 
-            Date.prototype.addHours = function (h) {
-              this.setHours(this.getHours() + h);
-              return this;
-            };
+						Date.prototype.addHours = function (h) {
+							this.setHours(this.getHours() + h);
+							return this;
+						};
 
-            let jsDate;
-            let cuthours = 3;
+						let jsDate;
+						let cuthours = 3;
 
-            if (result[0].seat_number !== null) {
-              const time = result[0].cinema_time;
-              const date = result[0].cinema_date;
+						if (result[0].seat_number !== null) {
+							const time = result[0].cinema_time;
+							const date = result[0].cinema_date;
 
-              const [day, month, year] = date.split("/");
-              const [hours, minutes] = time.split(":");
+							const [day, month, year] = date.split("/");
+							const [hours, minutes] = time.split(":");
 
-              jsDate = new Date(year, month - 1, day, hours, minutes);
-              cuthours = 3;
-            } else {
-              jsDate = new Date(found.event_date);
-              cuthours = 23;
-            }
+							jsDate = new Date(year, month - 1, day, hours, minutes);
+							cuthours = 3;
+						} else {
+							jsDate = new Date(found.event_date);
+							cuthours = 23;
+						}
 
-            if (jsDate.cutHours(cuthours) <= new Date()) {
-              return res.send({
-                status: "FAILURE",
-                message: `Cannot transfer ${cuthours} hours before the event`,
-              });
-            } else {
-              getUserByUsername(transfer_to, (err, result) => {
-                if (!err && result) {
-                  try {
-                    updateTicketQuery("ticket_owner", transfer_to, ticket_id);
+						if (jsDate.cutHours(cuthours) <= new Date()) {
+							return res.send({
+								status: "FAILURE",
+								message: `Cannot transfer ${cuthours} hours before the event`,
+							});
+						} else {
+							getUserByUsername(transfer_to, (err, result) => {
+								if (!err && result) {
+									try {
+										updateTicketQuery("ticket_owner", transfer_to, ticket_id);
 
-                    try {
-                      new_transfer_log(
-                        {
-                          ticket_transfered: ticket_id,
-                          transfer_to: transfer_to,
-                          transfer_from: username,
-                          comment: comment,
-                        },
-                        (err, results) => {
-                          if (err) {
-                            console.log(err);
-                          } else {
-                            console.log("Transfer log saved successfully!");
-                          }
-                        }
-                      );
+										try {
+											new_transfer_log(
+												{
+													ticket_transfered: ticket_id,
+													transfer_to: transfer_to,
+													transfer_from: username,
+													comment: comment,
+												},
+												(err, results) => {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log("Transfer log saved successfully!");
+													}
+												},
+											);
 
-                      if (!Expo.isExpoPushToken(result.Expo_push_token)) {
-                        console.error(
-                          `Push token ${result.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
-                        );
-                      } else {
-                        messages = [
-                          {
-                            to: result.Expo_push_token,
-                            sound: "default",
-                            title: "Ticket Recieved 🎫",
-                            badge: 1,
-                            body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComment: '${comment}'.`,
-                          },
-                        ];
+											if (!Expo.isExpoPushToken(result.Expo_push_token)) {
+												console.error(
+													`Push token ${result.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`,
+												);
+											} else {
+												messages = [
+													{
+														to: result.Expo_push_token,
+														sound: "default",
+														title: "Ticket Recieved 🎫",
+														badge: 1,
+														body: `Hello ${result.username}, You recieved a ticket from '${username}' \nComment: '${comment}'.`,
+													},
+												];
 
-                        (async () => {
-                          let chunks = expo.chunkPushNotifications(messages);
-                          let tickets = [];
+												(async () => {
+													let chunks = expo.chunkPushNotifications(messages);
+													let tickets = [];
 
-                          for (let chunk of chunks) {
-                            let ticketChunk =
-                              await expo.sendPushNotificationsAsync(chunk);
+													for (let chunk of chunks) {
+														let ticketChunk =
+															await expo.sendPushNotificationsAsync(chunk);
 
-                            tickets.push(...ticketChunk);
-                            console.log(tickets);
-                          }
-                        })();
-                      }
-                    } catch (err) {
-                      return res.send({
-                        status: "FAILURE",
-                        message:
-                          "Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
-                      });
-                    }
-                  } catch (err) {
-                    console.log(err);
-                    return res.send({
-                      status: "FAILURE",
-                      message:
-                        "Unknown error, ticket might have been Transferred, restart app to confirm",
-                    });
-                  }
+														tickets.push(...ticketChunk);
+														console.log(tickets);
+													}
+												})();
+											}
+										} catch (err) {
+											return res.send({
+												status: "FAILURE",
+												message:
+													"Unknown error, ticket might have been Transferred, restart app to confirm, if not try again later",
+											});
+										}
+									} catch (err) {
+										console.log(err);
+										return res.send({
+											status: "FAILURE",
+											message:
+												"Unknown error, ticket might have been Transferred, restart app to confirm",
+										});
+									}
 
-                  return res.send({
-                    status: "SUCCESS",
-                    message: `Ticket successfully transferred to user: '${transfer_to}'`,
-                  });
-                } else {
-                  return res.send({
-                    status: "FAILURE",
-                    message: "The user you want to transfer to, is not found.",
-                  });
-                }
-              });
-            }
-          }
-        });
-      } else {
-        return res.send({
-          status: "FAILURE",
-          message:
-            "Either ticket doesnt exist, or you dont own it, or it has been redeemed.",
-        });
-      }
-    });
-  } catch (err) {
-    return res.send({
-      status: "FAILURE",
-      message: "Unknown error, try later, or contact support.",
-    });
-  }
+									return res.send({
+										status: "SUCCESS",
+										message: `Ticket successfully transferred to user: '${transfer_to}'`,
+									});
+								} else {
+									return res.send({
+										status: "FAILURE",
+										message: "The user you want to transfer to, is not found.",
+									});
+								}
+							});
+						}
+					}
+				});
+			} else {
+				return res.send({
+					status: "FAILURE",
+					message:
+						"Either ticket doesnt exist, or you dont own it, or it has been redeemed.",
+				});
+			}
+		});
+	} catch (err) {
+		return res.send({
+			status: "FAILURE",
+			message: "Unknown error, try later, or contact support.",
+		});
+	}
 };
 
 const get_ticket_by_id = (req, res) => {
-  const { ticket_id } = req.body;
-  const username = req.decoded["username"];
+	const { ticket_id } = req.body;
+	const username = req.decoded["username"];
 
-  try {
-    // Query the database for all the tickets belonging to the user
-    get_user_ticket_by_id_query(username, ticket_id, (err, tickets) => {
-      if (err) {
-        return res.send(err);
-      } else {
-        if (tickets.length < 1) {
-          return res.send({
-            status: "FAILURE",
-            message: "A ticket with this id not found on this account",
-          });
-        } else {
-          return res.send({ status: "SUCCESS", ticket: tickets[0] });
-        }
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
+	try {
+		// Query the database for all the tickets belonging to the user
+		get_user_ticket_by_id_query(username, ticket_id, (err, tickets) => {
+			if (err) {
+				return res.send(err);
+			} else {
+				if (tickets.length < 1) {
+					return res.send({
+						status: "FAILURE",
+						message: "A ticket with this id not found on this account",
+					});
+				} else {
+					return res.send({ status: "SUCCESS", ticket: tickets[0] });
+				}
+			}
+		});
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 const new_ticket_purchase_check = async (req, res) => {
-  const username = req.decoded["username"];
+	const username = req.decoded["username"];
 
-  const found = await mongodb.newTicketPurchase.find({ userId: username });
-  console.log(found);
+	const found = await mongodb.newTicketPurchase.find({ userId: username });
+	console.log(found);
 
-  try {
-    if (found.length > 0) {
-      const done = await mongodb.newTicketPurchase.deleteMany({
-        userId: username,
-      });
-      return res.send({ status: "SUCCESS", anyrecent: true });
-    } else {
-      return res.send({ status: "SUCCESS", anyrecent: false });
-    }
-  } catch (error) {
-    console.log(error);
-  }
+	try {
+		if (found.length > 0) {
+			const done = await mongodb.newTicketPurchase.deleteMany({
+				userId: username,
+			});
+			return res.send({ status: "SUCCESS", anyrecent: true });
+		} else {
+			return res.send({ status: "SUCCESS", anyrecent: false });
+		}
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 // Daily Sales by ENIGMA
@@ -1300,8 +1325,8 @@ const getDailySales = async (req, res) => {
 		} else {
 			res.send({ status: "SUCCESS", result: results });
 		}
-	})
-}
+	});
+};
 
 // Monthly Sales by ENIGMA
 const getMonthSales = async (req, res) => {
@@ -1313,15 +1338,14 @@ const getMonthSales = async (req, res) => {
 		} else {
 			res.send({ status: "SUCCESS", result: results });
 		}
-	})
-}
+	});
+};
 
 function getdailySales_query(value, valueTwo, valueThree, callback) {
-	const query = mysql.format("SELECT DATE(Date_of_Purchase) AS day, COUNT(*) AS daily_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY day ORDER BY day", [
-		value,
-		valueTwo,
-		valueThree,
-	]);
+	const query = mysql.format(
+		"SELECT DATE(Date_of_Purchase) AS day, COUNT(*) AS daily_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY day ORDER BY day",
+		[value, valueTwo, valueThree],
+	);
 	Model.connection.query(query, function (error, results) {
 		if (error) {
 			callback(error, null);
@@ -1332,11 +1356,10 @@ function getdailySales_query(value, valueTwo, valueThree, callback) {
 }
 
 function getmonthlySales_query(field, fieldTwo, fieldThree, callback) {
-	const query = mysql.format("SELECT DATE_FORMAT(Date_of_purchase, '%M') AS month_name, COUNT(*) AS monthly_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY month_name ORDER BY month_name;", [
-		field,
-		fieldTwo,
-		fieldThree,
-	]);
+	const query = mysql.format(
+		"SELECT DATE_FORMAT(Date_of_purchase, '%M') AS month_name, COUNT(*) AS monthly_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY month_name ORDER BY month_name;",
+		[field, fieldTwo, fieldThree],
+	);
 	Model.connection.query(query, function (error, results) {
 		if (error) {
 			callback(error, null);
@@ -1347,21 +1370,22 @@ function getmonthlySales_query(field, fieldTwo, fieldThree, callback) {
 }
 
 const breakdown = async (req, res) => {
-	const { host_username } = req.body
+	const { host_username } = req.body;
 
-	getBreakdown( host_username, (error, result) =>{
-		if(error) {
+	getBreakdown(host_username, (error, result) => {
+		if (error) {
 			res.send({ status: "FAILURE", message: "Unkown error" });
-		}else{
-			res.send({ status: "success", message: result})
+		} else {
+			res.send({ status: "success", message: result });
 		}
-	})
-}
+	});
+};
 
-function getBreakdown(value, callback){
-	const query = mysql.format("SELECT events.event_name, SUM(events.normal_price) AS total_normal_price FROM tickets JOIN events ON tickets.event_id = events.event_id where events.host_username = ? GROUP BY events.event_name;", [
-		value
-	]);
+function getBreakdown(value, callback) {
+	const query = mysql.format(
+		"SELECT events.event_name, SUM(events.normal_price) AS total_normal_price FROM tickets JOIN events ON tickets.event_id = events.event_id where events.host_username = ? GROUP BY events.event_name;",
+		[value],
+	);
 	Model.connection.query(query, function (error, results) {
 		if (error) {
 			callback(error, null);
@@ -1390,23 +1414,23 @@ const get_all_participants = (req, res) => {
 };
 
 module.exports = {
-  get_all_user_tickets,
-  get_ticket_by_id,
-  buy_ticket,
-  bulk_transfer,
-  buy_cinema_ticket,
-  delete_ticket_by_id,
-  verify_ticket,
-  bulk_verify_tickets,
-  get_participants,
-  transfer_ticket,
-  get_transfer_logs,
-  create_ticket_query,
-  redeem_ticket,
-  bulk_redeem,
-  new_ticket_purchase_check,
-  getDailySales,
+	get_all_user_tickets,
+	get_ticket_by_id,
+	buy_ticket,
+	bulk_transfer,
+	buy_cinema_ticket,
+	delete_ticket_by_id,
+	verify_ticket,
+	bulk_verify_tickets,
+	get_participants,
+	transfer_ticket,
+	get_transfer_logs,
+	create_ticket_query,
+	redeem_ticket,
+	bulk_redeem,
+	new_ticket_purchase_check,
+	getDailySales,
 	getMonthSales,
 	breakdown,
-	get_all_participants
+	get_all_participants,
 };

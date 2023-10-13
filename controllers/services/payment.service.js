@@ -30,9 +30,10 @@ class PaymentService {
     username,
     qty,
     is_cinema_ticket = false,
-    seatsChosen,
-    cinema_time,
-    cinema_date
+    seatsChosen = null,
+    cinema_time = null,
+    cinema_date = null,
+    tx_ref
   ) {
     try {
       const time = new Date();
