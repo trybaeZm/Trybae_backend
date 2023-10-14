@@ -7,9 +7,10 @@ const { createMulter } = require("../middleware/multer-upload");
 function getAllEvents(req, res) {
   Model.connection.query("SELECT * FROM events", function (error, results) {
     if (error) {
-      res.send({ status: "FAILURE", message: "Unknown error" });
-    }
-    res.send({ status: "SUCCESS", results: results });
+			res.send({ status: "FAILURE", message: "Unknown error" });
+		} else {
+			res.send({ status: "SUCCESS", results: results });
+		}
   });
 }
 
@@ -19,9 +20,10 @@ function getAllNonFeaturedEvents(req, res) {
 		WHERE event_id NOT IN (SELECT event_id FROM featured_events);`,
     function (error, results) {
       if (error) {
-        res.send({ status: "FAILURE", message: "Unknown error" });
+        return res.send({ status: "FAILURE", message: "Unknown error" });
+      } else {
+        return res.send({ status: "SUCCESS", results: results });
       }
-      res.send({ status: "SUCCESS", results: results });
     }
   );
 }
@@ -33,9 +35,10 @@ function getAllFeaturedEvents(req, res) {
 		ON featured_events.event_id = events.event_id;`,
     function (error, results) {
       if (error) {
-        return res.send({ status: "FAILURE", message: "Unknown error" });
-      }
-      return res.send({ status: "SUCCESS", results: results });
+				return res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				return res.send({ status: "SUCCESS", results: results });
+			}
     }
   );
 }
@@ -423,9 +426,10 @@ function updateEvent(req, res) {
     [event, id],
     function (error, results) {
       if (error) {
-        res.send({ status: "FAILURE", message: "Unknown error" });
-      }
-      res.send({ status: "SUCCESS", results: results });
+				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
+			}
     }
   );
 }
@@ -438,9 +442,10 @@ function deleteEvent(req, res) {
     id,
     function (error, results) {
       if (error) {
-        res.send({ status: "FAILURE", message: "Unknown error" });
-      }
-      res.send({ status: "SUCCESS", results: results });
+				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
+			}
     }
   );
 }

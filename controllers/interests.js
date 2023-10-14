@@ -5,8 +5,9 @@ function getAllInterests(req, res) {
 	Model.connection.query("SELECT * FROM interests", function (error, results) {
 		if (error) {
 			res.send({ status: "FAILURE", message: "Unknown error" });
+		} else {
+			res.send({ status: "SUCCESS", results: results });
 		}
-		res.send({ status: "SUCCESS", results: results });
 	});
 }
 
@@ -19,8 +20,9 @@ function getInterestById(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -34,8 +36,9 @@ function getInterestByName(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -49,8 +52,9 @@ function addInterest(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -65,8 +69,9 @@ function updateInterest(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -79,8 +84,9 @@ function deleteInterest(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }

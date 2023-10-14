@@ -7,8 +7,9 @@ function getAllUserInterests(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -22,8 +23,9 @@ function getUserInterestById(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -37,8 +39,9 @@ function getUserInterestsByUsername(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -76,8 +79,9 @@ function updateUserInterest(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -91,8 +95,9 @@ function deleteUserInterest(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }

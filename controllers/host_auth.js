@@ -23,9 +23,10 @@ const SALT_ROUNDS = 10;
 function getAllHosts(req, res) {
 	Model.connection.query("SELECT * FROM hosts", function (error, results) {
 		if (error) {
-			return res.send({ status: "FAILURE", message: "Unknown error" });
+			res.send({ status: "FAILURE", message: "Unknown error" });
+		} else {
+			res.send({ status: "SUCCESS", results: results });
 		}
-		return res.send({ status: "SUCCESS", results: results });
 	});
 }
 
@@ -34,8 +35,10 @@ const getHostByEmail = (email, cb) => {
 	Model.connection.query(query, [email], (error, results) => {
 		if (error) {
 			return cb(error);
+		} else {
+			
+			cb(null, results[0]);
 		}
-		cb(null, results[0]);
 	});
 };
 
@@ -44,8 +47,10 @@ const getHostByUsername = (username, cb) => {
 	Model.connection.query(query, [username], (error, results) => {
 		if (error) {
 			return cb(error);
+		} else {
+			
+			cb(null, results[0]);
 		}
-		cb(null, results[0]);
 	});
 };
 
@@ -133,8 +138,10 @@ const createHost = (
 					console.log(new Date());
 					console.log(error);
 					return cb(error);
+				} else {
+					
+					cb(null, results);
 				}
-				cb(null, results);
 			},
 		);
 	});
@@ -439,8 +446,10 @@ async function update_verification_status(username, cb) {
 		if (error) {
 			console.log(new Date());
 			return cb(error);
+		} else {
+			
+			cb(null, results);
 		}
-		cb(null, results);
 	});
 }
 
@@ -610,9 +619,10 @@ function updateHost(req, res) {
 		[host, username],
 		function (error, results) {
 			if (error) {
-				return res.send({ status: "FAILURE", message: "Unknown error" });
+				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			return res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }

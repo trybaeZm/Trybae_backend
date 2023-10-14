@@ -9,8 +9,10 @@ const getUserByUsername = (username, cb) => {
 	Model.connection.query(query, [username], (error, results) => {
 		if (error) {
 			return cb(error);
+		} else {
+			
+			cb(null, results[0]);
 		}
-		cb(null, results[0]);
 	});
 };
 
@@ -19,8 +21,10 @@ const getHostByUsername = (username, cb) => {
 	Model.connection.query(query, [username], (error, results) => {
 		if (error) {
 			return cb(error);
+		} else {
+			
+			cb(null, results[0]);
 		}
-		cb(null, results[0]);
 	});
 };
 

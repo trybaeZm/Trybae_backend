@@ -8,10 +8,10 @@ function getAllStoryPosts(req, res) {
 		JOIN hosts h ON sp.username = h.host_username;`,
 		function (error, results) {
 			if (error) {
-				return res.send({ status: "FAILURE", message: "Unknown error" });
+				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-
-			return res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -25,8 +25,9 @@ function getStoryPostById(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -40,8 +41,9 @@ function getStoryPostsByUsername(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -175,11 +177,12 @@ function deleteStoryPost(req, res) {
 							function (error, results) {
 								if (error) {
 									res.send({ status: "FAILURE", message: "Unknown error" });
+								} else {
+									res.send({
+										status: "SUCCESS",
+										message: "Deleted",
+									});
 								}
-								res.send({
-									status: "SUCCESS",
-									message: "Deleted",
-								});
 							},
 						);
 					}

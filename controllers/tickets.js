@@ -44,9 +44,10 @@ const create_ticket_query = (record, cb) => {
 			(error, results) => {
 				if (error) {
 					return cb(error);
+				} else {
+					// Send the results back to the client
+					cb(null, results);
 				}
-				// Send the results back to the client
-				cb(null, results);
 			},
 		);
 	} else {

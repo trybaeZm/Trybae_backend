@@ -8,8 +8,10 @@ const getUserByUsername = (username, cb) => {
 	Model.connection.query(query, [username], (error, results) => {
 		if (error) {
 			return cb(error);
+		} else {
+			
+			cb(null, results[0]);
 		}
-		cb(null, results[0]);
 	});
 };
 
@@ -43,9 +45,11 @@ AND t.ticket_owner = tickets.ticket_owner);
 		(error, results) => {
 			if (error) {
 				return cb(error);
+			} else {
+				
+				// Send the results back to the client
+				cb(null, results);
 			}
-			// Send the results back to the client
-			cb(null, results);
 		},
 	);
 };

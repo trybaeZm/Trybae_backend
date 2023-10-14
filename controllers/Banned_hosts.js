@@ -7,8 +7,9 @@ function getAllBannedHosts(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -22,8 +23,9 @@ function getBannedHostById(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -35,8 +37,10 @@ function getBannedHostByUsername(login, callback) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+
+				callback(results);
 			}
-			callback(results);
 		},
 	);
 }
@@ -50,8 +54,9 @@ function addBannedHost(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -66,8 +71,9 @@ function updateBannedHost(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -81,8 +87,9 @@ function deleteBannedHost(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }

@@ -7,8 +7,9 @@ function getAllBannedUsers(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -22,8 +23,9 @@ function getBannedUserById(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -35,8 +37,10 @@ function getBannedUserByUsername(login, callback) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				
+				callback(results);
 			}
-			callback(results);
 		},
 	);
 }
@@ -49,8 +53,9 @@ function addBannedUser(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -65,8 +70,9 @@ function updateBannedUser(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
@@ -80,8 +86,9 @@ function deleteBannedUser(req, res) {
 		function (error, results) {
 			if (error) {
 				res.send({ status: "FAILURE", message: "Unknown error" });
+			} else {
+				res.send({ status: "SUCCESS", results: results });
 			}
-			res.send({ status: "SUCCESS", results: results });
 		},
 	);
 }
