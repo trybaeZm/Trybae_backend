@@ -46,6 +46,8 @@ const createMulter = (acl, path, prepend, trail) => {
 				contentType: multerS3.AUTO_CONTENT_TYPE,
 			}),
 			fileFilter: function (req, file, done) {
+				console.log(file.mimetype)
+				console.log(file)
 				if (file.mimetype.includes("image")) {
 					// CAN BE REPLACED WITH .startsWith()
 					done(null, true);

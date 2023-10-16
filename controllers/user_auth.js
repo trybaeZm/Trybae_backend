@@ -215,12 +215,15 @@ const login = (req, res) => {
                       auth: false,
                     });
                   }
-                  if (Expo.isExpoPushToken(Expo_push_token)) {
-                    updateUserQuery(
-                      "Expo_push_token",
-                      Expo_push_token,
-                      user.username
-                    );
+
+                  if (Expo_push_token !== null) {
+                    if (Expo.isExpoPushToken(Expo_push_token)) {
+                      updateUserQuery(
+                        "Expo_push_token",
+                        Expo_push_token,
+                        user.username
+                      );
+                    }
                   }
 
                   return res.send({
@@ -403,6 +406,7 @@ const upload_profile_pic = (req, res) => {
   try {
     upload.single("image")(req, res, (err) => {
       if (err) {
+        console.log(err)
         return res.send({ status: "FAILURE", message: `Disallowed file type` });
       }
       if (req.file && req.decoded["username"]) {
