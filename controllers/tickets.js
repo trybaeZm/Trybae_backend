@@ -431,7 +431,7 @@ const buy_ticket = async (req, res) => {
         try {
 					const payment = await paymentService.requestPayment(
 						ticket_owner,
-						ticket_description == undefined || ticket_description == null
+						(ticket_description == undefined || ticket_description == null || ticket_description == "")
 							? "placeholder description"
 							: ticket_description,
 						show_under_participants,
@@ -528,7 +528,9 @@ const buy_cinema_ticket = async (req, res) => {
 						try {
 							const payment = await paymentService.requestPayment(
 								ticket_owner,
-								ticket_description == undefined || ticket_description == null
+								ticket_description == undefined ||
+									ticket_description == null ||
+									ticket_description == ""
 									? "placeholder description"
 									: ticket_description,
 								show_under_participants,
