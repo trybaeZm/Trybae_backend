@@ -116,7 +116,7 @@ class PaymentService {
             ":" +
             ("0" + time.getSeconds()).slice(-2),
           redeemed: false,
-          tx_ref: parsedData.API3G.TransToken[0],
+          tx_ref: tx_ref,
           qty: qty,
         });
       }
