@@ -120,11 +120,12 @@ class PaymentService {
           qty: qty,
         });
       }
+      console.log(parsedData)
 
       const transaction = new mongodb.payments({
         eventId: event_id,
         username,
-        transactionToken: parsedData.API3G.TransToken[0],
+        transactionToken: parsedData?.API3G?.TransToken[0],
         transactionAmount: amount,
         transactionDateAndTime: Date.now(),
         transactionFee: 0,
