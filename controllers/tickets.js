@@ -431,7 +431,9 @@ const buy_ticket = async (req, res) => {
         try {
 					const payment = await paymentService.requestPayment(
 						ticket_owner,
-						ticket_description,
+						ticket_description == undefined || ticket_description == null
+							? "placeholder description"
+							: ticket_description,
 						show_under_participants,
 						event_id,
 						ticket_type,
@@ -442,8 +444,8 @@ const buy_ticket = async (req, res) => {
 						false,
 						null,
 						null,
-            null,
-            tx_ref
+						null,
+						tx_ref,
 					);
 
 					return res.send({
@@ -526,7 +528,9 @@ const buy_cinema_ticket = async (req, res) => {
 						try {
 							const payment = await paymentService.requestPayment(
 								ticket_owner,
-								ticket_description,
+								ticket_description == undefined || ticket_description == null
+									? "placeholder description"
+									: ticket_description,
 								show_under_participants,
 								event_id,
 								ticket_type,
@@ -537,8 +541,8 @@ const buy_cinema_ticket = async (req, res) => {
 								is_cinema_ticket,
 								seatsChosen,
 								cinema_time,
-                cinema_date,
-                tx_ref
+								cinema_date,
+								tx_ref,
 							);
 
 							return res.send({
