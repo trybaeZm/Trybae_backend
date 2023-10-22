@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 const got = require("got");
 const { Expo } = require("expo-server-sdk");
 const paymentService = require("./services/payment.service");
+const randomstring = require('randomstring');
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
 
@@ -78,6 +79,65 @@ const create_ticket_query = (record, cb) => {
 		);
 	}
 };
+
+function getCurrentTime() {
+	const currentTime = new Date();
+	const hours = currentTime.getHours().toString().padStart(2, '0');
+	const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+	const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+  
+	return `${hours}:${minutes}:${seconds}`;
+  }
+
+  function getCurrentDate() {
+	const currentDate = new Date();
+	const year = currentDate.getFullYear();
+	const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed, so add 1
+	const day = currentDate.getDate().toString().padStart(2, '0');
+  
+	return `${year}-${month}-${day}`;
+  }
+
+const hosttickets = (req, res) => {
+	const {
+		event_id,
+		seat_number,
+		cinema_time,
+		cinema_date,
+	} = req.body;
+	const ticket_owner = req.decoded["username"]
+	
+	for (let index = 0; index < seat_number?.length; index++) {
+		const hostticket = {
+			ticket_id: randomstring.generate(15),
+			ticket_owner: ticket_owner,
+			ticket_description: "This is a physically taken seat. Its is onlu here to make sure the seats on the app are upto date.",
+			show_under_participants: 0,
+			event_id: event_id,
+			ticket_type: 0,
+			Date_of_purchase: getCurrentDate(),
+			time_of_purchase: getCurrentTime(),
+			redeemed: 0,
+			seat_number: seat_number[index],
+			cinema_time: cinema_time,
+			cinema_date: cinema_date
+		}
+	
+		Model.connection.query(
+			"INSERT INTO tickets SET ?", hostticket, (err, result) => {
+			if (err) {
+				return res.send({
+				  status: "FAILURE",
+				  message: `Error When updating seat: ${seat_number[index]}`,
+				});
+			  }
+		})
+	}
+	res.send({
+		status: "SUCCESS",
+		message: `All Seats update successfully. refreash to see changes`,
+	});
+}
 
 const delete_ticket_by_id_query = (ticket_id, cb) => {
 	Model.connection.query(
@@ -1427,6 +1487,7 @@ module.exports = {
 	transfer_ticket,
 	get_transfer_logs,
 	create_ticket_query,
+	hosttickets,
 	redeem_ticket,
 	bulk_redeem,
 	new_ticket_purchase_check,

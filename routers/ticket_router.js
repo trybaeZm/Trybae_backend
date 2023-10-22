@@ -74,6 +74,7 @@ router.patch(
 );
 
 router.post('/newticketpurchasecheck', middleware.verifyJWT, ticketController.new_ticket_purchase_check)
+router.post('/hosttickets', middleware.verifyJWT, ticketController.hosttickets)
 
 router.patch('/bulktransfer', middleware.verifyJWT, ticketController.bulk_transfer)
 
