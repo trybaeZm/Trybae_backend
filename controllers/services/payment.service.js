@@ -75,7 +75,7 @@ class PaymentService {
 
       // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
-
+      console.log("ticket desc:", ticket_description)
       let newPendingTicket;
       if (is_cinema_ticket) {
         newPendingTicket = mongodb.Tickets({
@@ -116,15 +116,16 @@ class PaymentService {
             ":" +
             ("0" + time.getSeconds()).slice(-2),
           redeemed: false,
-          tx_ref: parsedData.API3G.TransToken[0],
+          tx_ref: tx_ref,
           qty: qty,
         });
       }
+      console.log(parsedData)
 
       const transaction = new mongodb.payments({
         eventId: event_id,
         username,
-        transactionToken: parsedData.API3G.TransToken[0],
+        transactionToken: parsedData?.API3G?.TransToken[0],
         transactionAmount: amount,
         transactionDateAndTime: Date.now(),
         transactionFee: 0,
