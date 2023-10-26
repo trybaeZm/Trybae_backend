@@ -1,5 +1,5 @@
 const Model = require("../models/TryBae_db");
-const { createMulter } = require("../middleware/multer-upload");
+const { createMulter } = require("../middleware/multer-upload"); 
 
 function getAllStoryPosts(req, res) {
 	Model.connection.query(
