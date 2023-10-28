@@ -135,6 +135,7 @@ class PaymentService {
         transactionFee: 0,
         transactionStatus: "pending",
       });
+
       await newPendingTicket.save();
       const saveTransaction = await transaction.save();
 

@@ -325,7 +325,7 @@ async function verify_transaction_dpo(req, res) {
 
       console.log({ check }, "check");
 
-      if (!check) {
+      if (!checkPayment) {
         // const newTransaction = new mongodb.Transactions({
         //   transaction_ref: response.data.tx_ref,
         //   txn_id: response.data.id,
