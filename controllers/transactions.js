@@ -326,6 +326,7 @@ async function verify_transaction_dpo(req, res) {
       console.log({ check }, "check");
 
       if (!checkPayment) {
+        console.log(!checkPayment, "thats whatsapp!");
         // const newTransaction = new mongodb.Transactions({
         //   transaction_ref: response.data.tx_ref,
         //   txn_id: response.data.id,

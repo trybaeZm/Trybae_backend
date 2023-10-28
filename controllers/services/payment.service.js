@@ -73,6 +73,7 @@ class PaymentService {
       // You can parse the XML response if needed (using xml2js, for example)
       const parsedData = await xml2js.parseStringPromise(responseData);
 
+      const tokenAsReference = parsedData?.API3G?.TransToken[0];
       // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
       console.log("ticket desc:", ticket_description);
@@ -93,7 +94,7 @@ class PaymentService {
             ":" +
             ("0" + time.getSeconds()).slice(-2),
           redeemed: redeemed,
-          tx_ref: tx_ref,
+          tx_ref: tokenAsReference || tx_ref,
           qty: qty,
           seatsChosen: seatsChosen,
           is_cinema_ticket: true,
@@ -118,7 +119,7 @@ class PaymentService {
             ":" +
             ("0" + time.getSeconds()).slice(-2),
           redeemed: false,
-          tx_ref: tx_ref,
+          tx_ref: tokenAsReference || tx_ref,
           qty: qty,
         });
 
