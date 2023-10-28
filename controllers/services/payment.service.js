@@ -75,7 +75,7 @@ class PaymentService {
 
       // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
-      console.log("ticket desc:", ticket_description)
+      console.log("ticket desc:", ticket_description);
       let newPendingTicket;
       if (is_cinema_ticket) {
         newPendingTicket = mongodb.Tickets({
@@ -120,7 +120,7 @@ class PaymentService {
           qty: qty,
         });
       }
-      console.log(parsedData)
+      console.log(parsedData, "passed data");
 
       const transaction = new mongodb.payments({
         eventId: event_id,
@@ -132,7 +132,9 @@ class PaymentService {
         transactionStatus: "pending",
       });
       await newPendingTicket.save();
-      await transaction.save();
+      const saveTransaction = await transaction.save();
+
+      console.log(saveTransaction, "saved transaction <<");
       // Extract the specific values
       const result = {
         Result: parsedData.API3G.Result[0],
