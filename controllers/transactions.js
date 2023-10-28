@@ -312,9 +312,15 @@ async function verify_transaction_dpo(req, res) {
       });
     } else {
       const check = await mongodb.Transactions.findOne({
+        txn_id: transactionToken,
+      });
+
+      // check payments
+      const checkPayment = await mongodb.payments.findOne({
         transactionToken,
       });
 
+      console.log(checkPayment, "new check");
       console.log(transactionToken, "transaction token");
 
       console.log({ check }, "check");
@@ -433,6 +439,7 @@ async function verify_transaction_dpo(req, res) {
                   }
                 );
               } catch (err) {
+                console.log(err, "apa pali issue ");
                 return res.send({
                   status: "FAILURE",
                   message:

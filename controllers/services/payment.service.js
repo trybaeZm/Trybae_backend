@@ -100,6 +100,8 @@ class PaymentService {
           cinema_time: cinema_time,
           cinema_date: cinema_date,
         });
+
+        console.log("created new cinematic ticket");
       } else {
         newPendingTicket = mongodb.Tickets({
           ticket_owner: ticket_owner,
@@ -119,8 +121,10 @@ class PaymentService {
           tx_ref: tx_ref,
           qty: qty,
         });
+
+        console.log("normal pending ticket created jus");
       }
-      console.log(parsedData, "passed data");
+      console.log(parsedData, "passed data after everything");
 
       const transaction = new mongodb.payments({
         eventId: event_id,
