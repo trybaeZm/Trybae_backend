@@ -312,8 +312,10 @@ async function verify_transaction_dpo(req, res) {
       });
     } else {
       const check = await mongodb.Transactions.findOne({
-        txn_id: transactionToken,
+        transactionToken,
       });
+
+      console.log(transactionToken, "transaction token");
 
       console.log({ check }, "check");
 
