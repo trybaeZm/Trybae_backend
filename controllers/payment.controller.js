@@ -15,6 +15,7 @@ const requestPayment = async (req, res) => {
       redeemed = false,
     } = req.body.ticket;
 
+    console.log(req.body, "check for body <<<<");
     const { username } = req.decoded;
     const responseData = await PaymentService.requestPayment(
       ticket_owner,
@@ -65,6 +66,7 @@ const fromPaymentRedirect = async (req, res) => {
 
     const transaction = await PaymentService.DPOVerifyPayment(transactionToken);
 
+    console.log(transaction, "check for transaction");
     if (transaction?.result[0] === "000") {
       // update the transaction status
       await PaymentService.updateTransactionStatus(
