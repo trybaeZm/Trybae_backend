@@ -806,28 +806,28 @@ const bulk_transfer = (req, res) => {
 	} else {
 		getEvent_query("event_id", event_id, (err, found) => {
 			if (!err && found) {
-				Date.prototype.cutHours = function (h) {
-					this.setHours(this.getHours() - h);
-					return this;
-				};
+				// Date.prototype.cutHours = function (h) {
+				// 	this.setHours(this.getHours() - h);
+				// 	return this;
+				// };
 
-				Date.prototype.addHours = function (h) {
-					this.setHours(this.getHours() + h);
-					return this;
-				};
+				// Date.prototype.addHours = function (h) {
+				// 	this.setHours(this.getHours() + h);
+				// 	return this;
+				// };
 
-				let jsDate;
-				let cuthours = 3;
+				// let jsDate;
+				// let cuthours = 0;
 
-				jsDate = new Date(found.event_date);
-				cuthours = 23;
+				// jsDate = new Date(found.event_date);
+				// cuthours = 1;
 
-				if (jsDate.cutHours(cuthours) <= new Date()) {
-					return res.send({
-						status: "FAILURE",
-						message: "Cannot transfer 23 hours before the event",
-					});
-				} else {
+				// if (jsDate.cutHours(cuthours) <= new Date()) {
+				// 	return res.send({
+				// 		status: "FAILURE",
+				// 		message: "Cannot transfer 23 hours before the event",
+				// 	});
+				// } else {
 					const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0`;
 
 					Model.connection.query(
@@ -946,7 +946,7 @@ const bulk_transfer = (req, res) => {
 							}
 						},
 					);
-				}
+				// }
 			} else {
 				return res.send({ status: "FAILURE", message: "Event not found" });
 			}
