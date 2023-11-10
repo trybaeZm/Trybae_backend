@@ -1235,12 +1235,12 @@ const transfer_ticket = (req, res) => {
 							cuthours = 23;
 						}
 
-						// if (jsDate.cutHours(cuthours) <= new Date()) {
-						// 	return res.send({
-						// 		status: "FAILURE",
-						// 		message: `Cannot transfer ${cuthours} hours before the event`,
-						// 	});
-						// } else {
+						if (jsDate.cutHours(cuthours) <= new Date()) {
+							return res.send({
+								status: "FAILURE",
+								message: `Cannot transfer ${cuthours} hours before the event`,
+							});
+						} else {
 							getUserByUsername(transfer_to, (err, result) => {
 								if (!err && result) {
 									try {
@@ -1319,7 +1319,7 @@ const transfer_ticket = (req, res) => {
 								}
 							});
 						}
-					// }
+					}
 				});
 			} else {
 				return res.send({
