@@ -1208,39 +1208,39 @@ const transfer_ticket = (req, res) => {
 			if (!err && result[0] !== undefined && result[0].redeemed == 0) {
 				getEvent_query("event_id", result[0].event_id, (err, found) => {
 					if (!err && found) {
-						Date.prototype.cutHours = function (h) {
-							this.setHours(this.getHours() - h);
-							return this;
-						};
+						// Date.prototype.cutHours = function (h) {
+						// 	this.setHours(this.getHours() - h);
+						// 	return this;
+						// };
 
-						Date.prototype.addHours = function (h) {
-							this.setHours(this.getHours() + h);
-							return this;
-						};
+						// Date.prototype.addHours = function (h) {
+						// 	this.setHours(this.getHours() + h);
+						// 	return this;
+						// };
 
-						let jsDate;
-						let cuthours = 3;
+						// let jsDate;
+						// let cuthours = 3;
 
-						if (result[0].seat_number !== null) {
-							const time = result[0].cinema_time;
-							const date = result[0].cinema_date;
+						// if (result[0].seat_number !== null) {
+						// 	const time = result[0].cinema_time;
+						// 	const date = result[0].cinema_date;
 
-							const [day, month, year] = date.split("/");
-							const [hours, minutes] = time.split(":");
+						// 	const [day, month, year] = date.split("/");
+						// 	const [hours, minutes] = time.split(":");
 
-							jsDate = new Date(year, month - 1, day, hours, minutes);
-							cuthours = 1;
-						} else {
-							jsDate = new Date(found.event_date);
-							cuthours = 1;
-						}
+						// 	jsDate = new Date(year, month - 1, day, hours, minutes);
+						// 	cuthours = 1;
+						// } else {
+						// 	jsDate = new Date(found.event_date);
+						// 	cuthours = 1;
+						// }
 
-						if (jsDate.cutHours(cuthours) <= new Date()) {
-							return res.send({
-								status: "FAILURE",
-								message: `Cannot transfer ${cuthours} hours before the event`,
-							});
-						} else {
+						// if (jsDate.cutHours(cuthours) <= new Date()) {
+						// 	return res.send({
+						// 		status: "FAILURE",
+						// 		message: `Cannot transfer ${cuthours} hours before the event`,
+						// 	});
+						// } else {
 							getUserByUsername(transfer_to, (err, result) => {
 								if (!err && result) {
 									try {
@@ -1319,7 +1319,7 @@ const transfer_ticket = (req, res) => {
 								}
 							});
 						}
-					}
+					// }
 				});
 			} else {
 				return res.send({
