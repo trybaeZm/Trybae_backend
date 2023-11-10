@@ -1229,10 +1229,10 @@ const transfer_ticket = (req, res) => {
 							const [hours, minutes] = time.split(":");
 
 							jsDate = new Date(year, month - 1, day, hours, minutes);
-							cuthours = 3;
+							cuthours = 1;
 						} else {
 							jsDate = new Date(found.event_date);
-							cuthours = 23;
+							cuthours = 1;
 						}
 
 						if (jsDate.cutHours(cuthours) <= new Date()) {
