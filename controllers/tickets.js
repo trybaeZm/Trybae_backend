@@ -419,21 +419,32 @@ const amount_calculator = async (
     let price = 0;
 
     if (!found) {
-      // coupon has a discount_percentage
-      if (coupon && coupon.discount_percentage) {
-        price = normal_price - normal_price * coupon.discount_percentage;
-        return price == 0 ? false : (price *= qty);
+      if (coupon) {
+        const discountPercent = coupon.discount_percentage;
+
+        if (discountPercent) {
+          const discountedPrice = normal_price * (discountPercent / 100);
+          console.log("inside coupon discount");
+          return (price = normal_price - discountedPrice);
+        }
+      } else {
+        console.log("no coupon");
+        return normal_price == 0 ? false : (normal_price *= qty);
+      }
+    } else {
+      if (coupon) {
+        const discountPercent = coupon.discount_percentage;
+
+        if (discountPercent) {
+          console.log("coupon found for ticket type");
+          const discountedPrice = found.ticket_price * (discountPercent / 100);
+          return (price = found.ticket_price - discountedPrice);
+        }
       }
 
-      return normal_price == 0 ? false : (normal_price *= qty);
-    } else {
+      console.log("no coupon for ticket type");
       price = found.ticket_price;
 
-      // coupon has a discount_percentage
-      if (coupon && coupon.discount_percentage) {
-        price = price - price * coupon.discount_percentage;
-        return price == 0 ? false : (price *= qty);
-      }
       return price == 0 ? false : (price *= qty);
     }
   } catch (error) {
@@ -476,6 +487,7 @@ const buy_ticket = async (req, res) => {
         coupon_code
       );
 
+      console.log(amount, "tu amount not showing");
       if (amount == false) {
         return res.send({
           status: "FAILURE",

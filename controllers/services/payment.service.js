@@ -38,6 +38,7 @@ class PaymentService {
     try {
       const time = new Date();
 
+      console.log(amount, "payment amount");
       const xmlData = `<API3G>
       <CompanyToken>${this.companyToken}</CompanyToken>
       <Request>createToken</Request>
@@ -77,7 +78,7 @@ class PaymentService {
       const tokenAsReference = parsedData?.API3G?.TransToken[0];
       // const transactionToken = parsedData.API3G.TransToken[0];
       // Save the transaction details to the database
-      console.log("ticket desc:", ticket_description);
+      // console.log("ticket desc:", ticket_description);
       let newPendingTicket;
       if (is_cinema_ticket) {
         newPendingTicket = mongodb.Tickets({
@@ -103,7 +104,7 @@ class PaymentService {
           cinema_date: cinema_date,
         });
 
-        console.log("created new cinematic ticket");
+        // console.log("created new cinematic ticket");
       } else {
         newPendingTicket = mongodb.Tickets({
           ticket_owner: ticket_owner,
@@ -124,9 +125,9 @@ class PaymentService {
           qty: qty,
         });
 
-        console.log("normal pending ticket created jus");
+        // console.log("normal pending ticket created jus");
       }
-      console.log(parsedData, "passed data after everything");
+      // console.log(parsedData, "passed data after everything");
 
       const transaction = new mongodb.payments({
         eventId: event_id,
@@ -141,7 +142,7 @@ class PaymentService {
       await newPendingTicket.save();
       const saveTransaction = await transaction.save();
 
-      console.log(saveTransaction, "saved transaction <<");
+      // console.log(saveTransaction, "saved transaction <<");
       // Extract the specific values
       const result = {
         Result: parsedData.API3G.Result[0],
@@ -153,7 +154,7 @@ class PaymentService {
 
       return result;
     } catch (error) {
-      console.log(error, "check for error here");
+      // console.log(error, "check for error here");
       throw error;
     }
   }
