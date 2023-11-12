@@ -14,6 +14,36 @@ mongoose.connect(uri, (err) => {
   }
 });
 
+// define a schema for coupons
+const couponSchema = new mongoose.Schema({
+  coupon_code: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  discount_percentage: {
+    type: Number,
+    required: true,
+  },
+  expiration_date: {
+    type: Date,
+    required: true,
+  },
+  usage_limit: {
+    type: Number,
+    required: true,
+  },
+  resource_id: {
+    type: String,
+    required: true,
+  },
+
+  usage_count: {
+    type: Number,
+    default: 0,
+  },
+});
+
 const UserEmailOTPVerificationSchema = new mongoose.Schema({
   userId: String,
   otp: String,
@@ -337,6 +367,7 @@ const newTicketPurchase = mongoose.model(
 );
 
 const payments = mongoose.model("paymentsTable", paymentSchema);
+const Coupon = mongoose.model("Coupon", couponSchema);
 
 module.exports = {
   UserEmailOTPVerification,
@@ -359,4 +390,5 @@ module.exports = {
   CinemaTimes,
   newTicketPurchase,
   payments,
+  Coupon,
 };

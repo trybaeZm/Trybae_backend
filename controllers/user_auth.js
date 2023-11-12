@@ -173,6 +173,7 @@ const change_to_private_profile = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log(req.body, "check for body");
   const { login, password, type, appkey, Expo_push_token = null } = req.body;
 
   if (appkey != process.env.APP_KEY) {
@@ -406,7 +407,7 @@ const upload_profile_pic = (req, res) => {
   try {
     upload.single("image")(req, res, (err) => {
       if (err) {
-        console.log(err)
+        console.log(err);
         return res.send({ status: "FAILURE", message: `Disallowed file type` });
       }
       if (req.file && req.decoded["username"]) {
