@@ -417,35 +417,52 @@ const amount_calculator = async (
 
   try {
     let price = 0;
-
     if (!found) {
-      if (coupon) {
-        const discountPercent = coupon.discount_percentage;
+      const getPrice = normal_price == 0 ? false : (normal_price *= qty);
 
-        if (discountPercent) {
-          const discountedPrice = normal_price * (discountPercent / 100);
-          console.log("inside coupon discount");
-          return (price = normal_price - discountedPrice);
+      if (coupon) {
+        const couponDiscountPercentage = coupon.discount_percentage / 100;
+        if (couponDiscountPercentage > 0 && couponDiscountPercentage < 100) {
+          price = getPrice - getPrice * couponDiscountPercentage;
+
+          console.log(
+            price,
+            "price",
+            getPrice,
+            "getPrice",
+            couponDiscountPercentage,
+            "couponDiscountPercentage"
+          );
+          return price;
+        } else {
+          return getPrice;
         }
-      } else {
-        console.log("no coupon");
-        return normal_price == 0 ? false : (normal_price *= qty);
       }
+
+      return getPrice;
     } else {
-      if (coupon) {
-        const discountPercent = coupon.discount_percentage;
+      price = found.ticket_price;
+      const getPrice = price == 0 ? false : (price *= qty);
 
-        if (discountPercent) {
-          console.log("coupon found for ticket type");
-          const discountedPrice = found.ticket_price * (discountPercent / 100);
-          return (price = found.ticket_price - discountedPrice);
+      if (coupon) {
+        const couponDiscountPercentage = coupon.discount_percentage / 100;
+        if (couponDiscountPercentage > 0 && couponDiscountPercentage < 100) {
+          price = getPrice - getPrice * couponDiscountPercentage;
+
+          console.log(
+            price,
+            "price",
+            getPrice,
+            "getPrice",
+            couponDiscountPercentage,
+            "couponDiscountPercentage"
+          );
+          return price;
+        } else {
+          return getPrice;
         }
       }
-
-      console.log("no coupon for ticket type");
-      price = found.ticket_price;
-
-      return price == 0 ? false : (price *= qty);
+      return getPrice;
     }
   } catch (error) {
     return false;
