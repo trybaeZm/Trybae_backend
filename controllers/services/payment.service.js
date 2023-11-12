@@ -67,6 +67,7 @@ class PaymentService {
       // Make the POST request using axios
       const response = await axios.post(this.DPO_URL, xmlData, { headers });
 
+      clg(response, "response from dpo");
       // Handle the response
       const responseData = response.data;
 
