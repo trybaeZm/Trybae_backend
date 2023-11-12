@@ -113,10 +113,64 @@ const listCouponsForResource = async (req, res) => {
   }
 };
 
+const validateCoupon = async (req, res) => {
+  console.log(req.body, "body");
+  try {
+    const { coupon_code, resource_id: resource_idIfNumberOrString } = req.body;
+    let resource_id;
+    // if resource id a number, convert to string
+    if (typeof resource_idIfNumberOrString === "number") {
+      resource_id = resource_idIfNumberOrString.toString();
+      console.log("made a string");
+    } else {
+      resource_id = resource_idIfNumberOrString;
+      console.log("already a string");
+    }
+
+    // Check if the coupon exists
+    const coupon = await Coupon.findOne({ coupon_code });
+
+    if (!coupon) {
+      return res.status(404).json({ error: "Coupon not found" });
+    }
+
+    // Check if the coupon is still active
+    if (coupon.expiration_date < new Date()) {
+      return res.status(400).json({ error: "Coupon has expired" });
+    }
+
+    console.log(
+      typeof coupon.resource_id,
+      typeof resource_id,
+      "resource_id <<<<<<<<"
+    );
+    // Check if the coupon is for the correct resource
+    if (coupon.resource_id !== resource_id) {
+      return res
+        .status(400)
+        .json({ error: "Coupon is not valid for this resource" });
+    }
+
+    // Check if the coupon can still be used
+    if (coupon.usage_count >= coupon.usage_limit) {
+      return res
+        .status(400)
+        .json({ error: "Coupon usage limit has been reached" });
+    }
+
+    // If all checks pass, the coupon is valid
+    res.json({ message: "Coupon is valid", coupon });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   addCoupon,
   editCoupon,
   viewCoupon,
   deleteCoupon,
   listCouponsForResource,
+  validateCoupon,
 };

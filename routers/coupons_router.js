@@ -11,5 +11,6 @@ router.put("/edit/:couponCode", couponController.editCoupon);
 router.get("/view/:couponCode", couponController.viewCoupon);
 router.delete("/delete/:couponCode", couponController.deleteCoupon);
 router.get("/list/:resourceId", couponController.listCouponsForResource);
+router.post("/validate", couponController.validateCoupon);
 
 module.exports = router;
