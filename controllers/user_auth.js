@@ -173,7 +173,6 @@ const change_to_private_profile = (req, res) => {
 };
 
 const login = (req, res) => {
-  console.log(req.body, "check for body");
   const { login, password, type, appkey, Expo_push_token = null } = req.body;
 
   if (appkey != process.env.APP_KEY) {
@@ -190,6 +189,7 @@ const login = (req, res) => {
     });
   }
 
+  console.log(login, login.length, "login");
   if (type == "username") {
     getUserByUsername(login, (err, user) => {
       if (err) {
@@ -288,7 +288,6 @@ const login = (req, res) => {
                     );
                   }
 
-                  console.log("hit");
                   return res.send({
                     token: middleware.createJWTtoken(user.username),
                     refreshToken: refreshToken,
