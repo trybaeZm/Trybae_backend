@@ -118,9 +118,9 @@ const get_cinema_times_and_dates = async (req, res) => {
 const insert_cinema_times_and_dates = async (req, res) => {
 	const { cinema_id, event_id, cinema_date, cinema_times } = req.body;
 
-	if (req.decoded["privs"] == "admin") {
-		return res.send("insufficient privileges");
-	}
+	// if (req.decoded["privs"] == "admin") {
+	// 	return res.send("insufficient privileges");
+	// }
 
 	if (
 		!cinema_id ||

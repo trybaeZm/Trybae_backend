@@ -10,7 +10,7 @@ const createJWTtoken = (username, privs = "user") => {
 	const JWT_EXPIRATION_TIME =
 		privs === "admin"
 			? Math.floor(date.getTime() / 1000) + 60 * 10 // 10 minutes from now if admin
-			: Math.floor(date.getTime() / 1000) + 60 * 20; // 20 minutes from now if host or user
+			: Math.floor(date.getTime() / 1000) + 60 * 45; // changed it to 45 minutes from now if host or user
 
 	return jwt.sign(
 		{ username, exp: JWT_EXPIRATION_TIME, privs: privs },

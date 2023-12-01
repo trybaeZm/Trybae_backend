@@ -256,6 +256,7 @@ const login = (req, res) => {
 											"host",
 										),
 										refreshToken: refreshToken,
+										user: user.host_username
 									});
 								} else {
 									return res.send({ message: "Incorrect password" });

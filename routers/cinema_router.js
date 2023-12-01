@@ -4,7 +4,7 @@ const middleware = require("../middleware/authtoken");
 
 const router = express.Router();
 
-router.use(middleware.verifyJWT);
+// router.use(middleware.verifyJWT);
 
 router.post('/insertstatic', cinemaController.insert_static)
 router.post('/getcinema', cinemaController.get_cinema)
