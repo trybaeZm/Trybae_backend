@@ -6,6 +6,7 @@ const got = require("got");
 const { Expo } = require("expo-server-sdk");
 const paymentService = require("./services/payment.service");
 const randomstring = require("randomstring");
+const { getUserObjects, sendNotificationToFollowers } = require("./followers");
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
 
@@ -296,6 +297,7 @@ const redeem_ticket_query = (ticket_id, cb) => {
 
 const check_if_redeemed_query = (ticket_id, cb) => {
   let query = `SELECT redeemed from tickets WHERE ticket_id = ?`;
+
   Model.connection.query(query, [ticket_id], (err, result) => {
     if (!err && result) {
       return cb(null, result);
@@ -425,14 +427,6 @@ const amount_calculator = async (
         if (couponDiscountPercentage > 0 && couponDiscountPercentage < 100) {
           price = getPrice - getPrice * couponDiscountPercentage;
 
-          console.log(
-            price,
-            "price",
-            getPrice,
-            "getPrice",
-            couponDiscountPercentage,
-            "couponDiscountPercentage"
-          );
           return price;
         } else {
           return getPrice;
@@ -449,14 +443,6 @@ const amount_calculator = async (
         if (couponDiscountPercentage > 0 && couponDiscountPercentage < 100) {
           price = getPrice - getPrice * couponDiscountPercentage;
 
-          console.log(
-            price,
-            "price",
-            getPrice,
-            "getPrice",
-            couponDiscountPercentage,
-            "couponDiscountPercentage"
-          );
           return price;
         } else {
           return getPrice;
@@ -488,6 +474,7 @@ const buy_ticket = async (req, res) => {
     ticket_type,
     redeemed = false,
     coupon_code = null,
+    is_cinema_ticket = false,
   } = req.body.ticket;
 
   const qty = req.body.qty || 1;
@@ -504,8 +491,7 @@ const buy_ticket = async (req, res) => {
         coupon_code
       );
 
-      console.log(amount, "tu amount not showing");
-      if (amount == false) {
+      if (amount == false && !coupon_code) {
         return res.send({
           status: "FAILURE",
           message:
@@ -535,33 +521,346 @@ const buy_ticket = async (req, res) => {
         }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
 
         try {
-          const payment = await paymentService.requestPayment(
-            ticket_owner,
-            ticket_description == undefined ||
-              ticket_description == null ||
-              ticket_description == ""
-              ? "placeholder description"
-              : ticket_description,
-            show_under_participants,
-            event_id,
-            ticket_type,
-            amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
-            redeemed,
-            req.decoded["username"],
-            qty,
-            false,
-            null,
-            null,
-            null,
-            tx_ref
-          );
+          if (!amount === 0) {
+            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&");
 
-          return res.send({
-            status: "SUCCESS",
-            message: "payment link created",
-            link: payment.paymentLink,
-          });
+            const payment = await paymentService.requestPayment(
+              ticket_owner,
+              ticket_description == undefined ||
+                ticket_description == null ||
+                ticket_description == ""
+                ? "placeholder description"
+                : ticket_description,
+              show_under_participants,
+              event_id,
+              ticket_type,
+              amount + CONVENIENCE_FEE * qty, // convenience cost of K5 per ticket
+              redeemed,
+              req.decoded["username"],
+              qty,
+              false,
+              null,
+              null,
+              null,
+              tx_ref
+            );
+
+            return res.send({
+              status: "SUCCESS",
+              message: "payment link created",
+              link: payment.paymentLink,
+            });
+          } else {
+            let newPendingTicket;
+            if (is_cinema_ticket) {
+              newPendingTicket = mongodb.Tickets({
+                ticket_owner: ticket_owner,
+                ticket_description: ticket_description,
+                show_under_participants:
+                  show_under_participants !== false
+                    ? true
+                    : show_under_participants,
+                ticket_type: ticket_type,
+                event_id: event_id,
+                date_of_purchase: new Date().toISOString().slice(0, 10),
+                time_of_purchase:
+                  ("0" + time.getHours()).slice(-2) +
+                  ":" +
+                  ("0" + time.getMinutes()).slice(-2) +
+                  ":" +
+                  ("0" + time.getSeconds()).slice(-2),
+                redeemed: redeemed,
+                tx_ref: tx_ref,
+                qty: qty,
+                seatsChosen: seatsChosen,
+                is_cinema_ticket: true,
+                cinema_time: cinema_time,
+                cinema_date: cinema_date,
+              });
+
+              // console.log("created new cinematic ticket");
+            } else {
+              const time = new Date();
+              newPendingTicket = mongodb.Tickets({
+                ticket_owner: ticket_owner,
+                ticket_description: ticket_description,
+                show_under_participants:
+                  show_under_participants !== false
+                    ? true
+                    : show_under_participants,
+                ticket_type: ticket_type,
+                event_id: event_id,
+                date_of_purchase: new Date().toISOString().slice(0, 10),
+                time_of_purchase:
+                  ("0" + time.getHours()).slice(-2) +
+                  ":" +
+                  ("0" + time.getMinutes()).slice(-2) +
+                  ":" +
+                  ("0" + time.getSeconds()).slice(-2),
+                redeemed: false,
+                tx_ref: tx_ref,
+                qty: qty,
+              });
+
+              await newPendingTicket.save();
+
+              const Ticket = await mongodb.Tickets.findOne({
+                tx_ref: tx_ref,
+              });
+
+              if (Ticket) {
+                const newTicketPurchase = new mongodb.newTicketPurchase({
+                  userId: Ticket?.ticket_owner,
+                  event_id: Ticket?.event_id,
+                });
+                await newTicketPurchase.save();
+
+                if (Ticket.is_cinema_ticket == true) {
+                  const seatsChosen = Ticket.seatsChosen;
+
+                  let completed = 0;
+                  for (let i = 0; i < Ticket.seatsChosen.length; i++) {
+                    let modifiedTicket = Ticket.toObject();
+
+                    modifiedTicket.seat_number = seatsChosen[i];
+                    // console.log(modifiedTicket, "modifiedTicket");
+                    try {
+                      create_ticket_query(modifiedTicket, (err, results) => {
+                        if (err || !results) {
+                          return res.send({
+                            status: "FAILURE",
+                            message:
+                              "Unknown error, contact support, or try later." +
+                              err,
+                            code: "102",
+                          });
+                        }
+                        completed++;
+                        if (completed == Ticket.seatsChosen.length) {
+                          try {
+                            getUserByUsername(
+                              Ticket?.ticket_owner,
+                              (err, founduser) => {
+                                if (!err && founduser) {
+                                  try {
+                                    if (
+                                      !Expo.isExpoPushToken(
+                                        founduser.Expo_push_token
+                                      )
+                                    ) {
+                                      console.error(
+                                        `Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
+                                      );
+                                    } else {
+                                      messages = [
+                                        {
+                                          to: founduser.Expo_push_token,
+                                          sound: "default",
+                                          badge: 1,
+                                          title: `${completed} Movie Ticket/s 🎫 purchased`,
+                                          body: `Your purchase was successful ✅`,
+                                          data: {
+                                            new: true,
+                                            event_id: Ticket?.event_id,
+                                            is_cinema: true,
+                                            bulk: true,
+                                          },
+                                        },
+                                      ];
+
+                                      (async () => {
+                                        let chunks =
+                                          expo.chunkPushNotifications(messages);
+                                        let tickets = [];
+
+                                        for (let chunk of chunks) {
+                                          let ticketChunk =
+                                            await expo.sendPushNotificationsAsync(
+                                              chunk
+                                            );
+
+                                          tickets.push(...ticketChunk);
+                                          console.log(tickets);
+                                        }
+
+                                        const userFollowersUserNames =
+                                          await mongodb.Followers.find({
+                                            following_id: founduser.username,
+                                          });
+
+                                        const userFollowers =
+                                          await getUserObjects(
+                                            userFollowersUserNames
+                                          );
+
+                                        await sendNotificationToFollowers(
+                                          userFollowers,
+                                          "Fire event",
+                                          founduser.username
+                                        );
+                                      })();
+                                    }
+                                  } catch (err) {
+                                    console.log(err);
+                                  }
+                                }
+                              }
+                            );
+                          } catch (err) {
+                            console.log(err);
+                          }
+
+                          return res.send({
+                            status: "SUCCESS",
+                            message:
+                              "Transaction verified, and all tickets created... ✅",
+                            code: "200",
+                          });
+                        }
+                      });
+                    } catch (err) {
+                      console.log(err, "apa pali issue ");
+                      return res.send({
+                        status: "FAILURE",
+                        message:
+                          "Unknown error, contact support, or try later." + err,
+                        code: "102",
+                      });
+                    }
+                  }
+                } else {
+                  let completed = 0;
+                  for (let i = 0; i < Ticket.qty; i++) {
+                    create_ticket_query(Ticket, (err, results) => {
+                      if (err || !results) {
+                        console.log(err, "err");
+                        console.log("this is not creating a ticker", results);
+                        return res.render("failure", {
+                          transactionToken,
+                        });
+                        // return res.send({
+                        //   status: "FAILURE",
+                        //   message:
+                        //     "Unknown error, contact support, or try later." + err,
+                        //   code: "102",
+                        // });
+                      }
+                      completed++;
+
+                      if (completed == Ticket.qty) {
+                        try {
+                          getUserByUsername(
+                            Ticket?.ticket_owner,
+                            (err, founduser) => {
+                              if (!err && founduser) {
+                                try {
+                                  if (
+                                    !Expo.isExpoPushToken(
+                                      founduser.Expo_push_token
+                                    )
+                                  ) {
+                                    console.error(
+                                      `Push token ${founduser.Expo_push_token} is not a valid Expo push token. Notification to user wont be sent`
+                                    );
+                                  } else {
+                                    messages = [
+                                      {
+                                        to: founduser.Expo_push_token,
+                                        sound: "default",
+                                        badge: 1,
+                                        title: `${completed} Ticket/s 🎫 purchased`,
+                                        body: `Your purchase was successful ✅`,
+                                        data: {
+                                          new: true,
+                                          event_id: Ticket?.event_id,
+                                          is_cinema: false,
+                                          bulk: true,
+                                        },
+                                      },
+                                    ];
+                                    console.log(
+                                      "**************************",
+                                      founduser
+                                    );
+
+                                    (async () => {
+                                      let chunks =
+                                        expo.chunkPushNotifications(messages);
+                                      let tickets = [];
+
+                                      for (let chunk of chunks) {
+                                        let ticketChunk =
+                                          await expo.sendPushNotificationsAsync(
+                                            chunk
+                                          );
+
+                                        tickets.push(...ticketChunk);
+                                        console.log(tickets);
+                                      }
+
+                                      console.log("**************************");
+                                      let eventTitle = "";
+                                      let eventLocation = "";
+                                      // get event details using event_id
+                                      getEvent_query(
+                                        "event_id",
+                                        event_id,
+                                        (err, event) => {
+                                          if (!err && event) {
+                                            eventTitle = event.event_name;
+                                            console.log(event, "event");
+                                          } else {
+                                            console.log(err, "err");
+                                          }
+                                        }
+                                      );
+
+                                      const userFollowersUserNames =
+                                        await mongodb.Followers.find({
+                                          following_id: founduser.username,
+                                        });
+                                      const follwers =
+                                        userFollowersUserNames.map(
+                                          (user) => user.follower_id
+                                        );
+
+                                      const userFollowers =
+                                        await getUserObjects(follwers);
+
+                                      await sendNotificationToFollowers(
+                                        userFollowers,
+                                        eventTitle,
+                                        founduser.username
+                                      );
+                                    })();
+                                  }
+                                } catch (err) {
+                                  console.log(err);
+                                }
+                              }
+                            }
+                          );
+                        } catch (err) {
+                          console.log(err);
+                        }
+
+                        return res.send({
+                          status: "SUCCESS",
+
+                          freeCoupon: true,
+                          message:
+                            "Transaction verified, and all tickets created... ✅",
+                          code: "200",
+                        });
+                      }
+                    });
+                  }
+                }
+              }
+            }
+          }
         } catch (error) {
+          console.log(error, "error");
           return res.send({
             status: "FAILURE",
             message: "An error occurred while making the request.",
@@ -1076,12 +1375,7 @@ const bulk_redeem = (req, res) => {
 const redeem_ticket = (req, res) => {
   const { ticket_id, event_passcode } = req.body;
 
-  if (
-    !ticket_id ||
-    ticket_id == undefined ||
-    ticket_id == null ||
-    !event_passcode
-  ) {
+  if (!ticket_id || ticket_id == undefined || ticket_id == null) {
     return res.send({
       status: "FAILURE",
       message: "Please provide a ticket id and event passcode",
@@ -1111,35 +1405,28 @@ const redeem_ticket = (req, res) => {
                 message: "Error retrieving event",
               });
             }
-            if (event.event_passcode !== event_passcode) {
-              return res.send({
-                status: "FAILURE",
-                message: "Invalid event passcode",
-              });
-            } else {
-              check_if_redeemed_query(ticket_id, (err, result) => {
-                if (result[0]?.redeemed == 0 && !err) {
-                  redeem_ticket_query(ticket_id, (err, results) => {
-                    if (err || !results) {
-                      res.send({
-                        status: "FAILURE",
-                        message: `Unknown error, contact support`,
-                      });
-                    } else {
-                      res.send({
-                        status: "SUCCESS",
-                        message: "Ticket Redeemed successfully",
-                      });
-                    }
-                  });
-                } else {
-                  res.send({
-                    status: "FAILURE",
-                    message: "Ticket already redeemed",
-                  });
-                }
-              });
-            }
+            check_if_redeemed_query(ticket_id, (err, result) => {
+              if (result[0]?.redeemed == 0 && !err) {
+                redeem_ticket_query(ticket_id, (err, results) => {
+                  if (err || !results) {
+                    res.send({
+                      status: "FAILURE",
+                      message: `Unknown error, contact support`,
+                    });
+                  } else {
+                    res.send({
+                      status: "SUCCESS",
+                      message: "Ticket Redeemed successfully",
+                    });
+                  }
+                });
+              } else {
+                res.send({
+                  status: "FAILURE",
+                  message: "Ticket already redeemed",
+                });
+              }
+            });
           });
         }
       }

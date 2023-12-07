@@ -4,6 +4,7 @@ const ticketController = require("./tickets");
 const Flutterwave = require("../middleware/flutterwave");
 const { Expo } = require("expo-server-sdk");
 const paymentService = require("./services/payment.service");
+const { getUserObjects, sendNotificationToFollowers } = require("./followers");
 
 let expo = new Expo({ accessToken: process.env.EXPO_PUSH_ACCESS_TOKEN });
 
@@ -320,36 +321,18 @@ async function verify_transaction_dpo(req, res) {
         transactionToken,
       });
 
-      console.log(checkPayment, "new check");
-      console.log(transactionToken, "transaction token");
-
-      console.log({ check }, "check");
-
       if (checkPayment) {
-        console.log(!checkPayment, "thats whatsapp!");
-        // const newTransaction = new mongodb.Transactions({
-        //   transaction_ref: response.data.tx_ref,
-        //   txn_id: response.data.id,
-        //   transation_status: "verified",
-        //   method_used: response.data.payment_type,
-        //   transaction_amount: response.data.amount,
-        //   transaction_fee: response.data.app_fee,
-        //   transactionDate_and_time: response.data.created_at,
-        // });
-
-        // await newTransaction.save();
-
         const Ticket = await mongodb.Tickets.findOne({
           tx_ref: transactionToken,
         });
 
-        console.log(Ticket, "ticket");
         if (Ticket) {
           const newTicketPurchase = new mongodb.newTicketPurchase({
             userId: Ticket?.ticket_owner,
             event_id: Ticket?.event_id,
           });
           await newTicketPurchase.save();
+
           if (Ticket.is_cinema_ticket == true) {
             const seatsChosen = Ticket.seatsChosen;
 
@@ -416,8 +399,29 @@ async function verify_transaction_dpo(req, res) {
                                         );
 
                                       tickets.push(...ticketChunk);
-                                      console.log(tickets);
                                     }
+                                  })();
+
+                                  (async () => {
+                                    const userFollowersUserNames =
+                                      await mongodb.Followers.find({
+                                        following_id: founduser.username,
+                                      });
+
+                                    const userFollowers = await getUserObjects(
+                                      userFollowersUserNames
+                                    );
+
+                                    console.log(userFollowers, "userFollowers");
+                                    console.log(
+                                      userFollowersUserNames,
+                                      "userFollowersUserNames"
+                                    );
+                                    await sendNotificationToFollowers(
+                                      userFollowers,
+                                      "Fire event",
+                                      founduser.username
+                                    );
                                   })();
                                 }
                               } catch (err) {
