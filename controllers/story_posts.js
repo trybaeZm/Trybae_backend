@@ -9,9 +9,9 @@ function getAllStoryPosts(req, res) {
     function (error, results) {
       if (error) {
         console.log(error.message, "error");
-        res.send({ status: "FAILURE", message: "Unknown error" });
+        res.send({ status: "SUCCESS", message: "Unknown error", results: [] });
       } else {
-        res.send({ status: "SUCCESS", results: results });
+        res.send({ status: "SUCCESS", results });
       }
     }
   );

@@ -16,17 +16,34 @@ function getAllEvents(req, res) {
 }
 
 function getAllNonFeaturedEvents(req, res) {
-  Model.connection.query(
-    `SELECT * FROM events
+  const eventType = req.query.eventType;
+  if (eventType == undefined) {
+    Model.connection.query(
+      `SELECT * FROM events
 		WHERE event_id NOT IN (SELECT event_id FROM featured_events);`,
-    function (error, results) {
-      if (error) {
-        return res.send({ status: "FAILURE", message: "Unknown error" });
-      } else {
-        return res.send({ status: "SUCCESS", results: results });
+      function (error, results) {
+        if (error) {
+          return res.send({ status: "FAILURE", message: "Unknown error" });
+        } else {
+          return res.send({ status: "SUCCESS", results: results });
+        }
       }
-    }
-  );
+    );
+  } else {
+    Model.connection.query(
+      `SELECT * FROM events
+      WHERE event_id NOT IN (SELECT event_id FROM featured_events)
+      AND category = ?;`,
+      [eventType],
+      function (error, results) {
+        if (error) {
+          return res.send({ status: "FAILURE", message: "Unknown error" });
+        } else {
+          return res.send({ status: "SUCCESS", results: results });
+        }
+      }
+    );
+  }
 }
 
 function getAllFeaturedEvents(req, res) {

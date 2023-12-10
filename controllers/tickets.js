@@ -519,11 +519,10 @@ const buy_ticket = async (req, res) => {
         const tx_ref = `user:'${
           req.decoded["username"]
         }_date:${new Date()}_event:${event_id}_qty:${qty}_type:${ticket_type}`;
+        const time = new Date();
 
         try {
-          if (!amount === 0) {
-            console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-
+          if (amount > 0) {
             const payment = await paymentService.requestPayment(
               ticket_owner,
               ticket_description == undefined ||
@@ -577,10 +576,7 @@ const buy_ticket = async (req, res) => {
                 cinema_time: cinema_time,
                 cinema_date: cinema_date,
               });
-
-              // console.log("created new cinematic ticket");
             } else {
-              const time = new Date();
               newPendingTicket = mongodb.Tickets({
                 ticket_owner: ticket_owner,
                 ticket_description: ticket_description,
@@ -778,10 +774,6 @@ const buy_ticket = async (req, res) => {
                                         },
                                       },
                                     ];
-                                    console.log(
-                                      "**************************",
-                                      founduser
-                                    );
 
                                     (async () => {
                                       let chunks =
@@ -798,7 +790,6 @@ const buy_ticket = async (req, res) => {
                                         console.log(tickets);
                                       }
 
-                                      console.log("**************************");
                                       let eventTitle = "";
                                       let eventLocation = "";
                                       // get event details using event_id
@@ -846,10 +837,8 @@ const buy_ticket = async (req, res) => {
 
                         return res.send({
                           status: "SUCCESS",
-
                           freeCoupon: true,
-                          message:
-                            "Transaction verified, and all tickets created... ✅",
+                          message: "Transaction verified ✅",
                           code: "200",
                         });
                       }

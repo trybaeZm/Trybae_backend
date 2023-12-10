@@ -105,8 +105,9 @@ const deleteCoupon = async (req, res) => {
 // Controller to list all available coupons for a specific resource
 const listCouponsForResource = async (req, res) => {
   try {
-    const { resourceType } = req.params;
-    const coupons = await Coupon.find({ coupon_for: resourceType });
+    const { resourceId } = req.params;
+
+    const coupons = await Coupon.find({ resource_id: resourceId });
     res.json(coupons);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve coupons" });
