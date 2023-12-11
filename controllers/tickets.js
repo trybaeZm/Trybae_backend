@@ -1397,12 +1397,13 @@ const getDailySales = async (req, res) => {
 
 // Monthly Sales by ENIGMA
 const getMonthSales = async (req, res) => {
-	const { event_id, startDate, endDate } = req.body;
+	const { host_username, startDate, endDate } = req.body;
 
-	getmonthlySales_query(event_id, startDate, endDate, (error, results) => {
+	getmonthlySales_query(host_username, startDate, endDate, (error, results) => {
 		if (error) {
 			res.send({ status: "FAILURE", message: "Unkown error" });
 		} else {
+			console.log(results)
 			res.send({ status: "SUCCESS", result: results });
 		}
 	});
@@ -1424,7 +1425,7 @@ function getdailySales_query(value, valueTwo, valueThree, callback) {
 
 function getmonthlySales_query(field, fieldTwo, fieldThree, callback) {
 	const query = mysql.format(
-		"SELECT DATE_FORMAT(Date_of_purchase, '%M') AS month_name, COUNT(*) AS monthly_tickets_sold FROM tickets WHERE event_id = ? AND Date_of_purchase >= ? AND Date_of_purchase <= ? GROUP BY month_name ORDER BY month_name;",
+		"SELECT DATE_FORMAT(tickets.Date_of_purchase, '%M') AS month_name, COUNT(*) AS monthly_tickets_sold, events.event_name FROM tickets JOIN events ON tickets.event_id = events.event_id WHERE tickets.event_id in (select event_id from events where host_username = ?) AND tickets.Date_of_purchase >= ? AND tickets.Date_of_purchase <= ? GROUP BY month_name, events.event_name ORDER BY FIELD( month_name, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' );",
 		[field, fieldTwo, fieldThree],
 	);
 	Model.connection.query(query, function (error, results) {
