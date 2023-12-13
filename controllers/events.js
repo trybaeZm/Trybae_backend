@@ -23,6 +23,7 @@ function getAllNonFeaturedEvents(req, res) {
 		WHERE event_id NOT IN (SELECT event_id FROM featured_events);`,
       function (error, results) {
         if (error) {
+          console.log(error, "error");
           return res.send({ status: "FAILURE", message: "Unknown error" });
         } else {
           return res.send({ status: "SUCCESS", results: results });
@@ -37,6 +38,7 @@ function getAllNonFeaturedEvents(req, res) {
       [eventType],
       function (error, results) {
         if (error) {
+          console.log(error, "error");
           return res.send({ status: "FAILURE", message: "Unknown error" });
         } else {
           return res.send({ status: "SUCCESS", results: results });
