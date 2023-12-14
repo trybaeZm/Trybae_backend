@@ -342,6 +342,7 @@ const signup = (req, res) => {
 
   getUserByEmail(email.toLowerCase(), (err, user) => {
     if (err) {
+      console.log(err, "error");
       return res.send({
         status: "FAILURE",
         message: "Error looking up user",
@@ -351,6 +352,7 @@ const signup = (req, res) => {
     if (!user) {
       getUserByUsername(username.toLowerCase(), (err, user) => {
         if (err) {
+          console.log(err, "error");
           return res.send({
             status: "FAILURE",
             message: "Error looking up user",
