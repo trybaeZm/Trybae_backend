@@ -189,6 +189,7 @@ const login = (req, res) => {
     });
   }
 
+  console.log(login, login.length, "login");
   if (type == "username") {
     getUserByUsername(login, (err, user) => {
       if (err) {
@@ -287,7 +288,6 @@ const login = (req, res) => {
                     );
                   }
 
-                  console.log("hit");
                   return res.send({
                     token: middleware.createJWTtoken(user.username),
                     refreshToken: refreshToken,
@@ -342,6 +342,7 @@ const signup = (req, res) => {
 
   getUserByEmail(email.toLowerCase(), (err, user) => {
     if (err) {
+      console.log(err, "error");
       return res.send({
         status: "FAILURE",
         message: "Error looking up user",
@@ -351,6 +352,7 @@ const signup = (req, res) => {
     if (!user) {
       getUserByUsername(username.toLowerCase(), (err, user) => {
         if (err) {
+          console.log(err, "error");
           return res.send({
             status: "FAILURE",
             message: "Error looking up user",
@@ -406,7 +408,7 @@ const upload_profile_pic = (req, res) => {
   try {
     upload.single("image")(req, res, (err) => {
       if (err) {
-        console.log(err)
+        console.log(err);
         return res.send({ status: "FAILURE", message: `Disallowed file type` });
       }
       if (req.file && req.decoded["username"]) {

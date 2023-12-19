@@ -7,25 +7,45 @@ const { createMulter } = require("../middleware/multer-upload");
 function getAllEvents(req, res) {
   Model.connection.query("SELECT * FROM events", function (error, results) {
     if (error) {
-			res.send({ status: "FAILURE", message: "Unknown error" });
-		} else {
-			res.send({ status: "SUCCESS", results: results });
-		}
+      res.send({ status: "FAILURE", message: "Unknown error" });
+    } else {
+      console.log(results, "results");
+      res.send({ status: "SUCCESS", results: results });
+    }
   });
 }
 
 function getAllNonFeaturedEvents(req, res) {
-  Model.connection.query(
-    `SELECT * FROM events
+  const eventType = req.query.eventType;
+  if (eventType == undefined) {
+    Model.connection.query(
+      `SELECT * FROM events
 		WHERE event_id NOT IN (SELECT event_id FROM featured_events);`,
-    function (error, results) {
-      if (error) {
-        return res.send({ status: "FAILURE", message: "Unknown error" });
-      } else {
-        return res.send({ status: "SUCCESS", results: results });
+      function (error, results) {
+        if (error) {
+          console.log(error, "error");
+          return res.send({ status: "FAILURE", message: "Unknown error" });
+        } else {
+          return res.send({ status: "SUCCESS", results: results });
+        }
       }
-    }
-  );
+    );
+  } else {
+    Model.connection.query(
+      `SELECT * FROM events
+      WHERE event_id NOT IN (SELECT event_id FROM featured_events)
+      AND category = ?;`,
+      [eventType],
+      function (error, results) {
+        if (error) {
+          console.log(error, "error");
+          return res.send({ status: "FAILURE", message: "Unknown error" });
+        } else {
+          return res.send({ status: "SUCCESS", results: results });
+        }
+      }
+    );
+  }
 }
 
 function getAllFeaturedEvents(req, res) {
@@ -35,10 +55,10 @@ function getAllFeaturedEvents(req, res) {
 		ON featured_events.event_id = events.event_id;`,
     function (error, results) {
       if (error) {
-				return res.send({ status: "FAILURE", message: "Unknown error" });
-			} else {
-				return res.send({ status: "SUCCESS", results: results });
-			}
+        return res.send({ status: "FAILURE", message: "Unknown error" });
+      } else {
+        return res.send({ status: "SUCCESS", results: results });
+      }
     }
   );
 }
@@ -426,10 +446,10 @@ function updateEvent(req, res) {
     [event, id],
     function (error, results) {
       if (error) {
-				res.send({ status: "FAILURE", message: "Unknown error" });
-			} else {
-				res.send({ status: "SUCCESS", results: results });
-			}
+        res.send({ status: "FAILURE", message: "Unknown error" });
+      } else {
+        res.send({ status: "SUCCESS", results: results });
+      }
     }
   );
 }
@@ -442,37 +462,37 @@ function deleteEvent(req, res) {
     id,
     function (error, results) {
       if (error) {
-				res.send({ status: "FAILURE", message: "Unknown error" });
-			} else {
-				res.send({ status: "SUCCESS", results: results });
-			}
+        res.send({ status: "FAILURE", message: "Unknown error" });
+      } else {
+        res.send({ status: "SUCCESS", results: results });
+      }
     }
   );
 }
 
 function getHostEvents(req, res) {
-	const username = req.decoded["username"]
-	getEvent_querys("host_username", username, (error, results) => {
-		if (error) {
-			res.send({ status: "FAILURE", message: "Unkown error" });
-		} else {
-			res.send({ status: "SUCCESS", result: results });	
-		}
-	});
+  const username = req.decoded["username"];
+  getEvent_querys("host_username", username, (error, results) => {
+    if (error) {
+      res.send({ status: "FAILURE", message: "Unkown error" });
+    } else {
+      res.send({ status: "SUCCESS", result: results });
+    }
+  });
 }
 
 function getEvent_querys(fieldOne, valueOne, callback) {
-	const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
-		fieldOne,
-		valueOne,
-	]);
-	Model.connection.query(query, function (error, results) {
-		if (error) {
-			callback(error, null);
-		} else {
-			callback(null, results);
-		}
-	});
+  const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
+    fieldOne,
+    valueOne,
+  ]);
+  Model.connection.query(query, function (error, results) {
+    if (error) {
+      callback(error, null);
+    } else {
+      callback(null, results);
+    }
+  });
 }
 
 module.exports = {

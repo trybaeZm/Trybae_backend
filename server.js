@@ -40,7 +40,7 @@ const limiter = rateLimit({
 });
 
 app.set("view engine", "pug");
-app.use(express.json({limit: "50mb"}));
+app.use(express.json({ limit: "50mb" }));
 app.use(security.securityMiddleware);
 app.use(
   cors({
@@ -63,7 +63,8 @@ const searchRouter = require("./routers/search_router");
 const fetchProfileRouter = require("./routers/fetchprofile_router");
 const cinemaRouter = require("./routers/cinema_router");
 const paymentRouter = require("./routers/payment.routes");
-const dashboardRouter = require('./routers/dashboard')
+const dashboardRouter = require("./routers/dashboard");
+const couponsRouter = require("./routers/coupons_router");
 
 app.use("/userauth", limiter, userauthRouter);
 app.use("/hostauth", limiter, hostauthRouter);
@@ -79,6 +80,7 @@ app.use("/profiles", limiter, fetchProfileRouter);
 app.use("/cinemas", limiter, cinemaRouter);
 app.use("/payments", limiter, paymentRouter);
 app.use("/dashboard", limiter, dashboardRouter);
+app.use("/coupons", limiter, couponsRouter);
 
 // Test
 app.get("/appcheck", limiter, (req, res) => {
