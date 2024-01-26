@@ -85,7 +85,7 @@ app.use("/coupons", limiter, couponsRouter);
 // Test
 app.get("/appcheck", limiter, (req, res) => {
   return res.send(
-    `<body style='background-color: #000'><h1 style='color: white'>All services runnings ✅</h1></body>`
+    `<body style='background-color: #000'><h1 style='color: white'>All services running ✅</h1></body>`
   );
 });
 
