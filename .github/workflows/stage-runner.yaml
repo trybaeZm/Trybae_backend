@@ -27,6 +27,11 @@ jobs:
       run: |
         bash ./helpers/git_update.sh -v major
 
+    - name: Debug Docker environment
+      run: |
+        docker info
+        docker version
+
     - name: Build, Tag, and Push the Image to Amazon ECR
       id: build-image
       env:
