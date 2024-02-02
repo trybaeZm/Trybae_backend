@@ -1,5 +1,5 @@
 # Specify the base image
-FROM node:18-slim
+FROM node:18
 
 # Set the working directory in the Docker image
 WORKDIR /usr/src/app
@@ -20,5 +20,10 @@ COPY . .
 # Expose the port your app runs on
 EXPOSE 4455
 
-# Define the command to run your app
-CMD ["node", "server.js"]
+# # Define the command to run your app
+# CMD ["node", "server.js"]
+
+
+# echo console.log('Hello, world!') > server.js
+
+CMD ["node", "./server.js"]
