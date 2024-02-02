@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const rateLimit = require("express-rate-limit");
-const security = require("./middleware/Security");
+// const rateLimit = require("express-rate-limit");
+// const security = require("./middleware/Security");
 const morgan = require("morgan");
 const socketIo = require("socket.io");
 
@@ -31,17 +31,17 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
-const limiter = rateLimit({
-  windowMs: 3 * 60 * 1000, // 3 minutes
-  max: 150, // Limit each IP to 150 requests
-  message: { message: "Too many requests, please try again later" },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
+// const limiter = rateLimit({
+//   windowMs: 10 * 60 * 1000, // 3 minutes
+//   max: 150, // Limit each IP to 150 requests
+//   message: { message: "Too many requests, please try again later" },
+//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// });
 
 app.set("view engine", "pug");
 app.use(express.json({ limit: "50mb" }));
-app.use(security.securityMiddleware);
+// app.use(security.securityMiddleware);
 app.use(
   cors({
     origin: "*",
@@ -66,24 +66,24 @@ const paymentRouter = require("./routers/payment.routes");
 const dashboardRouter = require("./routers/dashboard");
 const couponsRouter = require("./routers/coupons_router");
 
-app.use("/userauth", limiter, userauthRouter);
-app.use("/hostauth", limiter, hostauthRouter);
-app.use("/tickets", limiter, ticketRouter);
-app.use("/events", limiter, eventRouter);
-app.use("/stories", limiter, storyRouter);
-app.use("/userinterests", limiter, userInterestRouter);
-app.use("/followers", limiter, followerRouter);
-app.use("/transactions", limiter, transactionRouter);
-app.use("/search", limiter, searchRouter);
-app.use("/tbadmins", limiter, adminauthRouter);
-app.use("/profiles", limiter, fetchProfileRouter);
-app.use("/cinemas", limiter, cinemaRouter);
-app.use("/payments", limiter, paymentRouter);
-app.use("/dashboard", limiter, dashboardRouter);
-app.use("/coupons", limiter, couponsRouter);
+app.use("/userauth", userauthRouter);
+app.use("/hostauth", hostauthRouter);
+app.use("/tickets", ticketRouter);
+app.use("/events", eventRouter);
+app.use("/stories", storyRouter);
+app.use("/userinterests", userInterestRouter);
+app.use("/followers", followerRouter);
+app.use("/transactions", transactionRouter);
+app.use("/search", searchRouter);
+app.use("/tbadmins", adminauthRouter);
+app.use("/profiles", fetchProfileRouter);
+app.use("/cinemas", cinemaRouter);
+app.use("/payments", paymentRouter);
+app.use("/dashboard", dashboardRouter);
+app.use("/coupons", couponsRouter);
 
 // Test
-app.get("/appcheck", limiter, (req, res) => {
+app.get("/appcheck", (req, res) => {
   return res.send(
     `<body style='background-color: #000'><h1 style='color: white'>All services running ✅</h1></body>`
   );
@@ -94,7 +94,7 @@ app.get("/test-payment", (req, res) => {
   return res.send("Done");
 });
 
-app.get("/apiversion", limiter, (req, res) => {
+app.get("/apiversion", (req, res) => {
   return res.send({
     status: "SUCCESS",
     data: process.env.API_VERSION || "v.1.0.0",

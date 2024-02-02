@@ -174,8 +174,12 @@ const change_to_private_profile = (req, res) => {
 
 const login = (req, res) => {
   const { login, password, type, appkey, Expo_push_token = null } = req.body;
+  console.log(appkey, "appkey");
+  console.log(process.env.APP_KEY, "process.env.APP_KEY");
 
   if (appkey != process.env.APP_KEY) {
+    console.log(appkey, "appkey");
+    console.log(process.env.APP_KEY, "process.env.APP_KEY");
     return res.send({
       status: "FAILURE",
       message: "Could not verify integrity of application...",
