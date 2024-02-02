@@ -4,7 +4,9 @@
   "description": "The backend for the trybae app",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [
     "Backend",
@@ -39,5 +41,8 @@
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1",
     "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }
