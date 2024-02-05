@@ -31,3 +31,15 @@ The app can run as a standalone monolith in the beginning of its life to keep co
 
 
 
+windows
+(Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin 355761752959.dkr.ecr.af-south-1.amazonaws.com
+docker build -t trybae .
+docker tag trybae:latest 355761752959.dkr.ecr.af-south-1.amazonaws.com/trybae:latest
+docker push 355761752959.dkr.ecr.af-south-1.amazonaws.com/trybae:latest
+
+
+linux
+aws ecr get-login-password --region af-south-1 | docker login --username AWS --password-stdin 355761752959.dkr.ecr.af-south-1.amazonaws.com
+docker build -t trybae .
+docker tag trybae:latest 355761752959.dkr.ecr.af-south-1.amazonaws.com/trybae:latest
+docker push 355761752959.dkr.ecr.af-south-1.amazonaws.com/trybae:latest
