@@ -10,7 +10,7 @@ const uri =
 mongoose.connect(uri, (err) => {
   if (!err) console.log("Connection to mongo DB Successful! ✅");
   else {
-    console.log("Error connecting to mongo DB ❌");
+    console.log("Error connecting to mongo DB ❌", err);
   }
 });
 
