@@ -4,7 +4,7 @@ mongoose.set("strictQuery", false);
 
 const uri =
   process.env.MODE == "TEST"
-    ? process.env.MONGO_DB_CONNECT_TEST
+    ? process.env.MONGO_DB_CONNECT_PROD
     : process.env.MONGO_DB_CONNECT_PROD;
 
 mongoose.connect(uri, (err) => {

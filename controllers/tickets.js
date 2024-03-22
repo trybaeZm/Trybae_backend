@@ -1372,7 +1372,7 @@ const multi_redeem = (req, res) => {
     ticket_ids.length === 0 ||
     !event_passcode
   ) {
-    return res.send({
+    return res.status(404).send({
       status: "FAILURE",
       message: "Invalid or Missing details",
     });
