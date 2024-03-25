@@ -2,7 +2,7 @@ const mysql = require("mysql2");
 
 const uri =
   process.env.MODE == "TEST"
-    ? process.env.SQL_DATABASE_URL_PROD
+    ? process.env.SQL_DATABASE_URL_TEST
     : process.env.SQL_DATABASE_URL_PROD;
 
 const connection = mysql.createConnection(uri);
