@@ -1361,6 +1361,86 @@ const bulk_redeem = (req, res) => {
   }
 };
 
+const multi_redeem = (req, res) => {
+  const { event_id, ticket_ids = [], event_passcode } = req.body;
+  const username = req.decoded["username"];
+
+  if (
+    !event_id ||
+    !username ||
+    !Array.isArray(ticket_ids) ||
+    ticket_ids.length === 0 ||
+    !event_passcode
+  ) {
+    return res.status(404).send({
+      status: "FAILURE",
+      message: "Invalid or Missing details",
+    });
+  } else {
+    const passcode_check = `SELECT event_passcode FROM events WHERE event_id = ?`;
+
+    try {
+      Model.connection.query(passcode_check, [event_id], (err, results) => {
+        if (!err && results) {
+          if (results[0].event_passcode !== event_passcode) {
+            return res.send({
+              status: "FAILURE",
+              message: "Invalid event passcode",
+            });
+          } else {
+            const query = `SELECT * FROM tickets WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0 AND ticket_id IN (?)`;
+
+            Model.connection.query(
+              query,
+              [event_id, username, ticket_ids],
+              (err, result) => {
+                if (!err && result.length === ticket_ids.length) {
+                  const query2 = `UPDATE tickets SET redeemed = 1 WHERE event_id = ? AND ticket_owner = ? AND redeemed = 0 AND ticket_id IN (?)`;
+
+                  Model.connection.query(
+                    query2,
+                    [event_id, username, ticket_ids],
+                    (err, done) => {
+                      if (!err && done) {
+                        return res.send({
+                          status: "SUCCESS",
+                          message: `Redeemed ${ticket_ids.length} ticket/s for given event`,
+                        });
+                      } else {
+                        console.log(err);
+                        return res.send({
+                          status: "SEMI-FAILURE",
+                          message:
+                            "Error redeeming one of the tickets, maybe try again",
+                        });
+                      }
+                    }
+                  );
+                } else {
+                  return res.send({
+                    status: "FAILURE",
+                    message: "Not all tickets are available for redemption",
+                  });
+                }
+              }
+            );
+          }
+        } else {
+          return res.send({
+            status: "FAILURE",
+            message: "Unable to verify event",
+          });
+        }
+      });
+    } catch (err) {
+      return res.send({
+        status: "FAILURE",
+        message: "Unknown error, contact support",
+      });
+    }
+  }
+};
+
 const redeem_ticket = (req, res) => {
   const { ticket_id, event_passcode } = req.body;
 
@@ -1817,4 +1897,5 @@ module.exports = {
   getMonthSales,
   breakdown,
   get_all_participants,
+  multi_redeem,
 };

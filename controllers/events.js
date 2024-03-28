@@ -252,9 +252,9 @@ async function Update_like_count(req, res) {
 }
 
 // Select event by ID
-function getEventById(req, res) {
-  const id = req.body.id;
-  getEvent_query("event_id", id, (error, results) => {
+async function getEventById(req, res) {
+  const id = req.params.id;
+  await getEvent_query("event_id", id, (error, results) => {
     if (error) {
       res.send({ status: "FAILURE", message: "Unkown error" });
     } else {
@@ -263,7 +263,7 @@ function getEventById(req, res) {
   });
 }
 
-function getEvent_query(field, value, callback) {
+async function getEvent_query(field, value, callback) {
   const query = mysql.format("SELECT * FROM events WHERE ?? = ?", [
     field,
     value,
